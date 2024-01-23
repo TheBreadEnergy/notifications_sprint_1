@@ -7,5 +7,5 @@ class Token(BaseModel):
 
 
 class TokenJti(BaseModel):
-    access_token_jti: str
-    refresh_token_jti: str
+    access_token_jti: str | None
+    refresh_token_jti: str | None

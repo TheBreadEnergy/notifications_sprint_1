@@ -4,6 +4,8 @@ from typing import Type, TypeVar
 
 from redis.asyncio import Redis
 from redis.asyncio.client import Pipeline
+from src.core.config import settings
+from src.schemas.token import TokenJti
 
 ModelType = TypeVar("ModelType")
 
@@ -44,7 +46,6 @@ class RedisCacheService(CacheServiceABC):
         return self._model(**json.loads(document))
 
     async def put(self, *, key: str, value: ModelType):
-        document = value.to_dict()
         await self._client.set(key, json.dumps(value))
 
 
@@ -55,15 +56,20 @@ class RedisTokenStorage(TokenStorageABC):
     async def get_token(self, *, key: str) -> bool:
         return await self._client.get(key)
 
-    async def store_token(
-        self, *, token: str, value: bool, expiration_time: int
-    ) -> None:
+    async def store_token(self, *, token: TokenJti) -> None:
         async def _store_token_inner(pipeline: Pipeline):
-            await pipeline.setex(
-                name=token,
-                time=expiration_time,
-                value=str(value),
-            )
+            if token.access_token_jti:
+                await pipeline.setex(
+                    name=token.access_token_jti,
+                    time=settings.access_expiration_seconds,
+                    value=str(True),
+                )
+            if token.refresh_token_jti:
+                await pipeline.setex(
+                    name=token.refresh_token_jti,
+                    time=settings.refresh_expiration_seconds,
+                    value=str(True),
+                )
 
         await self._client.transaction(_store_token_inner)
 

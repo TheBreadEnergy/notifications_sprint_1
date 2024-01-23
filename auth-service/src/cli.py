@@ -5,7 +5,6 @@ from typing import Annotated
 
 import typer
 import uvicorn
-
 from src.core.config import Roles
 from src.core.logging import LOGGING
 from src.db.postgres import async_session
@@ -60,7 +59,6 @@ async def create_superuser(
             super_admin_user.assign_role(super_admin_role)
             await session.commit()
         except Exception as e:
-            print("Exception")
             await session.rollback()
             raise e
         finally:

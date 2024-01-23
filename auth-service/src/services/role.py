@@ -1,22 +1,21 @@
 from abc import ABC, abstractmethod
-from select import select
-from typing import Any, Type
+from typing import Any
 
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
-
 from src.models.role import Role
 from src.models.user import User
-from src.schemas.result import Result, Error
+from src.schemas.result import Error, GenericResult, Result
 from src.schemas.role import RoleCreateDto, RoleUpdateDto
 from src.schemas.user import UserCreateDto
-from src.services.base import PostgresRepository, SqlAlchemyUnitOfWork, ModelType
+from src.services.base import PostgresRepository, SqlAlchemyUnitOfWork
 
 
 class RoleRepository(PostgresRepository[Role, RoleCreateDto]):
     def __init__(self, session: AsyncSession):
         super().__init__(session=session, model=Role)
 
-    async def get_by_name(self, *, name: str) -> Role:
+    async def get_by_name(self, *, name: str) -> Role | None:
         statement = select(self._model).where(self._model.name == name)
         results = await self._session.execute(statement)
         return results.scalar_one_or_none()
@@ -28,15 +27,15 @@ class RoleServiceABC(ABC):
         ...
 
     @abstractmethod
-    def create_role(self, role: RoleCreateDto) -> Role:
+    def create_role(self, role: RoleCreateDto) -> GenericResult[Role]:
         ...
 
     @abstractmethod
-    def get_role(self, role_id: Any) -> Role | None:
+    def get_role(self, role_id: Any) -> GenericResult[Role]:
         ...
 
     @abstractmethod
-    def update_role(self, role_id: Any, role_dto: RoleUpdateDto) -> Role | None:
+    def update_role(self, role_id: Any, role_dto: RoleUpdateDto) -> GenericResult[Role]:
         ...
 
     @abstractmethod
@@ -56,19 +55,39 @@ class RoleService(RoleServiceABC):
     async def get_roles(self, *, skip: int, limit: int) -> list[Role]:
         return await self._repository.gets(skip=skip, limit=limit)
 
-    async def create_role(self, role: RoleCreateDto) -> Role:
-        role = await self._repository.insert(body=role)
-        await self._uow.commit()
-        return role
+    async def create_role(self, role: RoleCreateDto) -> GenericResult[Role]:
+        role_db = await self._repository.get_by_name(name=role.name)
+        response = GenericResult.failure(
+            Error(error_code="ROLE_ALREADY_EXISTS", reason="Role already exists")
+        )
+        if not role_db:
+            role = await self._repository.insert(body=role)
+            await self._uow.commit()
+            response = GenericResult.success(role)
+        return response
 
-    async def get_role(self, role_id: Any) -> Role | None:
-        return await self._repository.get(entity_id=role_id)
-
-    async def update_role(self, role_id: Any, role_dto: RoleUpdateDto) -> Role | None:
+    async def get_role(self, role_id: Any) -> GenericResult[Role]:
         role = await self._repository.get(entity_id=role_id)
-        role.update_role(**role_dto.model_dump())
-        await self._uow.commit()
-        return role
+        return (
+            GenericResult.success(role)
+            if role
+            else GenericResult.failure(
+                error=Error(error_code="ROLE_NOT_FOUND", reason="Role not found")
+            )
+        )
+
+    async def update_role(
+        self, role_id: Any, role_dto: RoleUpdateDto
+    ) -> GenericResult[Role]:
+        role = await self._repository.get(entity_id=role_id)
+        response = GenericResult.failure(
+            error=Error(error_code="ROLE_NOT_FOUND", reason="Role not found")
+        )
+        if role:
+            role.update_role(**role_dto.model_dump())
+            await self._uow.commit()
+            response = GenericResult.success(role)
+        return response
 
     async def delete_role(self, role_id: Any) -> None:
         await self._repository.delete(entity_id=role_id)
@@ -77,11 +96,11 @@ class RoleService(RoleServiceABC):
 
 class UserRoleServiceABC(ABC):
     @abstractmethod
-    def assign_role_to_user(self, *, user_id: Any, role: Any) -> Result:
+    def assign_role_to_user(self, *, user_id: Any, role_id: Any) -> Result:
         ...
 
     @abstractmethod
-    def remove_role_from_user(self, *, user_id: Any, role: Any) -> Result:
+    def remove_role_from_user(self, *, user_id: Any, role_id: Any) -> Result:
         ...
 
 

@@ -1,16 +1,13 @@
 import datetime
-import re
 from typing import List, Self
 from uuid import uuid4
 
 from passlib.hash import pbkdf2_sha256
-from sqlalchemy import Column, DateTime, String, UUID
-from sqlalchemy.orm import relationship, validates, Mapped
-
+from sqlalchemy import UUID, Column, DateTime, String
+from sqlalchemy.orm import Mapped, relationship
 from src.db.postgres import Base
 from src.models.role import Role
 from src.models.user_history import UserHistory
-from src.models.user_role import UserRole
 
 
 class User(Base):
@@ -59,8 +56,13 @@ class User(Base):
         return f"<User {self.login}>"
 
     def update_personal(
-        self, first_name: str | None, last_name: str | None, email: str | None
+        self,
+        login: str | None,
+        first_name: str | None,
+        last_name: str | None,
+        email: str | None,
     ) -> Self:
+        self.login = login or self.login
         self.first_name = first_name or self.first_name
         self.last_name = last_name or self.last_name
         self.email = email or self.email

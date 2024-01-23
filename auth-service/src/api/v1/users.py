@@ -1,11 +1,17 @@
+import uuid
+from http import HTTPStatus
 from typing import Annotated
+from uuid import UUID
 
-from fastapi import APIRouter, Depends, Query
-
+from fastapi import APIRouter, Depends, HTTPException, Query
 from src.core.config import Roles
-from src.schemas.user import UserDto, UserUpdateDto, UserBase
-from src.services.auth import require_roles, AuthServiceABC
+from src.models.user import User
+from src.schemas.result import GenericResult, Result
+from src.schemas.user import UserBase, UserDto, UserUpdateDto
+from src.services.auth import AuthServiceABC, require_roles
+from src.services.role import UserRoleServiceABC
 from src.services.user import UserServiceABC
+from starlette.responses import JSONResponse
 
 router = APIRouter()
 
@@ -43,13 +49,13 @@ async def get_user_profile(auth_service: AuthServiceABC = Depends()) -> UserDto:
     "/{user_id}",
     description="Вывод информации о пользователе. Требует административных прав",
     response_model=UserDto,
-    tags=["Пользователи", "Администратор"],
+    tags=["Администратор"],
     response_description="Сведения о зарегистрированном пользователе",
     summary="Сведения об учетной записи пользователя. Административный функционал",
 )
 @require_roles([str(Roles.ADMIN), str(Roles.SUPER_ADMIN)])
 async def get_user(
-    user_id: int,
+    user_id: UUID,
     user_service: UserServiceABC = Depends(),
     auth_service: AuthServiceABC = Depends(),
 ):
@@ -70,8 +76,60 @@ async def update_user_profile(
     auth_service: AuthServiceABC = Depends(),
 ) -> UserDto:
     user = await auth_service.get_user()
-    user = await user_service.update_user(user_id=user.id, user_dto=user_info)
+    user: GenericResult[User] = await user_service.update_user(
+        user_id=user.id, user_dto=user_info
+    )
+    if not user.is_success:
+        raise HTTPException(
+            status_code=HTTPStatus.BAD_REQUEST, detail=user.error.reason
+        )
     return user
+
+
+@router.put(
+    "/{user_id}/role/{role_id}",
+    description="Добавление роли пользователю",
+    tags=["Администратор"],
+    summary="Назначение пользователю дополнительной роли",
+)
+@require_roles([str(Roles.ADMIN), str(Roles.SUPER_ADMIN)])
+async def assign_role_to_user(
+    user_id: uuid.UUID,
+    role_id: uuid.UUID,
+    user_role_service: UserRoleServiceABC = Depends(),
+    auth_service: AuthServiceABC = Depends(),
+):
+    result: Result = await user_role_service.assign_role_to_user(
+        user_id=user_id, role_id=role_id
+    )
+    if not result.is_success:
+        raise HTTPException(
+            status_code=HTTPStatus.BAD_REQUEST, detail=result.error.reason
+        )
+    return JSONResponse(status_code=HTTPStatus.OK, content={})
+
+
+@router.delete(
+    "/{user_id}/role/{role_id}",
+    description="Отобрать роль у пользователя",
+    tags=["Администратор"],
+    summary="Отобрать роль у пользователя",
+)
+@require_roles([str(Roles.ADMIN), str(Roles.SUPER_ADMIN)])
+async def remove_role_from_user(
+    user_id: uuid.UUID,
+    role_id: uuid.UUID,
+    user_role_service: UserRoleServiceABC = Depends(),
+    auth_service: AuthServiceABC = Depends(),
+):
+    result: Result = await user_role_service.remove_role_from_user(
+        user_id=user_id, role_id=role_id
+    )
+    if not result.is_success:
+        raise HTTPException(
+            status_code=HTTPStatus.BAD_REQUEST, detail=result.error.reason
+        )
+    return JSONResponse(status_code=HTTPStatus.OK, content={})
 
 
 @router.delete(
@@ -92,11 +150,11 @@ async def delete_user_profile(
     "/{user_id}",
     description="Удаление учетной записи пользователя. Требуются права администратора.",
     summary="Удаление учетной записи пользователя",
-    tags=["Пользователь", "Администратор"],
+    tags=["Администратор"],
 )
 @require_roles([str(Roles.ADMIN), str(Roles.SUPER_ADMIN)])
 async def delete_user(
-    user_id: int,
+    user_id: UUID,
     user_service: UserServiceABC = Depends(),
     auth_service: AuthServiceABC = Depends(),
 ):

@@ -5,7 +5,6 @@ from fastapi.encoders import jsonable_encoder
 from pydantic import BaseModel
 from sqlalchemy import delete, select
 from sqlalchemy.ext.asyncio import AsyncSession
-
 from src.db.postgres import Base
 from src.services.cache import CacheServiceABC
 
@@ -111,7 +110,7 @@ class CachedRepository(
             entity = await self._repository.get_by_name(name=name)
         return entity
 
-    async def insert(self, *, body: CreateSchemaType):
+    async def insert(self, *, body: CreateSchemaType) -> ModelType:
         return await self._repository.insert(body=body)
 
     async def delete(self, *, entity_id: Any):

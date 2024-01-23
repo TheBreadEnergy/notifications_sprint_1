@@ -1,4 +1,3 @@
-import dataclasses
 import os
 from enum import Enum
 
@@ -37,9 +36,17 @@ class Settings(BaseSettings):
     refresh_expiration_seconds: int = Field(
         3600, alias="REFRESH_EXPIRATION_SECONDS", env="REFRESH_EXPIRATION_SECONDS"
     )
-    authjwt_secret_key: str = "secret"
+    authjwt_secret_key: str = Field(
+        "secret", alias="JWT_SECRET_KEY", env="JWT_SECRET_KEY"
+    )
     authjwt_denylist_enabled: bool = False
     authjwt_denylist_token_checks: set = {"access", "refresh"}
+    authjwt_access_token_expires: int = Field(
+        120, alias="JWT_ACCESS_EXP_TIME", env="JWT_ACCESS_EXP_TIME"
+    )  # 2 minutes
+    authjwt_refresh_token_expires: int = Field(
+        600, alias="JWT_REFRESH_EXP_TIME", env="JWT_REFRESH_EXP_TIME"
+    )  # 5 minutes
 
 
 settings = Settings()

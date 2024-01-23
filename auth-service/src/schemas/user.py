@@ -1,5 +1,4 @@
 from pydantic import BaseModel
-
 from src.schemas.base import IdentifiableMixin
 from src.schemas.role import RoleBase
 
@@ -12,7 +11,7 @@ class UserBase(IdentifiableMixin):
 
 
 class UserDto(UserBase):
-    roles: list[RoleBase]
+    roles: list[RoleBase] | None
 
 
 class UserCreateDto(BaseModel):
@@ -24,6 +23,7 @@ class UserCreateDto(BaseModel):
 
 
 class UserUpdateDto(BaseModel):
+    login: str | None
     first_name: str | None
     last_name: str | None
     email: str | None
