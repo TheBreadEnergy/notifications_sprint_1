@@ -1,0 +1,23 @@
+@startuml
+!include https://raw.githubusercontent.com/adrianvlupu/C4-PlantUML/latest/C4_Container.puml
+
+LAYOUT_WITH_LEGEND()
+
+Person(pfsu, "Personal Film Service User", "A customer of the film portal, with personal accounts.")
+System_Boundary(fs, "Film service") {
+    Container(spa, "Single Page Application", "javascript and angular", "Provides all the fim service functionality to customers via their web browser.")
+    Container(film_api, "Film Application", "python, fastapi", "Provides all functionality for fetching and manipulating films")
+    Container(rdb, "User Database", "Relational Database Schema", "Stores user registration information, hashed authentication credentials, access logs, etc.")
+    Container(edb, "Film Information Database", "Elasticsearch", "Stores film information neccessary for the end user" )
+    Container(rdb1, "Film Database", "Relational Database Schema", "Stores film, actors and genre information")
+    Container(redis, "Cache and Persistance Storage", "Redis", "Stores cached data and invalid user tokens")
+    Rel(film_api, rdb, "Reads & writes to", "asyncpg (postgres)")
+    Rel(film_api, redis, "Cache and persist data [Redis]")
+    Rel(film_api, edb, "Reads from", "elasticsearch")
+    Rel(rdb1, edb , "ETL process for accessing to fast full text search")
+    Rel(spa, film_api, "Make requests via", "JSON/HTTPS")
+}
+Container(s3_storage, "File storage", "Minio", "Stores files in s3 object storage")
+Rel(pfsu, spa, "Views information about films, genres, persons and files using")
+Rel(film_api, s3_storage, "Save files using http protocol")
+@enduml

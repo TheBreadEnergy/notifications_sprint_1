@@ -1,0 +1,15 @@
+annotated-types==0.6.0
+backoff==2.2.1
+certifi==2023.7.22
+elastic-transport==8.4.1
+elasticsearch==8.10.1
+isort==5.12.0
+psycopg==3.1.12
+psycopg-binary==3.1.12
+pydantic==2.4.2
+pydantic-settings==2.0.3
+pydantic_core==2.10.1
+python-dotenv==1.0.0
+redis==5.0.1
+typing_extensions==4.8.0
+urllib3==1.26.18
