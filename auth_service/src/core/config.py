@@ -21,15 +21,12 @@ class Settings(BaseSettings):
     version: str = Field("1.0.0", alias="VERSION", env="VERSION")
     cache_host: str = Field("localhost", alias="CACHE_HOST", env="REDIS_HOST")
     cache_port: int = Field("6379", alias="CACHE_PORT", env="CACHE_PORT")
-    token_host: str = Field("localhost", alias="TOKEN_HOST", env="TOKEN_HOST")
-    token_port: int = Field("6379", alias="TOKEN_PORT", env="TOKEN_PORT")
     base_dir: str = os.path.join(os.path.dirname(os.path.abspath(__file__)))
     postgres_conn: PostgresDsn = Field(
         "postgresql+asyncpg://app:123qwe@localhost:5432/users",
         alias="DATABASE_CONN",
         env="DATABASE_CONN",
     )
-    secret: str = Field("secret", alias="SECRET_KEY", env="SECRET_KEY")
     access_expiration_seconds: int = Field(
         3600, alias="ACCESS_EXPIRATION_SECONDS", env="EXPIRATION_SECONDS"
     )

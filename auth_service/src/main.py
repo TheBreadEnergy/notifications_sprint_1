@@ -2,7 +2,6 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 from fastapi.responses import ORJSONResponse
-from fastapi.security import OAuth2PasswordBearer
 from redis.asyncio import Redis
 from src.api.v1 import accounts, roles, users
 from src.cli import cli
@@ -29,9 +28,8 @@ app = FastAPI(
     version=settings.version,
     lifespan=lifespan,
 )
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
-app.include_router(accounts.router, prefix="/api/v1/account", tags=["Пользователи"])
+app.include_router(accounts.router, prefix="/api/v1/accounts", tags=["Пользователи"])
 app.include_router(roles.router, prefix="/api/v1/roles", tags=["Роли"])
 app.include_router(users.router, prefix="/api/v1/users", tags=["Пользователи"])
 

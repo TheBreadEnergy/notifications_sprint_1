@@ -13,6 +13,18 @@ services:
       - "8000"
     restart: unless-stopped
 
+  auth-api:
+    build: auth_service
+    image: app-auth-api:dev
+    depends_on:
+      - redis-auth
+      - postgres-auth
+    env_file:
+      - envs/.env.api.auth
+    ports:
+      - "8003:8000"
+    restart: unless-stopped
+
   film-api:
     build: filmwork_service
     image: app-film-api:dev
@@ -44,6 +56,12 @@ services:
     volumes:
       - films-cache:/data
 
+  redis-auth:
+    image: redis:latest
+    restart: unless-stopped
+    volumes:
+      - auth-cache:/data
+
 
   proxy:
     build: ./nginx/
@@ -60,16 +78,19 @@ services:
     image: app-postgres
     env_file:
       - envs/.env.database
-    ports:
-      - "5432:5432"
     volumes:
       - postgres-data:/var/lib/postgresql/data
+
+  postgres-auth:
+    image: postgres:latest
+    env_file:
+      - envs/.env.database.auth
+    volumes:
+      - auth-data:/var/lib/postgresql/data
 
   redis:
     image: redis:latest
     restart: unless-stopped
-    ports:
-      - "6379:6379"
     volumes:
       - redis-data:/data
 
@@ -110,10 +131,12 @@ services:
 
 volumes:
   static:
+  auth-data:
   postgres-data:
   redis-data:
   elastic-data:
   films-cache:
   pg-cache:
+  auth-cache:
   minio_storage:
 
