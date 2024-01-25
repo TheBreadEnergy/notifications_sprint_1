@@ -12,6 +12,7 @@ distlib==0.3.8
 elastic-transport==8.10.0
 elasticsearch==8.11.0
 elasticsearch-faker==0.3.0
+email-validator==2.1.0.post1
 envinfopy==0.2.0
 Faker==18.13.0
 fastapi==0.100.1
