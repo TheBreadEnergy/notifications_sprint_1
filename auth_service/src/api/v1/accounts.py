@@ -8,7 +8,7 @@ from src.schemas.result import GenericResult
 from src.schemas.token import Token
 from src.schemas.user import UserBase, UserCreateDto
 from src.services.auth import AuthServiceABC
-from src.services.user import UserHistoryServiceABC, UserServiceABC
+from src.services.user import UserServiceABC
 from starlette.responses import JSONResponse
 
 router = APIRouter()
@@ -44,14 +44,12 @@ async def register(
 async def login(
     user_login: UserLoginDto,
     user_agent: Annotated[str | None, Header()] = None,
-    user_history_service: UserHistoryServiceABC = Depends(),
     auth: AuthServiceABC = Depends(),
 ):
     token: GenericResult[Token] = await auth.login(
         login=user_login.login,
         password=user_login.password,
         user_agent=user_agent,
-        user_history_service=user_history_service,
     )
     if not token.is_success:
         raise HTTPException(

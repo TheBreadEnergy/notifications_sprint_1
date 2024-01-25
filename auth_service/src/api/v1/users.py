@@ -10,7 +10,7 @@ from src.schemas.result import GenericResult, Result
 from src.schemas.user import UserBase, UserDto, UserHistoryDto, UserUpdateDto
 from src.services.auth import AuthServiceABC, require_roles
 from src.services.role import UserRoleServiceABC
-from src.services.user import UserHistoryServiceABC, UserServiceABC
+from src.services.user import UserServiceABC
 from starlette.responses import JSONResponse
 
 router = APIRouter()
@@ -42,7 +42,8 @@ async def get_users(
     summary="Сведения об учетной записи пользователя",
 )
 async def get_user_profile(auth_service: AuthServiceABC = Depends()) -> UserDto:
-    return await auth_service.get_user()
+    result = await auth_service.get_user()
+    return result
 
 
 @router.get(
@@ -54,14 +55,16 @@ async def get_user_profile(auth_service: AuthServiceABC = Depends()) -> UserDto:
     summary="Вывод истории авторизаций пользователя",
 )
 async def get_user_profile_history(
-    user_history_service: UserHistoryServiceABC = Depends(),
+    user_service: UserServiceABC = Depends(),
     auth_service: AuthServiceABC = Depends(),
+    skip: Annotated[int, Query(description="Items to skip", ge=0)] = 0,
+    limit: Annotated[int, Query(description="Pagination page size", ge=1)] = 10,
 ):
     user = await auth_service.get_user()
-    result = await user_history_service.get_user_history(user_id=user.id)
-    if not result.is_success:
-        raise HTTPException(status_code=400, detail=result.error.reason)
-    return result.response
+    result = await user_service.get_user_history(
+        user_id=user.id, skip=skip, limit=limit
+    )
+    return result
 
 
 @router.get(
@@ -75,13 +78,16 @@ async def get_user_profile_history(
 @require_roles([str(Roles.ADMIN), str(Roles.SUPER_ADMIN)])
 async def get_user_history(
     user_id: uuid.UUID,
-    user_history_service: UserHistoryServiceABC = Depends(),
+    skip: Annotated[int, Query(description="Items to skip", ge=0)] = 0,
+    limit: Annotated[int, Query(description="Pagination page size", ge=1)] = 10,
+    user_service: UserServiceABC = Depends(),
     auth_service: AuthServiceABC = Depends(),
 ):
-    result = await user_history_service.get_user_history(user_id=user_id)
-    if not result.is_success:
-        raise HTTPException(status_code=400, detail=result.error.reason)
-    return result.response
+    result = await user_service.get_user_history(
+        user_id=user_id, skip=skip, limit=limit
+    )
+    print(result)
+    return result
 
 
 @router.get(
@@ -97,8 +103,11 @@ async def get_user(
     user_id: UUID,
     user_service: UserServiceABC = Depends(),
     auth_service: AuthServiceABC = Depends(),
-):
-    return await user_service.get_user(user_id=user_id)
+) -> User:
+    user: GenericResult[User] = await user_service.get_user(user_id=user_id)
+    if not user.is_success:
+        raise HTTPException(status_code=400, detail=user.error.reason)
+    return user.response
 
 
 @router.put(
@@ -115,14 +124,14 @@ async def update_user_profile(
     auth_service: AuthServiceABC = Depends(),
 ) -> UserDto:
     user = await auth_service.get_user()
-    user: GenericResult[User] = await user_service.update_user(
+    user_result: GenericResult[User] = await user_service.update_user(
         user_id=user.id, user_dto=user_info
     )
-    if not user.is_success:
+    if not user_result.is_success:
         raise HTTPException(
             status_code=HTTPStatus.BAD_REQUEST, detail=user.error.reason
         )
-    return user
+    return user_result.response
 
 
 @router.put(
@@ -175,14 +184,15 @@ async def remove_role_from_user(
     "/profile",
     description="Удаление аккаунта пользователя",
     summary="Удаление учетной записи пользователя",
-    tags=["Пользователь"],
+    tags=["Пользователи"],
 )
 async def delete_user_profile(
     user_service: UserServiceABC = Depends(), auth_service: AuthServiceABC = Depends()
 ):
     user = await auth_service.get_user()
     await user_service.delete_user(user_id=user.id)
-    return await auth_service.logout()
+    await auth_service.logout()
+    return JSONResponse(status_code=HTTPStatus.OK, content={})
 
 
 @router.delete(
@@ -197,4 +207,5 @@ async def delete_user(
     user_service: UserServiceABC = Depends(),
     auth_service: AuthServiceABC = Depends(),
 ):
-    return await user_service.delete_user(user_id=user_id)
+    await user_service.delete_user(user_id=user_id)
+    return JSONResponse(status_code=HTTPStatus.OK, content={})

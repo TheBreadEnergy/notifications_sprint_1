@@ -39,10 +39,10 @@ class Settings(BaseSettings):
     authjwt_denylist_enabled: bool = False
     authjwt_denylist_token_checks: set = {"access", "refresh"}
     authjwt_access_token_expires: int = Field(
-        120, alias="JWT_ACCESS_EXP_TIME", env="JWT_ACCESS_EXP_TIME"
+        3600, alias="JWT_ACCESS_EXP_TIME", env="JWT_ACCESS_EXP_TIME"
     )  # 2 minutes
     authjwt_refresh_token_expires: int = Field(
-        600, alias="JWT_REFRESH_EXP_TIME", env="JWT_REFRESH_EXP_TIME"
+        3600, alias="JWT_REFRESH_EXP_TIME", env="JWT_REFRESH_EXP_TIME"
     )  # 5 minutes
 
 

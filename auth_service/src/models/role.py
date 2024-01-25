@@ -12,7 +12,10 @@ class Role(Base):
     name = Column(String(100), index=True, nullable=False)
     description = Column(Text)
     users = relationship(
-        "User", secondary=UserRole.__tablename__, back_populates="roles"
+        "User",
+        secondary=UserRole.__tablename__,
+        back_populates="roles",
+        cascade="all, delete",
     )
 
     def __init__(self, name: str, description: str):

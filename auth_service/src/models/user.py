@@ -21,10 +21,13 @@ class User(Base):
     last_name = Column(String(50))
     email = Column(String(255))
     roles: Mapped[List["Role"]] = relationship(
-        "Role", secondary=UserRole.__tablename__, back_populates="users"
+        "Role",
+        secondary=UserRole.__tablename__,
+        back_populates="users",
+        cascade="all, delete",
     )
     history: Mapped[List["UserHistory"]] = relationship(
-        "UserHistory", back_populates="user"
+        "UserHistory", back_populates="user", cascade="all, delete-orphan"
     )
     created = Column(
         DateTime(timezone=True), default=datetime.datetime.now(datetime.UTC)
@@ -74,7 +77,8 @@ class User(Base):
         return Self
 
     def assign_role(self, role: Role):
-        self.roles.append(role)
+        if not self.has_role(role.name):
+            self.roles.append(role)
 
     def remove_role(self, role: Role) -> None:
         if role in self.roles:

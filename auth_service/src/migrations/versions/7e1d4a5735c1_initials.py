@@ -1,8 +1,8 @@
-"""Initial
+"""Initials
 
-Revision ID: a029ec874b18
+Revision ID: 7e1d4a5735c1
 Revises: 
-Create Date: 2024-01-24 13:39:33.761922
+Create Date: 2024-01-26 00:16:19.221236
 
 """
 from typing import Sequence, Union
@@ -11,7 +11,7 @@ import sqlalchemy as sa
 from alembic import op
 
 # revision identifiers, used by Alembic.
-revision: str = "a029ec874b18"
+revision: str = "7e1d4a5735c1"
 down_revision: Union[str, None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
@@ -45,27 +45,18 @@ def upgrade() -> None:
         "user_history",
         sa.Column("id", sa.UUID(), nullable=False),
         sa.Column("user_id", sa.UUID(), nullable=False),
-        sa.Column("attempted", sa.DateTime(), nullable=True),
+        sa.Column("attempted", sa.DateTime(timezone=True), nullable=True),
         sa.Column("user_agent", sa.String(length=255), nullable=True),
         sa.Column("success", sa.Boolean(), nullable=False),
-        sa.ForeignKeyConstraint(
-            ["user_id"],
-            ["users.id"],
-        ),
+        sa.ForeignKeyConstraint(["user_id"], ["users.id"], ondelete="CASCADE"),
         sa.PrimaryKeyConstraint("id"),
     )
     op.create_table(
         "user_roles",
         sa.Column("user_id", sa.UUID(), nullable=False),
         sa.Column("role_id", sa.UUID(), nullable=False),
-        sa.ForeignKeyConstraint(
-            ["role_id"],
-            ["roles.id"],
-        ),
-        sa.ForeignKeyConstraint(
-            ["user_id"],
-            ["users.id"],
-        ),
+        sa.ForeignKeyConstraint(["role_id"], ["roles.id"], ondelete="CASCADE"),
+        sa.ForeignKeyConstraint(["user_id"], ["users.id"], ondelete="CASCADE"),
         sa.PrimaryKeyConstraint("user_id", "role_id"),
         sa.UniqueConstraint("user_id", "role_id", name="unique_user_role"),
     )

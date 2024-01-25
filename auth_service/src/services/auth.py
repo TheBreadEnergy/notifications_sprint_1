@@ -9,22 +9,15 @@ from fastapi import HTTPException
 from src.models.user import User
 from src.schemas.result import Error, GenericResult
 from src.schemas.token import Token, TokenJti
-from src.schemas.user import UserCreateDto, UserHistoryCreateDto
-from src.services.base import PostgresRepository
+from src.schemas.user import UserHistoryCreateDto
 from src.services.cache import TokenStorageABC
-from src.services.user import UserHistoryServiceABC
-from starlette.responses import JSONResponse
+from src.services.user import UserServiceABC
 
 
 class AuthServiceABC(ABC):
     @abstractmethod
     def login(
-        self,
-        *,
-        login: str,
-        password: str,
-        user_agent: str,
-        user_history_service: UserHistoryServiceABC
+        self, *, login: str, password: str, user_agent: str
     ) -> GenericResult[Token]:
         ...
 
@@ -45,7 +38,7 @@ class AuthServiceABC(ABC):
         ...
 
     @abstractmethod
-    def get_user(self) -> User:
+    def get_user(self) -> User | None:
         ...
 
 
@@ -54,11 +47,11 @@ class AuthService(AuthServiceABC):
         self,
         auth_jwt_service: AuthJWT,
         token_storage: TokenStorageABC,
-        user_repository: PostgresRepository[User, UserCreateDto],
+        user_service: UserServiceABC,
     ):
         self._auth_jwt_service = auth_jwt_service
         self._token_storage = token_storage
-        self._user_repository = user_repository
+        self._user_service = user_service
 
     async def _generate_token(self, user_id: Any):
         access_token = await self._auth_jwt_service.create_access_token(subject=user_id)
@@ -89,9 +82,8 @@ class AuthService(AuthServiceABC):
         login: str,
         password: str,
         user_agent: str,
-        user_history_service: UserHistoryServiceABC
     ) -> GenericResult[Token]:
-        user = await self._user_repository.get_by_name(name=login)
+        user = await self._user_service.get_user_by_login(login=login)
         if not user or not user.check_password(password):
             return GenericResult.failure(
                 error=Error(
@@ -105,8 +97,8 @@ class AuthService(AuthServiceABC):
             user_agent=user_agent,
             success=True,
         )
-        _ = await user_history_service.insert_user_history(
-            user_id=user.id, user_history=user_history
+        _ = await self._user_service.insert_user_login(
+            user_id=user.id, history_row=user_history
         )
         return GenericResult.success(await self._generate_token(user_id=str(user.id)))
 
@@ -135,11 +127,13 @@ class AuthService(AuthServiceABC):
     async def optional_auth(self):
         return await self._auth_jwt_service.jwt_optional()
 
-    async def get_user(self) -> User:
+    async def get_user(self) -> User | None:
         await self.require_auth()
         user_subject = await self._auth_jwt_service.get_jwt_subject()
-        user = await self._user_repository.get(entity_id=user_subject)
-        return user
+        user: GenericResult[User] = await self._user_service.get_user(
+            user_id=user_subject
+        )
+        return user.response
 
 
 def require_roles(roles: list[str]):
@@ -148,12 +142,12 @@ def require_roles(roles: list[str]):
         async def wrapper(*args, **kwargs):
             auth_service = kwargs["auth_service"]
             current_user: User = await auth_service.get_user()
+            if not current_user:
+                raise HTTPException(status_code=401, detail="Unauthorized")
             for role in current_user.roles:
                 if role.name in roles:
                     return await func(*args, **kwargs)
-            return JSONResponse(
-                status_code=403, content={"message": "User have not access"}
-            )
+            raise HTTPException(status_code=403, detail="User have not access")
 
         return wrapper
 

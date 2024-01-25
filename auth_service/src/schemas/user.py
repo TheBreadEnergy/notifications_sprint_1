@@ -22,7 +22,6 @@ class UserBase(IdentifiableMixin):
 
 class UserDto(UserBase):
     roles: list[RoleBase] | None
-    history: list[UserHistoryDto] | None
 
 
 class UserCreateDto(BaseModel):

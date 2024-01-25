@@ -15,7 +15,7 @@ UpdateSchemaType = TypeVar("UpdateSchemaType", bound=BaseModel)
 
 class UnitOfWork(ABC):
     @abstractmethod
-    def commit(self, *args, **kwargs) -> None:
+    def commit(self, *args, **kwargs):
         ...
 
 
@@ -24,7 +24,7 @@ class SqlAlchemyUnitOfWork(UnitOfWork):
         self._session = session
 
     async def commit(self, *args, **kwargs) -> None:
-        await self._session.commit()
+        return await self._session.commit()
 
 
 class RepositoryABC(ABC):
@@ -34,10 +34,6 @@ class RepositoryABC(ABC):
 
     @abstractmethod
     def get(self, *args, **kwargs):
-        ...
-
-    @abstractmethod
-    def get_by_name(self, *args, **kwargs):
         ...
 
     @abstractmethod
@@ -59,15 +55,10 @@ class PostgresRepository(RepositoryABC, Generic[ModelType, CreateSchemaType]):
         results = await self._session.execute(statement=statement)
         return results.scalars().all()
 
-    @abstractmethod
     async def get(self, *, entity_id: int) -> ModelType:
         statement = select(self._model).where(self._model.id == entity_id)
         results = await self._session.execute(statement)
         return results.scalar_one_or_none()
-
-    @abstractmethod
-    def get_by_name(self, *, name) -> ModelType:
-        ...
 
     async def insert(self, body: CreateSchemaType) -> ModelType:
         raw_obj = jsonable_encoder(body)
@@ -102,13 +93,6 @@ class CachedRepository(
         entity = await self._cache.get(key=key)
         if not entity:
             entity = await self._repository.get(entity_id=entity_id)
-        return entity
-
-    async def get_by_name(self, *, name: str) -> ModelType:
-        key = f"{self._model.__name__}_{name}"
-        entity = await self._cache.get(key=key)
-        if not entity:
-            entity = await self._repository.get_by_name(name=name)
         return entity
 
     async def insert(self, *, body: CreateSchemaType) -> ModelType:

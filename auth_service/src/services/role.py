@@ -8,20 +8,42 @@ from src.models.user import User
 from src.schemas.result import Error, GenericResult, Result
 from src.schemas.role import RoleCreateDto, RoleUpdateDto
 from src.schemas.user import UserCreateDto
-from src.services.base import PostgresRepository, SqlAlchemyUnitOfWork
+from src.services.base import (
+    CachedRepository,
+    PostgresRepository,
+    RepositoryABC,
+    SqlAlchemyUnitOfWork,
+)
+from src.services.cache import CacheServiceABC
 
 
-class RoleRepository(PostgresRepository[Role, RoleCreateDto]):
-    async def get(self, *, entity_id: int) -> Role:
-        return await super().get(entity_id=entity_id)
+class RoleRepositoryABC(RepositoryABC, ABC):
+    @abstractmethod
+    def get_role_by_name(self, *, name: str) -> Role | None:
+        ...
 
+
+class RoleRepository(PostgresRepository[Role, RoleCreateDto], RoleRepositoryABC):
     def __init__(self, session: AsyncSession):
         super().__init__(session=session, model=Role)
 
-    async def get_by_name(self, *, name: str) -> Role | None:
+    async def get_role_by_name(self, *, name: str) -> Role | None:
         statement = select(self._model).where(self._model.name == name)
         results = await self._session.execute(statement)
         return results.scalar_one_or_none()
+
+
+class CachedRoleRepository(CachedRepository[Role, RoleCreateDto], RoleRepositoryABC):
+    def __init__(self, repository: RoleRepositoryABC, cache_service: CacheServiceABC):
+        super().__init__(repository=repository, cache_service=cache_service, model=Role)
+        self._role_repository = repository
+
+    async def get_role_by_name(self, *, name: str) -> User:
+        key = f"{self._model.__name__}_{name}"
+        entity = await self._cache.get(key=key)
+        if not entity:
+            entity = await self._role_repository.get_role_by_name(name=name)
+        return entity
 
 
 class RoleServiceABC(ABC):
@@ -49,17 +71,18 @@ class RoleServiceABC(ABC):
 class RoleService(RoleServiceABC):
     def __init__(
         self,
-        repository: PostgresRepository[Role, RoleCreateDto],
+        repository: RoleRepositoryABC,
         uow: SqlAlchemyUnitOfWork,
     ) -> None:
         self._repository = repository
         self._uow = uow
 
     async def get_roles(self, *, skip: int, limit: int) -> list[Role]:
-        return await self._repository.gets(skip=skip, limit=limit)
+        result = await self._repository.gets(skip=skip, limit=limit)
+        return result
 
     async def create_role(self, role: RoleCreateDto) -> GenericResult[Role]:
-        role_db = await self._repository.get_by_name(name=role.name)
+        role_db = await self._repository.get_role_by_name(name=role.name)
         response = GenericResult.failure(
             Error(error_code="ROLE_ALREADY_EXISTS", reason="Role already exists")
         )

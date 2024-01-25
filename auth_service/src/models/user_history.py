@@ -9,7 +9,9 @@ from src.db.postgres import Base
 class UserHistory(Base):
     __tablename__ = "user_history"
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid4)
-    user_id = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=False)
+    user_id = Column(
+        UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=False
+    )
     user = relationship("User", back_populates="history")
     attempted = Column(DateTime(timezone=True), default=datetime.now(UTC))
     user_agent = Column(String(255))
