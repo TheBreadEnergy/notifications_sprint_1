@@ -126,9 +126,9 @@
 <h2> 3. Предполагаемая архитектура проекта </h2>
 
 Далее представлена высокоуровневая модель взаимодействия пользователя с итоговой системой.
-<img src="/Users/untr0nix/Documents/dev/python/src/Auth_sprint_1/Film Application/src/1 Film Service/system.png"/>. 
+<img src="/Film Application/src/1 Film Service/system.png"/>. 
 Взаимодействие подсистем детальнее представлена на следующей модели:
-<img src="/Users/untr0nix/Documents/dev/python/src/Auth_sprint_1/Film Application/src/1 Film Service/API Application/final_diagram.png"/></img>
+<img src="/Film Application/src/1 Film Service/API Application/final_diagram.png"/></img>
 
 <h2> 4. Развертывание </h2>
 <p> 
