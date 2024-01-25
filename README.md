@@ -5,7 +5,7 @@
     В качестве базовой архитектуры программного обеспечения используется микросервисная архитектура. 
 </p>
 <p> 
-    Полный исходный код проекта расположен по <a href="https://github.com/ProTupfe4/Async_API_sprint_3"> ссылке. </a>
+    Полный исходный код проекта расположен по <a href="https://github.com/ProTupfe4/Auth_sprint_1"> ссылке. </a>
     В рамках проекта реализованы следующие сервисы:
     <ol>
         <li> 
@@ -21,23 +21,28 @@
         </li>
         <li> 
             <a href="./filmwork_service"> Сервис </a> для получения сведений о фильмах, с возможностью поиска, фильтрации
-            и пагинации. Выполнено с помощью <a href=""> FastAPI </a> c поддержкой кэширования в 
+            и пагинации. Выполнено с помощью <a href="https://fastapi.tiangolo.com"> FastAPI </a> c поддержкой кэширования в 
             <a href="https://redis.io"> Redis </a> 
         </li>
         <li> 
             <a href="./person_genre_service"> Сервис </a> для получения сведений о персоналиях и жанрах с возможностью
-            поиска, фильтрации и пагинации. Выполнено с помощью <a href=""> FastAPI </a> c поддержкой кэширования в 
+            поиска, фильтрации и пагинации. Выполнено с помощью <a href="https://fastapi.tiangolo.com"> FastAPI </a> c поддержкой кэширования в 
             <a href="https://redis.io"> Redis </a> 
         </li>
         <li> 
-            <a href="./tests"> tests </a> Папка содержащая исходный код тестов, с возможностью поиска по имени и пагинации.
-             Выполнено с помощью <a href=""> FastAPI </a> c поддержкой кэширования в 
-            <a href="https://redis.io"> Redis </a>  
-        </li>
-        <li> 
-            <a href="./file_service"> file_service </a> Папка содержащая исходный код сервиса для обслуживания файлов. В данный момент в ней содержатся функциональные тесты сервиса.
+            <a href="./tests"> tests </a> Папка содержащая исходный код тестов. В данный момент в ней содержатся функциональные тесты сервиса.
              Реализованы тесты с использованием <a href="https://docs.pytest.org/en/7.4.x/"> Pytest </a> и <a href="https://faker.readthedocs.io"> Faker </a>
-            <a href="https://redis.io"> Redis </a> 
+        </li>
+        <a> 
+            <a href="./file_service"> file_service </a> Папка содержащая исходный код сервиса для обслуживания файлов. Выполнено с помощью <a href="https://fastapi.tiangolo.com"> FastAPI </a> c поддержкой кэширования в 
+            <a href="https://redis.io"> Redis </a> и использованием s3  хранилища <a href="https://min.io"> minio </a>
+        </li>
+        <li>
+            <a href="/auth_service"> auth_service </a> Папка содержащая исходный код сервиса авторизации и работы с пользователями.
+            Выполнена с помощью <a href="https://fastapi.tiangolo.com"> FastAPI </a> c поддержкой кэширования в 
+            <a href="https://redis.io"> Redis </a>, поддержкой jwt токенов посредством использования библиотеки <a href="https://indominusbyte.github.io/fastapi-jwt-auth/"> Fastapi Auth JWT </a>, 
+            хешированием паролей с помощью библиотеки <a href="https://passlib.readthedocs.io/en/stable/"> passlib </a>. В качестве ORM была использован библиотека <a href="https://docs.sqlalchemy.org/en/20/index.html"> SQLAlchemy </a> 
+            совместно со средствами миграции <a href="https://alembic.sqlalchemy.org/en/latest/"> Alembic </a> и консольным управлением посредством использования библиотеки <a href="https://typer.tiangolo.com"> Typer </a>
         </li>
     </ol>
 </p>
@@ -99,6 +104,12 @@
     │   ├── docker-entrypoint.sh                # скрипт для запуска контейнера
     │   ├── requirements.txt
     │   ├── Dockerfile
+    ├── auth_service                            # REST сервис авторизации.
+    │   ├── src/                                # Исходный код сервиса
+    │   ├── tests/                              # Unit тесты
+    │   ├── docker-entrypoint.sh                # скрипт для запуска контейнера
+    │   ├── requirements.txt
+    │   ├── Dockerfile
     ├── tests                                   # Тесты привязанные к проекту
     │   ├── envs/                               # Переменные окружения необходимые для работы тестов
     │   ├── functional/                         # Функциональные тесты
@@ -112,13 +123,20 @@
     </pre>
 </p>
 
-<h2> 3. Развертывание </h2>
+<h2> 3. Предполагаемая архитектура проекта </h2>
+
+Далее представлена высокоуровневая модель взаимодействия пользователя с итоговой системой.
+<img src="/Users/untr0nix/Documents/dev/python/src/Auth_sprint_1/Film Application/src/1 Film Service/system.png"/>. 
+Взаимодействие подсистем детальнее представлена на следующей модели:
+<img src="/Users/untr0nix/Documents/dev/python/src/Auth_sprint_1/Film Application/src/1 Film Service/API Application/final_diagram.png"/></img>
+
+<h2> 4. Развертывание </h2>
 <p> 
     Для того чтобы развернуть данное решение необходимо совершить следующие шаги:
 <ol>
     <li>
         Нужно склонировать репозиторий:
-        <code> git clone git@github.com:ProTupfe4/Async_API_sprint_2.git </code>
+        <code> git clone git@github.com:ProTupfe4/Auth_sprint_1.git </code>
     </li>
     <li>
         Необходимо поместить необходимые env файлы в папку <code>envs/</code> Примеры необходимых рабочих env файлов представлены
