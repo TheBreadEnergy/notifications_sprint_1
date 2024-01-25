@@ -127,11 +127,11 @@
 
 Далее представлена высокоуровневая модель взаимодействия пользователя с итоговой системой.
 
-<img src="/Film Application/src/1 Film Service/system.png"/>
+<img src="./Film Application/src/1 Film Service/system.png"/>
 
 Взаимодействие подсистем детальнее представлена на следующей модели:
 
-<img src="/Film Application/src/1 Film Service/API Application/final_diagram.png"/></img>
+<img src="./Film Application/src/1 Film Service/API Application/final_diagram.png"/></img>
 
 <h2> 4. Развертывание </h2>
 <p> 
@@ -167,6 +167,10 @@
         <p>
             <b>REST сервис для файлов </b> доступен без swagger, для REST по порту <b>81</b> (по умолчанию) по путям <code>/api/v1/files</code> для получения сведений о файлах и <code>/api/files</code> для swagger.
             Подробнее о сервисе можно узнать <a href="./file_service"> здесь. </a>
+        </p>
+         <p>
+            <b>REST сервис авторизации </b> доступен без swagger, для REST по порту <b>81</b> (по умолчанию) по путям <code>/api/v1/(users|accounts|roles)</code> для получения сведений о файлах и <code>/api/auth</code> для swagger.
+            Подробнее о сервисе можно узнать <a href="./auth_service"> здесь. </a>
         </p>
         <p>
             Сервис Elasticsearch для взаимодействия с внешним миром прокинут по порту <b>9200</b>
