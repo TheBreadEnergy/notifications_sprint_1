@@ -1,0 +1,14 @@
+django~=5.0
+flake8==4.0
+psycopg==3.1.10
+psycopg2==2.9.9
+python-dotenv==1.0.0
+django_split_settings==1.2.0
+psycopg2-binary==2.9
+django_debug_toolbar==3.4.0
+uwsgi
+djangorestframework==3.14.0
+django-storages==1.14.2
+boto3==1.34.2
+
+requests~=2.31.0

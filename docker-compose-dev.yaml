@@ -1,0 +1,142 @@
+version: '3'
+services:
+  django-admin:
+    build: django_admin
+    image: app-django-admin:dev
+    volumes:
+      - static:/opt/app/static
+    depends_on:
+      - postgres
+    env_file:
+      - envs/.env.django
+    expose:
+      - "8000"
+    restart: unless-stopped
+
+  auth-api:
+    build: auth_service
+    image: app-auth-api:dev
+    depends_on:
+      - redis-auth
+      - postgres-auth
+    env_file:
+      - envs/.env.api.auth
+    ports:
+      - "8003:8000"
+    restart: unless-stopped
+
+  film-api:
+    build: filmwork_service
+    image: app-film-api:dev
+    depends_on:
+      - redis-films
+      - elastic
+    env_file:
+      - envs/.env.api.films
+    ports:
+      - "8001:8000"
+    restart: unless-stopped
+
+  file-api:
+    build: file_service
+    image: app-file-api:dev
+    depends_on:
+      - redis
+      - postgres
+      - minio
+    env_file:
+      - envs/.env.files
+    ports:
+      - "8002:8000"
+    restart: unless-stopped
+
+  redis-films:
+    image: redis:latest
+    restart: unless-stopped
+    volumes:
+      - films-cache:/data
+
+  redis-auth:
+    image: redis:latest
+    restart: unless-stopped
+    volumes:
+      - auth-cache:/data
+
+
+  proxy:
+    build: ./nginx/
+    image: app-nginx-proxy:latest
+    volumes:
+      - static:/data/static/:ro
+    depends_on:
+      - django-admin
+    ports:
+      - "81:80"
+
+  postgres:
+    build: postgres/
+    image: app-postgres
+    env_file:
+      - envs/.env.database
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+
+  postgres-auth:
+    image: postgres:latest
+    env_file:
+      - envs/.env.database.auth
+    volumes:
+      - auth-data:/var/lib/postgresql/data
+
+  redis:
+    image: redis:latest
+    restart: unless-stopped
+    volumes:
+      - redis-data:/data
+
+  elastic:
+    build: elastic/
+    image: app-elasticsearch
+    restart: unless-stopped
+    volumes:
+      - elastic-data:/usr/share/elasticsearch/data
+    ports:
+      - "9200:9200"
+
+  etl:
+    build: ./etl
+    image: app-etl-process:dev
+    env_file:
+      - envs/.env.etl
+    depends_on:
+      - postgres
+      - django-admin
+      - proxy
+      - redis
+      - elastic
+    restart: unless-stopped
+
+  minio:
+    image: minio/minio:latest
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - minio_storage:/data
+    env_file:
+      - ./envs/.env.s3
+    command: server --console-address ":9001" /data
+
+
+
+volumes:
+  static:
+  auth-data:
+  postgres-data:
+  redis-data:
+  elastic-data:
+  films-cache:
+  pg-cache:
+  auth-cache:
+  minio_storage:
+

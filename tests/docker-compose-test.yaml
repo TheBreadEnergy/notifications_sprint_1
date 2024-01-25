@@ -1,0 +1,92 @@
+version: '3'
+services:
+  functional_tests:
+    build: .
+    image: functional_tests
+    env_file:
+      - ./envs/env.tests
+
+
+  django-api:
+    build: ../django_admin
+    image: app-django-api:dev
+    volumes:
+      - static:/opt/app/static
+    depends_on:
+      - postgres
+    env_file:
+      - ./envs/.env.django.tests
+    expose:
+      - "8000"
+
+  film-api:
+    build: ../filmwork_service
+    image: app-film-api:dev
+    depends_on:
+      - redis-films
+      - elastic
+    env_file:
+      - ./envs/.env.api.films.tests
+    ports:
+      - "8001:8000"
+
+  redis-films:
+    image: redis:latest
+    restart: unless-stopped
+    volumes:
+      - films-cache:/data
+
+
+  proxy:
+    build: ../nginx/
+    image: app-nginx-proxy:latest
+    volumes:
+      - static:/data/static/:ro
+    depends_on:
+      - django-api
+    ports:
+      - "81:80"
+
+  postgres:
+    build: ../postgres/
+    image: app-postgres
+    env_file:
+      - ./envs/.env.database.tests
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+
+  redis:
+    image: redis:latest
+    restart: unless-stopped
+    volumes:
+      - redis-data:/data
+
+  elastic:
+    build: ../elastic/
+    image: app-elasticsearch
+    restart: unless-stopped
+    volumes:
+      - elastic-data:/usr/share/elasticsearch/data
+    ports:
+      - "9200:9200"
+
+  etl:
+    build: ../etl
+    image: app-etl-process:dev
+    env_file:
+      - ./envs/.env.etl.tests
+    depends_on:
+      - postgres
+      - django-api
+      - proxy
+      - redis
+      - elastic
+
+volumes:
+  static:
+  postgres-data:
+  redis-data:
+  elastic-data:
+  films-cache:
+  pg-cache:
+
