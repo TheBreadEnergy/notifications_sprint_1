@@ -126,8 +126,11 @@
 <h2> 3. Предполагаемая архитектура проекта </h2>
 
 Далее представлена высокоуровневая модель взаимодействия пользователя с итоговой системой.
-<img src="/Film Application/src/1 Film Service/system.png"/>. 
+
+<img src="/Film Application/src/1 Film Service/system.png"/>
+
 Взаимодействие подсистем детальнее представлена на следующей модели:
+
 <img src="/Film Application/src/1 Film Service/API Application/final_diagram.png"/></img>
 
 <h2> 4. Развертывание </h2>
