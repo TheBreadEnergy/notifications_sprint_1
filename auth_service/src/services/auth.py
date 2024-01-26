@@ -3,6 +3,7 @@ from abc import ABC, abstractmethod
 from functools import wraps
 from typing import Any
 
+import async_fastapi_jwt_auth
 from async_fastapi_jwt_auth import AuthJWT
 from async_fastapi_jwt_auth.exceptions import JWTDecodeError
 from fastapi import HTTPException
@@ -67,6 +68,8 @@ class AuthService(AuthServiceABC):
                 raise HTTPException(status_code=401, detail="Unauthorized")
         except JWTDecodeError as err:
             raise HTTPException(status_code=401, detail=err.message)
+        except async_fastapi_jwt_auth.exceptions.MissingTokenError:
+            raise HTTPException(status_code=401, detail="Unathorized")
 
     async def _check_token_expiracy(self) -> bool:
         jti = await self._get_jti()
@@ -100,11 +103,15 @@ class AuthService(AuthServiceABC):
         _ = await self._user_service.insert_user_login(
             user_id=user.id, history_row=user_history
         )
-        return GenericResult.success(await self._generate_token(user_id=str(user.id)))
+        tokens = await self._generate_token(user_id=str(user.id))
+        await self._auth_jwt_service.set_access_cookies(tokens.access_token)
+        await self._auth_jwt_service.set_refresh_cookies(tokens.refresh_token)
+        return GenericResult.success(tokens)
 
     async def logout(self) -> None:
         await self.require_auth()
         access_jti = (await self._auth_jwt_service.get_raw_jwt())["jti"]
+        await self._auth_jwt_service.unset_jwt_cookies()
         token_jti = TokenJti(access_token_jti=access_jti, refresh_token_jti=None)
         return await self._token_storage.store_token(token=token_jti)
 
@@ -114,7 +121,10 @@ class AuthService(AuthServiceABC):
         token_jti = TokenJti(access_jti=access_jti, refresh_jti=refresh_jti)
         await self._token_storage.store_token(token_jti=token_jti)
         user_subject = await self._auth_jwt_service.get_jwt_subject()
-        return await self._generate_token(user_id=user_subject)
+        tokens = await self._generate_token(user_id=user_subject)
+        await self._auth_jwt_service.set_refresh_cookies(tokens.refresh_token)
+        await self._auth_jwt_service.set_access_cookies(tokens.access_token)
+        return tokens
 
     async def require_auth(self):
         try:
@@ -123,6 +133,8 @@ class AuthService(AuthServiceABC):
                 raise HTTPException(status_code=401, detail="Unathorized")
         except JWTDecodeError as err:
             raise HTTPException(status_code=401, detail=err.message)
+        except async_fastapi_jwt_auth.exceptions.MissingTokenError:
+            raise HTTPException(status_code=401, detail="Unathorized")
 
     async def optional_auth(self):
         return await self._auth_jwt_service.jwt_optional()

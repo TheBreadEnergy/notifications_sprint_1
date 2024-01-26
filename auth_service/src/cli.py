@@ -5,7 +5,7 @@ from typing import Annotated
 
 import typer
 import uvicorn
-from pydantic import EmailStr
+from sqlalchemy import select
 from src.core.config import Roles
 from src.core.logging import LOGGING
 from src.db.postgres import async_session
@@ -41,10 +41,19 @@ async def create_superuser(
     password: Annotated[str, typer.Argument()],
     first_name: Annotated[str, typer.Argument()],
     last_name: Annotated[str, typer.Argument()],
-    email: Annotated[EmailStr, typer.Argument()],
+    email: Annotated[str, typer.Argument()],
 ):
     async with async_session() as session:
         try:
+            user_statement = select(User).where(User.login == login)
+            role_statement = select(Role).where(Role.name == str(Roles.SUPER_ADMIN))
+            user_result = await session.execute(user_statement)
+            role_result = await session.execute(role_statement)
+            if user_result.scalar_one_or_none():
+                return
+            if role_result.scalar_one_or_none():
+                return
+
             super_admin_role = Role(
                 name=str(Roles.SUPER_ADMIN), description="Super Admin privilege"
             )
@@ -55,6 +64,7 @@ async def create_superuser(
                 last_name=last_name,
                 email=email,
             )
+
             session.add(super_admin_role)
             session.add(super_admin_user)
             super_admin_user.assign_role(super_admin_role)

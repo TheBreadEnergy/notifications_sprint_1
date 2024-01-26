@@ -44,6 +44,9 @@ class Settings(BaseSettings):
     authjwt_refresh_token_expires: int = Field(
         3600, alias="JWT_REFRESH_EXP_TIME", env="JWT_REFRESH_EXP_TIME"
     )  # 5 minutes
+    authjwt_token_location: set = {"cookies", "headers"}
+    authjwt_cookie_csrf_protect: bool = True
+    authjwt_cookie_same_site: str = "lax"
 
 
 settings = Settings()
