@@ -5,6 +5,7 @@ from typing import Annotated
 
 import typer
 import uvicorn
+from pydantic import EmailStr
 from src.core.config import Roles
 from src.core.logging import LOGGING
 from src.db.postgres import async_session
@@ -40,7 +41,7 @@ async def create_superuser(
     password: Annotated[str, typer.Argument()],
     first_name: Annotated[str, typer.Argument()],
     last_name: Annotated[str, typer.Argument()],
-    email: Annotated[str, typer.Argument()],
+    email: Annotated[EmailStr, typer.Argument()],
 ):
     async with async_session() as session:
         try:

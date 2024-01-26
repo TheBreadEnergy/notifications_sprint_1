@@ -1,7 +1,7 @@
 import datetime
 import uuid
 
-from pydantic import BaseModel
+from pydantic import BaseModel, EmailStr
 from src.schemas.base import IdentifiableMixin
 from src.schemas.role import RoleBase
 
@@ -15,7 +15,7 @@ class UserHistoryDto(IdentifiableMixin):
 
 class UserBase(IdentifiableMixin):
     login: str
-    email: str | None
+    email: EmailStr | None
     first_name: str | None
     last_name: str | None
 
@@ -29,14 +29,14 @@ class UserCreateDto(BaseModel):
     password: str
     first_name: str | None
     last_name: str | None
-    email: str | None
+    email: EmailStr | None
 
 
 class UserUpdateDto(BaseModel):
     login: str | None
     first_name: str | None
     last_name: str | None
-    email: str | None
+    email: EmailStr | None
 
 
 class UserUpdatePasswordDto(BaseModel):

@@ -3,6 +3,7 @@ from typing import List, Self
 from uuid import uuid4
 
 from passlib.hash import pbkdf2_sha256
+from pydantic import EmailStr
 from sqlalchemy import UUID, Column, DateTime, String
 from sqlalchemy.orm import Mapped, relationship
 from src.db.postgres import Base
@@ -39,7 +40,12 @@ class User(Base):
     )
 
     def __init__(
-        self, login: str, password: str, first_name: str, last_name: str, email: str
+        self,
+        login: str,
+        password: str,
+        first_name: str,
+        last_name: str,
+        email: EmailStr,
     ) -> None:
         self.login = login
         self.password_hash = pbkdf2_sha256.hash(password)
@@ -64,7 +70,7 @@ class User(Base):
         login: str | None,
         first_name: str | None,
         last_name: str | None,
-        email: str | None,
+        email: EmailStr | None,
     ) -> Self:
         self.login = login or self.login
         self.first_name = first_name or self.first_name
