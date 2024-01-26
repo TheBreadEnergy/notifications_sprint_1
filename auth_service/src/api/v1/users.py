@@ -86,7 +86,6 @@ async def get_user_history(
     result = await user_service.get_user_history(
         user_id=user_id, skip=skip, limit=limit
     )
-    print(result)
     return result
 
 

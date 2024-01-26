@@ -36,6 +36,7 @@ class Settings(BaseSettings):
     authjwt_secret_key: str = Field(
         "secret", alias="JWT_SECRET_KEY", env="JWT_SECRET_KEY"
     )
+    echo: bool = Field(True, alias="ECHO", env="ECHO")
     authjwt_denylist_enabled: bool = False
     authjwt_denylist_token_checks: set = {"access", "refresh"}
     authjwt_access_token_expires: int = Field(

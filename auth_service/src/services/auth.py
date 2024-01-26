@@ -1,6 +1,7 @@
 import datetime
 from abc import ABC, abstractmethod
 from functools import wraps
+from http import HTTPStatus
 from typing import Any
 
 import async_fastapi_jwt_auth
@@ -65,11 +66,15 @@ class AuthService(AuthServiceABC):
         try:
             await self._auth_jwt_service.jwt_refresh_token_required()
             if self._check_token_expiracy():
-                raise HTTPException(status_code=401, detail="Unauthorized")
+                raise HTTPException(
+                    status_code=HTTPStatus.UNAUTHORIZED, detail="Unauthorized"
+                )
         except JWTDecodeError as err:
-            raise HTTPException(status_code=401, detail=err.message)
+            raise HTTPException(status_code=HTTPStatus.UNAUTHORIZED, detail=err.message)
         except async_fastapi_jwt_auth.exceptions.MissingTokenError:
-            raise HTTPException(status_code=401, detail="Unathorized")
+            raise HTTPException(
+                status_code=HTTPStatus.UNAUTHORIZED, detail="Unathorized"
+            )
 
     async def _check_token_expiracy(self) -> bool:
         jti = await self._get_jti()
@@ -130,11 +135,15 @@ class AuthService(AuthServiceABC):
         try:
             await self._auth_jwt_service.jwt_required()
             if await self._check_token_expiracy():
-                raise HTTPException(status_code=401, detail="Unathorized")
+                raise HTTPException(
+                    status_code=HTTPStatus.UNAUTHORIZED, detail="Unathorized"
+                )
         except JWTDecodeError as err:
-            raise HTTPException(status_code=401, detail=err.message)
+            raise HTTPException(status_code=HTTPStatus.UNAUTHORIZED, detail=err.message)
         except async_fastapi_jwt_auth.exceptions.MissingTokenError:
-            raise HTTPException(status_code=401, detail="Unathorized")
+            raise HTTPException(
+                status_code=HTTPStatus.UNAUTHORIZED, detail="Unathorized"
+            )
 
     async def optional_auth(self):
         return await self._auth_jwt_service.jwt_optional()
@@ -155,11 +164,15 @@ def require_roles(roles: list[str]):
             auth_service = kwargs["auth_service"]
             current_user: User = await auth_service.get_user()
             if not current_user:
-                raise HTTPException(status_code=401, detail="Unauthorized")
+                raise HTTPException(
+                    status_code=HTTPStatus.UNAUTHORIZED, detail="Unauthorized"
+                )
             for role in current_user.roles:
                 if role.name in roles:
                     return await func(*args, **kwargs)
-            raise HTTPException(status_code=403, detail="User have not access")
+            raise HTTPException(
+                status_code=HTTPStatus.FORBIDDEN, detail="User have not access"
+            )
 
         return wrapper
 

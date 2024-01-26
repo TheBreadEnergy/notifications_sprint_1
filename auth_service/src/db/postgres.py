@@ -5,7 +5,9 @@ from src.core.config import settings
 Base = declarative_base()
 
 
-engine = create_async_engine(str(settings.postgres_conn), echo=True, future=True)
+engine = create_async_engine(
+    str(settings.postgres_conn), echo=settings.echo, future=True
+)
 
 async_session = async_sessionmaker(
     bind=engine, class_=AsyncSession, expire_on_commit=False
