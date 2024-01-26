@@ -27,10 +27,9 @@ async def register(
     response: GenericResult[User] = await user_service.create_user(user_dto=user)
     if response.is_success:
         return response.response
-    else:
-        raise HTTPException(
-            status_code=HTTPStatus.BAD_REQUEST, detail=response.error.reason
-        )
+    raise HTTPException(
+        status_code=HTTPStatus.BAD_REQUEST, detail=response.error.reason
+    )
 
 
 @router.post(

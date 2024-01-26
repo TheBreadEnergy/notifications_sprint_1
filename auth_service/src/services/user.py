@@ -201,7 +201,6 @@ class UserService(UserServiceABC):
 
     async def get_user(self, *, user_id: Any) -> GenericResult[User]:
         user = await self._repository.get(entity_id=user_id)
-        print("in service", user)
         return (
             GenericResult.failure(
                 error=Error(error_code="USER_NOT_FOUND", reason="User not found")
