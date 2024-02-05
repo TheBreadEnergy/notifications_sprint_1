@@ -1,8 +1,10 @@
 from http import HTTPStatus
+from typing import Annotated
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, Query
 from src.models.person import Person
+from src.services.bearer import security_jwt
 from src.services.persons import PersonServiceABC
 
 router = APIRouter()
@@ -17,7 +19,9 @@ router = APIRouter()
     response_description="Информация о персоне",
 )
 async def person_details(
-    person_id: UUID, person_service: PersonServiceABC = Depends()
+    person_id: UUID,
+    person_service: PersonServiceABC = Depends(),
+    user: Annotated[dict, Depends(security_jwt)] = None,
 ) -> Person:
     person = await person_service.get(person_id=person_id)
     if not person:
@@ -39,6 +43,7 @@ async def search_person(
     person_service: PersonServiceABC = Depends(),
     page: int = Query(ge=1, default=1),
     size: int = Query(ge=1, le=100, default=40),
+    user: Annotated[dict, Depends(security_jwt)] = None,
 ) -> list[Person]:
     persons = await person_service.search(name=query, page=page, size=size)
     if not persons:
@@ -60,6 +65,7 @@ async def list_persons(
     page: int = Query(ge=1, default=1),
     size: int = Query(ge=1, le=100, default=40),
     person_service: PersonServiceABC = Depends(),
+    user: Annotated[dict, Depends(security_jwt)] = None,
 ) -> list[Person]:
     data_filter = {}
     if id_person:

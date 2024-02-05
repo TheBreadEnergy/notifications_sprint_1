@@ -26,6 +26,9 @@ class Settings(BaseSettings):
     backoff_max_retries: int = Field(
         5, alias="BACKOFF_MAX_RETRIES", env="BACKOFF_MAX_RETRIES"
     )
+    auth_server: str = Field(
+        "http://auth-api:8000/api/v1", alias="AUTH_HOST", env="AUTH_HOST"
+    )
     base_dir: str = os.path.dirname(os.path.abspath(__file__))
 
 

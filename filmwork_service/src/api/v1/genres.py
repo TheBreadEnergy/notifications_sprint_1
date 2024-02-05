@@ -1,8 +1,10 @@
 from http import HTTPStatus
+from typing import Annotated
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, Query
 from src.models.genre import Genre
+from src.services.bearer import security_jwt
 from src.services.genres import GenreServiceABC
 
 router = APIRouter()
@@ -17,7 +19,9 @@ router = APIRouter()
     response_description="Информация о жанре",
 )
 async def genre_details(
-    genre_id: UUID, genre_service: GenreServiceABC = Depends()
+    genre_id: UUID,
+    genre_service: GenreServiceABC = Depends(),
+    user: Annotated[dict, Depends(security_jwt)] = None,
 ) -> Genre:
     genre = await genre_service.get(genre_id=genre_id)
     if not genre:
@@ -39,6 +43,7 @@ async def search_genre(
     genre_service: GenreServiceABC = Depends(),
     page: int = Query(ge=1, default=1),
     size: int = Query(ge=1, le=100, default=40),
+    user: Annotated[dict, Depends(security_jwt)] = None,
 ) -> list[Genre]:
     genres = await genre_service.search(name=query, page=page, size=size)
     if not genres:
@@ -60,6 +65,7 @@ async def list_genres(
     page: int = Query(ge=1, default=1),
     size: int = Query(ge=1, le=100, default=40),
     genre_service: GenreServiceABC = Depends(),
+    user: Annotated[dict, Depends(security_jwt)] = None,
 ) -> list[Genre]:
     data_filter = {}
     if id_genre:

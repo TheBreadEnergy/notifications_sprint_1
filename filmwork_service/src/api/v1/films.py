@@ -1,8 +1,10 @@
 from http import HTTPStatus
+from typing import Annotated
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, Query
 from src.models.film import Film, Films
+from src.services.bearer import security_jwt
 from src.services.film import FilmServiceABC
 
 router = APIRouter()
@@ -16,7 +18,11 @@ router = APIRouter()
     summary="Подробная информация о кинопроизведении",
     response_description="Информация о кинопроизведении",
 )
-async def film_details(film_id: UUID, film_service: FilmServiceABC = Depends()) -> Film:
+async def film_details(
+    film_id: UUID,
+    film_service: FilmServiceABC = Depends(),
+    user: Annotated[dict, Depends(security_jwt)] = None,
+) -> Film:
     film = await film_service.get(film_id)
     if not film:
         raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail="film not found")
@@ -38,6 +44,7 @@ async def search_films(
     film_service: FilmServiceABC = Depends(),
     page: int = Query(ge=1, default=1),
     size: int = Query(ge=1, le=100, default=40),
+    user: Annotated[dict, Depends(security_jwt)] = None,
 ) -> list[Films]:
     films = await film_service.search(title=query, page=page, size=size)
     if not films:
@@ -62,6 +69,7 @@ async def list_films(
     page: int = Query(ge=1, default=1),
     size: int = Query(ge=1, le=100, default=40),
     film_service: FilmServiceABC = Depends(),
+    user: Annotated[dict, Depends(security_jwt)] = None,
 ) -> list[Films]:
     data_filter = {}
     if id_film:
