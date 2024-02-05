@@ -154,11 +154,7 @@ class UserServiceABC(ABC):
 
 
 class UserService(UserServiceABC):
-    def __init__(
-        self,
-        repository: UserRepositoryABC,
-        uow: UnitOfWork,
-    ):
+    def __init__(self, repository: UserRepositoryABC, uow: UnitOfWork):
         self._repository = repository
         self._uow = uow
 

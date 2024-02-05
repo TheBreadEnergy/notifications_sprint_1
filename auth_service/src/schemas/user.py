@@ -49,3 +49,10 @@ class UserHistoryCreateDto(BaseModel):
     attempted: datetime.datetime
     user_agent: str
     success: bool
+
+
+class UserShortenedDto(BaseModel):
+    user_id: uuid.UUID
+    login: str | None
+    email: str | None
+    role: RoleBase

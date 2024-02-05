@@ -1,4 +1,5 @@
 import datetime
+import time
 from abc import ABC, abstractmethod
 from functools import wraps
 from http import HTTPStatus
@@ -43,6 +44,10 @@ class AuthServiceABC(ABC):
     def get_user(self) -> User | None:
         ...
 
+    @abstractmethod
+    def get_auth_user(self, token: str) -> User | None:
+        ...
+
 
 class AuthService(AuthServiceABC):
     def __init__(
@@ -82,6 +87,12 @@ class AuthService(AuthServiceABC):
 
     async def _get_jti(self) -> str:
         return (await self._auth_jwt_service.get_raw_jwt())["jti"]
+
+    async def _decode_token(self, token: str):
+        try:
+            return await self._auth_jwt_service.get_raw_jwt(token)
+        except JWTDecodeError as err:
+            raise HTTPException(status_code=401, detail=err.message)
 
     # TODO: do refractoring for example decorator.
     async def login(
@@ -154,6 +165,16 @@ class AuthService(AuthServiceABC):
         user: GenericResult[User] = await self._user_service.get_user(
             user_id=user_subject
         )
+        return user.response
+
+    async def get_auth_user(self, access_token: str) -> User | None:
+        decoded = await self._decode_token(access_token)
+        if decoded["exp"] <= time.time():
+            raise HTTPException(
+                status_code=HTTPStatus.UNAUTHORIZED, detail="Token is expired"
+            )
+        user_id = decoded["sub"]
+        user = await self._user_service.get_user(user_id=user_id)
         return user.response
 
 

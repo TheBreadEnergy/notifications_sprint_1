@@ -9,3 +9,7 @@ class Token(BaseModel):
 class TokenJti(BaseModel):
     access_token_jti: str | None
     refresh_token_jti: str | None
+
+
+class TokenValidation(BaseModel):
+    access_token: str

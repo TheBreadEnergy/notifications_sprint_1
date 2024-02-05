@@ -7,6 +7,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query
 from src.core.config import Roles
 from src.models.user import User
 from src.schemas.result import GenericResult, Result
+from src.schemas.token import TokenValidation
 from src.schemas.user import UserBase, UserDto, UserHistoryDto, UserUpdateDto
 from src.services.auth import AuthServiceABC, require_roles
 from src.services.role import UserRoleServiceABC
@@ -177,6 +178,22 @@ async def remove_role_from_user(
             status_code=HTTPStatus.BAD_REQUEST, detail=result.error.reason
         )
     return JSONResponse(status_code=HTTPStatus.OK, content={})
+
+
+@router.post(
+    "/info",
+    description="Получение сведений о зарегистрированном пользователе по заданному"
+    " jwt токену",
+    summary="Получение данных о пользователе",
+    tags=["Пользователи"],
+)
+async def get_user_data(
+    token_data: TokenValidation, auth_service: AuthServiceABC = Depends()
+) -> UserDto:
+    user = await auth_service.get_auth_user(token_data.access_token)
+    if not user:
+        raise HTTPException(status_code=HTTPStatus.UNAUTHORIZED, detail="Invalid token")
+    return user
 
 
 @router.delete(

@@ -19,6 +19,10 @@ class CacheServiceABC(ABC):
     def put(self, *args, **kwargs):
         ...
 
+    @abstractmethod
+    def delete(self, *args, **kwargs):
+        ...
+
 
 class TokenStorageABC(ABC):
     @abstractmethod
@@ -47,6 +51,10 @@ class RedisCacheService(CacheServiceABC):
 
     async def put(self, *, key: str, value: ModelType):
         await self._client.set(key, json.dumps(value))
+
+    def delete(self, *, key: str) -> None:
+        if self._client.exists():
+            self._client.delete(key)
 
 
 class RedisTokenStorage(TokenStorageABC):
