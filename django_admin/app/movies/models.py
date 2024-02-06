@@ -1,10 +1,13 @@
+import uuid
 from uuid import uuid4
 
+from django.contrib.auth.base_user import AbstractBaseUser
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.db.models import FileField, constraints
 from django.utils.translation import gettext_lazy as _
 from movies.storage import CustomStorage
+from movies.user import CustomUserManager
 from storages.backends.s3boto3 import S3Boto3Storage
 
 
@@ -126,3 +129,28 @@ class PersonFilmwork(UUIDMixin):
                 name="person_film_work_role_unique",
             )
         ]
+
+
+class User(AbstractBaseUser):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    login = models.CharField(verbose_name="login", max_length=255, unique=True)
+    email = models.EmailField(verbose_name="email address", max_length=255, unique=True)
+    is_active = models.BooleanField(default=True)
+    is_admin = models.BooleanField(default=False)
+    first_name = models.CharField(max_length=255)
+    last_name = models.CharField(max_length=255)
+    objects = CustomUserManager()
+    USERNAME_FIELD = "login"
+
+    @property
+    def is_staff(self):
+        return self.is_admin
+
+    def __str__(self):
+        return f"{self.email} {self.id}"
+
+    def has_perm(self, perm, obj=None):
+        return True
+
+    def has_module_perms(self, app_label):
+        return True

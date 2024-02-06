@@ -2,10 +2,9 @@ from http import HTTPStatus
 from typing import Annotated, Any
 
 from fastapi import APIRouter, Depends, HTTPException, Query
-from src.core.config import Roles
 from src.models.role import Role
 from src.schemas.result import GenericResult
-from src.schemas.role import RoleBase, RoleCreateDto, RoleDto, RoleUpdateDto
+from src.schemas.role import RoleBase, RoleCreateDto, RoleDto, Roles, RoleUpdateDto
 from src.services.auth import AuthServiceABC, require_roles
 from src.services.role import RoleServiceABC
 
@@ -20,7 +19,7 @@ router = APIRouter()
     response_description="Сведения о доступных ролях системы",
     summary="Вывод существующих ролей системы",
 )
-@require_roles([str(Roles.ADMIN), str(Roles.SUPER_ADMIN)])
+@require_roles([Roles.ADMIN, Roles.SUPER_ADMIN])
 async def get_roles(
     skip: Annotated[int, Query(description="Items to skip", ge=0)] = 0,
     limit: Annotated[int, Query(description="Pagination page size", ge=1)] = 10,
@@ -38,7 +37,7 @@ async def get_roles(
     description="Выдача сведений о роли",
     response_description="Сведения о роли в системе",
 )
-@require_roles([str(Roles.ADMIN), str(Roles.SUPER_ADMIN)])
+@require_roles([Roles.ADMIN, Roles.SUPER_ADMIN])
 async def get_role(
     role_id: Any,
     role_service: RoleServiceABC = Depends(),
@@ -58,7 +57,7 @@ async def get_role(
     tags=["Роли", "Администратор"],
     summary="Создание роли в системе",
 )
-@require_roles([str(Roles.ADMIN), str(Roles.SUPER_ADMIN)])
+@require_roles([Roles.ADMIN, Roles.SUPER_ADMIN])
 async def create_role(
     role_data: RoleCreateDto,
     role_service: RoleServiceABC = Depends(),
@@ -78,7 +77,7 @@ async def create_role(
     tags=["Роли", "Администратор"],
     summary="Редактирование роли",
 )
-@require_roles([str(Roles.ADMIN), str(Roles.SUPER_ADMIN)])
+@require_roles([Roles.ADMIN, Roles.SUPER_ADMIN])
 async def update_role(
     role_id: Any,
     role_data: RoleUpdateDto,
@@ -97,7 +96,7 @@ async def update_role(
     tags=["Роли", "Администратор"],
     summary="Удаление роли из системы",
 )
-@require_roles([str(Roles.ADMIN), str(Roles.SUPER_ADMIN)])
+@require_roles([Roles.ADMIN, Roles.SUPER_ADMIN])
 async def delete_role(
     role_id: Any,
     role_service: RoleServiceABC = Depends(),

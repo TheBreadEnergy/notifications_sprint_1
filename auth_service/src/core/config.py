@@ -1,5 +1,4 @@
 import os
-from enum import Enum
 
 from async_fastapi_jwt_auth import AuthJWT
 from pydantic import Field, PostgresDsn
@@ -51,12 +50,6 @@ class Settings(BaseSettings):
 
 
 settings = Settings()
-
-
-class Roles(Enum):
-    SUPER_ADMIN = "super_admin"
-    ADMIN = "admin"
-    USER = "user"
 
 
 @AuthJWT.load_config

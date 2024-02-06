@@ -6,11 +6,11 @@ from typing import Annotated
 import typer
 import uvicorn
 from sqlalchemy import select
-from src.core.config import Roles
 from src.core.logging import LOGGING
 from src.db.postgres import async_session
 from src.models.role import Role
 from src.models.user import User
+from src.schemas.role import Roles
 
 cli = typer.Typer()
 
@@ -46,7 +46,7 @@ async def create_superuser(
     async with async_session() as session:
         try:
             user_statement = select(User).where(User.login == login)
-            role_statement = select(Role).where(Role.name == str(Roles.SUPER_ADMIN))
+            role_statement = select(Role).where(Role.name == Roles.SUPER_ADMIN)
             user_result = await session.execute(user_statement)
             role_result = await session.execute(role_statement)
             if user_result.scalar_one_or_none():
@@ -55,7 +55,7 @@ async def create_superuser(
                 return
 
             super_admin_role = Role(
-                name=str(Roles.SUPER_ADMIN), description="Super Admin privilege"
+                name=Roles.SUPER_ADMIN, description="Super Admin privilege"
             )
             super_admin_user = User(
                 login=login,

@@ -4,9 +4,9 @@ from typing import Annotated
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, Query
-from src.core.config import Roles
 from src.models.user import User
 from src.schemas.result import GenericResult, Result
+from src.schemas.role import Roles
 from src.schemas.token import TokenValidation
 from src.schemas.user import UserBase, UserDto, UserHistoryDto, UserUpdateDto
 from src.services.auth import AuthServiceABC, require_roles
@@ -24,7 +24,7 @@ router = APIRouter()
     response_description="Список учетных записей пользователей системы",
     tags=["Пользователи"],
 )
-@require_roles([str(Roles.ADMIN), str(Roles.SUPER_ADMIN)])
+@require_roles([Roles.ADMIN, Roles.SUPER_ADMIN])
 async def get_users(
     skip: Annotated[int, Query(description="Items to skip", ge=0)] = 0,
     limit: Annotated[int, Query(description="Pagination page size", ge=1)] = 10,
@@ -76,7 +76,7 @@ async def get_user_profile_history(
     tags=["Администратор"],
     summary="Вывод истории авторизаций пользователя",
 )
-@require_roles([str(Roles.ADMIN), str(Roles.SUPER_ADMIN)])
+@require_roles([Roles.ADMIN, Roles.SUPER_ADMIN])
 async def get_user_history(
     user_id: uuid.UUID,
     skip: Annotated[int, Query(description="Items to skip", ge=0)] = 0,
@@ -98,7 +98,7 @@ async def get_user_history(
     response_description="Сведения о зарегистрированном пользователе",
     summary="Сведения об учетной записи пользователя. Административный функционал",
 )
-@require_roles([str(Roles.ADMIN), str(Roles.SUPER_ADMIN)])
+@require_roles([Roles.ADMIN, Roles.SUPER_ADMIN])
 async def get_user(
     user_id: UUID,
     user_service: UserServiceABC = Depends(),
@@ -140,7 +140,7 @@ async def update_user_profile(
     tags=["Администратор"],
     summary="Назначение пользователю дополнительной роли",
 )
-@require_roles([str(Roles.ADMIN), str(Roles.SUPER_ADMIN)])
+@require_roles([Roles.ADMIN, Roles.SUPER_ADMIN])
 async def assign_role_to_user(
     user_id: uuid.UUID,
     role_id: uuid.UUID,
@@ -163,7 +163,7 @@ async def assign_role_to_user(
     tags=["Администратор"],
     summary="Отобрать роль у пользователя",
 )
-@require_roles([str(Roles.ADMIN), str(Roles.SUPER_ADMIN)])
+@require_roles([Roles.ADMIN, Roles.SUPER_ADMIN])
 async def remove_role_from_user(
     user_id: uuid.UUID,
     role_id: uuid.UUID,
@@ -217,7 +217,7 @@ async def delete_user_profile(
     summary="Удаление учетной записи пользователя",
     tags=["Администратор"],
 )
-@require_roles([str(Roles.ADMIN), str(Roles.SUPER_ADMIN)])
+@require_roles([Roles.ADMIN, Roles.SUPER_ADMIN])
 async def delete_user(
     user_id: UUID,
     user_service: UserServiceABC = Depends(),

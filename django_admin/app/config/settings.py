@@ -15,6 +15,10 @@ if DEBUG:
 
 SECRET_KEY = os.environ.get("SECRET_KEY")
 
+
+AUTH_API_LOGIN_URL = os.environ.get("AUTH_API_LOGIN_URL")
+AUTH_API_PROFILE_URL = os.environ.get("AUTH_API_PROFILE_URL")
+
 ALLOWED_HOSTS = (
     os.environ.get("ALLOWED_HOSTS").split(",")
     if os.environ.get("ALLOWED_HOSTS")
@@ -42,6 +46,7 @@ include("components/templates.py")
 include("components/validators.py")
 include("components/middlewares.py")
 include("components/internationalization.py")
+include("components/auth.py")
 ROOT_URLCONF = "config.urls"
 WSGI_APPLICATION = "config.wsgi.application"
 

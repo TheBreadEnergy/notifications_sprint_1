@@ -19,3 +19,9 @@ class RoleCreateDto(BaseModel):
 class RoleUpdateDto(RoleBase):
     name: str
     description: str | None
+
+
+class Roles:
+    SUPER_ADMIN = "super_admin"
+    ADMIN = "admin"
+    USER = "user"
