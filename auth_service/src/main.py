@@ -6,6 +6,7 @@ from fastapi import FastAPI
 from fastapi.openapi.utils import get_openapi
 from fastapi.responses import ORJSONResponse
 from fastapi.routing import APIRoute
+from fastapi_limiter import FastAPILimiter
 from redis.asyncio import Redis
 from src.api.v1 import accounts, roles, users
 from src.cli import cli
@@ -114,6 +115,7 @@ async def lifespan(_: FastAPI):
     redis.redis = Redis(
         host=settings.cache_host, port=settings.cache_port, decode_responses=True
     )
+    await FastAPILimiter.init(redis.redis)
     yield
     await redis.redis.close()
 

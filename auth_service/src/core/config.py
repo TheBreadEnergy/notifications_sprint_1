@@ -32,6 +32,14 @@ class Settings(BaseSettings):
     refresh_expiration_seconds: int = Field(
         3600, alias="REFRESH_EXPIRATION_SECONDS", env="REFRESH_EXPIRATION_SECONDS"
     )
+    rate_limit_requests_per_interval: int = Field(
+        1,
+        alias="RATE_LIMIT_REQUESTS_PER_INTERVAL",
+        env="RATE_LIMIT_REQUESTS_PER_INTERVAL",
+    )
+    requests_interval: int = Field(
+        1, alias="REQUESTS_INTERVAL", env="REQUESTS_INTERVAL"
+    )
     authjwt_secret_key: str = Field(
         "secret", alias="JWT_SECRET_KEY", env="JWT_SECRET_KEY"
     )
