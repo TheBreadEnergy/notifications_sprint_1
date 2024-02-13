@@ -29,7 +29,7 @@ async def get_user_info(token: str):
     token_payload = TokenValidation(access_token=token).model_dump(mode="json")
     async with aiohttp.ClientSession() as session:
         response = await session.post(
-            url=f"{settings.auth_server}/users/info",
+            url=f"{settings.auth_profile}",
             json=token_payload,
             headers={"Content-Type": "application/json"},
         )
