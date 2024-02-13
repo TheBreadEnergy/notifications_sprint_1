@@ -1,11 +1,22 @@
 import datetime
+import enum
 from typing import List, Self
 from uuid import uuid4
 
 from passlib.hash import pbkdf2_sha256
 from pydantic import EmailStr
-from sqlalchemy import UUID, Column, DateTime, String
-from sqlalchemy.orm import Mapped, relationship
+from sqlalchemy import (
+    JSON,
+    UUID,
+    Column,
+    DateTime,
+    Enum,
+    ForeignKey,
+    String,
+    Text,
+    UniqueConstraint,
+)
+from sqlalchemy.orm import Mapped, backref, relationship
 from src.db.postgres import Base
 from src.models.role import Role
 from src.models.user_history import UserHistory
@@ -98,3 +109,40 @@ class User(Base):
 
     def add_user_session(self, session: UserHistory) -> None:
         self.history.append(session)
+
+
+class SocialNetworksEnum(enum.Enum):
+    Yandex = "Yandex"
+    Google = "Google"
+
+
+class SocialAccount(Base):
+    __tablename__ = "social_account"
+
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid4)
+    user_id = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=False)
+    user = relationship(
+        User,
+        backref=backref("social_account", cascade="all,delete", lazy=True),
+    )
+
+    social_id = Column(Text, nullable=False)
+    social_name = Column(Enum(SocialNetworksEnum))
+    full_prov_data = Column(JSON, nullable=True)
+
+    __table_args__ = (UniqueConstraint("social_id", "social_name", name="social_pk"),)
+
+    def __init__(
+        self,
+        user_id: UUID,
+        social_id: str,
+        social_name: SocialNetworksEnum,
+        full_prov_data: str | None = None,
+    ) -> None:
+        self.user_id = user_id
+        self.social_id = social_id
+        self.social_name = social_name
+        self.full_prov_data = full_prov_data
+
+    def __repr__(self):
+        return f"<SocialAccount {self.social_name}:{self.user_id}>"
