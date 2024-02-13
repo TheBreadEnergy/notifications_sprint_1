@@ -12,7 +12,6 @@ class CustomStorage(Storage):
             f"{FILE_SERVICE_URL}/",
             files={"file": (content.name, content, content.content_type)},
         )
-        print(r.json())
         return r.json().get("short_name")
 
     def url(self, name):

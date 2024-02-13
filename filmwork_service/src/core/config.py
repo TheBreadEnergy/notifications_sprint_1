@@ -3,9 +3,13 @@ import os
 from logging import config as logging_config
 
 import backoff
+import elasticsearch
+import redis
+from aiohttp import ClientConnectorError
 from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from src.core.logger import LOGGING
+from src.errors.rate_limit import RateLimitException
 
 
 class Settings(BaseSettings):
@@ -42,7 +46,14 @@ logger = logging.getLogger(__name__)
 
 BACKOFF_CONFIG = {
     "wait_gen": backoff.expo,
-    "exception": Exception,
+    "exception": (
+        ClientConnectorError,
+        RateLimitException,
+        redis.ConnectionError,
+        redis.TimeoutError,
+        elasticsearch.ConnectionError,
+        elasticsearch.ConnectionTimeout,
+    ),
     "logger": logger,
     "max_tries": settings.backoff_max_retries,
 }

@@ -5,6 +5,7 @@ import backoff
 import requests
 from circuitbreaker import circuit
 from config import settings
+from config.settings import BACKOFF_CONFIG, CIRCUIT_CONFIG
 from django.contrib.auth import get_user_model
 from django.contrib.auth.backends import BaseBackend
 from movies.user import Roles
@@ -15,8 +16,8 @@ User = get_user_model()
 
 class CustomBackend(BaseBackend):
     # TODO: Replace with dict settings
-    @backoff.on_exception(backoff.expo, ConnectionError, max_tries=6)
-    @circuit(failure_threshold=5, expected_exception=ConnectionError)
+    @backoff.on_exception(**BACKOFF_CONFIG)
+    @circuit(**CIRCUIT_CONFIG)
     def authenticate(self, request, username=None, password=None):
         auth_url = settings.AUTH_API_LOGIN_URL
         profile_url = settings.AUTH_API_PROFILE_URL

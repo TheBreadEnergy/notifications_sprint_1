@@ -7,7 +7,7 @@ from aiohttp.web_exceptions import HTTPError
 from circuitbreaker import CircuitBreakerError, circuit
 from fastapi import HTTPException, Request
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
-from src.core.config import settings
+from src.core.config import BACKOFF_CONFIG, settings
 from src.errors.rate_limit import RateLimitException
 from src.schemas.token import TokenValidation
 
@@ -23,9 +23,7 @@ def is_circuit_processable(thrown_type, thrown_value):
 
 
 # TODO: place configuring in core.settings file
-@backoff.on_exception(
-    backoff.expo, exception=(ClientConnectorError, RateLimitException), max_tries=6
-)
+@backoff.on_exception(**BACKOFF_CONFIG)
 @circuit(expected_exception=is_circuit_processable)
 async def get_user_info(token: str):
     token_payload = TokenValidation(access_token=token).model_dump(mode="json")

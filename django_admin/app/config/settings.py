@@ -1,6 +1,8 @@
 import os
 from pathlib import Path
 
+import backoff
+import requests
 from dotenv import find_dotenv, load_dotenv
 from split_settings.tools import include
 
@@ -18,6 +20,7 @@ SECRET_KEY = os.environ.get("SECRET_KEY")
 
 AUTH_API_LOGIN_URL = os.environ.get("AUTH_API_LOGIN_URL")
 AUTH_API_PROFILE_URL = os.environ.get("AUTH_API_PROFILE_URL")
+BACKOFF_MAX_RETRIES = os.environ.get("BACKOFF_MAX_RETRIES") or 6
 
 ALLOWED_HOSTS = (
     os.environ.get("ALLOWED_HOSTS").split(",")
@@ -39,6 +42,15 @@ AWS_STORAGE_BUCKET_NAME = os.environ.get("S3_STORAGE_BUCKET_NAME")
 AWS_S3_ENDPOINT_URL = os.environ.get("S3_ENDPOINT_URL")
 
 FILE_SERVICE_URL = os.environ.get("FILE_SERVICE_URL")
+
+
+BACKOFF_CONFIG = {
+    "wait_gen": backoff.expo,
+    "exception": ConnectionError,
+    "max_tries": BACKOFF_MAX_RETRIES,
+}
+
+CIRCUIT_CONFIG = {"failure_threshold": 5, "expected_exception": ConnectionError}
 
 include("components/apps.py")
 include("components/database.py")
