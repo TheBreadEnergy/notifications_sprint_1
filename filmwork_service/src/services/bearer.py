@@ -28,9 +28,7 @@ def is_circuit_processable(thrown_type, thrown_value):
 )
 @circuit(expected_exception=is_circuit_processable)
 async def get_user_info(token: str):
-    print(token)
     token_payload = TokenValidation(access_token=token).model_dump(mode="json")
-    print(token_payload)
     async with aiohttp.ClientSession() as session:
         response = await session.post(
             url=f"{settings.auth_server}/users/info",

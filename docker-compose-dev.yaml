@@ -127,6 +127,36 @@ services:
       - ./envs/.env.s3
     command: server --console-address ":9001" /data
 
+  jaeger-collector:
+    image: jaegertracing/jaeger-collector:latest
+    environment:
+      SPAN_STORAGE_TYPE: elasticsearch
+      ES_SERVER_URLS: http://elastic:9200
+    ports:
+      - "14250:14250"
+      - "14267:14267"
+      - "14268:14268"
+      - "9411:9411"
+    depends_on:
+      - elastic
+    restart: unless-stopped
+
+
+
+
+  jaeger-query:
+    image: jaegertracing/jaeger-query:latest
+    ports:
+      - "16686:16686"
+      - "16687:16687"
+    environment:
+      SPAN_STORAGE_TYPE: elasticsearch
+      ES_SERVER_URLS: http://elastic:9200
+    restart: unless-stopped
+
+
+
+
 
 
 volumes:

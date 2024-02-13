@@ -1,16 +1,19 @@
 import inspect
 import re
 from contextlib import asynccontextmanager
+from http import HTTPStatus
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.openapi.utils import get_openapi
 from fastapi.responses import ORJSONResponse
 from fastapi.routing import APIRoute
 from fastapi_limiter import FastAPILimiter
+from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
 from redis.asyncio import Redis
 from src.api.v1 import accounts, roles, users
 from src.cli import cli
 from src.core.config import settings
+from src.core.tracing import configure_tracing
 from src.db import redis
 from src.dependencies.main import setup_dependencies
 
@@ -120,6 +123,8 @@ async def lifespan(_: FastAPI):
     await redis.redis.close()
 
 
+configure_tracing()
+
 app = FastAPI(
     title=settings.project_name,
     description=settings.description,
@@ -130,6 +135,21 @@ app = FastAPI(
     lifespan=lifespan,
 )
 app.openapi = custom_openapi
+
+
+@app.middleware("http")
+async def before_request(request: Request, call_next):
+    response = await call_next(request)
+    request_id = request.headers.get("X-Request-Id")
+    if not request_id:
+        return ORJSONResponse(
+            status_code=HTTPStatus.NOT_FOUND,
+            content={"detail": "X-Request-Id is required"},
+        )
+    return response
+
+
+FastAPIInstrumentor.instrument_app(app)
 
 
 app.include_router(accounts.router, prefix="/api/v1/accounts", tags=["Пользователи"])

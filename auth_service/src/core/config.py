@@ -40,6 +40,12 @@ class Settings(BaseSettings):
     requests_interval: int = Field(
         1, alias="REQUESTS_INTERVAL", env="REQUESTS_INTERVAL"
     )
+    jaeger_agent_host: str = Field(
+        "localhost", alias="JAEGER_AGENT_HOST", env="JAEGER_AGENT_HOST"
+    )
+    jaeger_agent_port: int = Field(
+        4317, alias="JAEGER_AGENT_PORT", env="JAEGER_AGENT_PORT"
+    )
     authjwt_secret_key: str = Field(
         "secret", alias="JWT_SECRET_KEY", env="JWT_SECRET_KEY"
     )

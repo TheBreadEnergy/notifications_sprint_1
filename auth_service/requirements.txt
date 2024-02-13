@@ -64,3 +64,8 @@ urllib3==2.1.0
 uvicorn==0.26.0
 virtualenv==20.25.0
 fastapi_limiter==0.1.6
+opentelemetry-instrumentation-fastapi==0.43b0
+opentelemetry-sdk==1.22.0
+opentelemetry-api==1.22.0
+opentelemetry-exporter-jaeger==1.21.0
+protobuf==3.20.*
