@@ -6,7 +6,6 @@ from uuid import uuid4
 from passlib.hash import pbkdf2_sha256
 from pydantic import EmailStr
 from sqlalchemy import (
-    JSON,
     UUID,
     Column,
     DateTime,
@@ -128,7 +127,6 @@ class SocialAccount(Base):
 
     social_id = Column(Text, nullable=False)
     social_name = Column(Enum(SocialNetworksEnum))
-    full_prov_data = Column(JSON, nullable=True)
 
     __table_args__ = (UniqueConstraint("social_id", "social_name", name="social_pk"),)
 
@@ -137,12 +135,10 @@ class SocialAccount(Base):
         user_id: UUID,
         social_id: str,
         social_name: SocialNetworksEnum,
-        full_prov_data: str | None = None,
     ) -> None:
         self.user_id = user_id
         self.social_id = social_id
         self.social_name = social_name
-        self.full_prov_data = full_prov_data
 
     def __repr__(self):
         return f"<SocialAccount {self.social_name}:{self.user_id}>"

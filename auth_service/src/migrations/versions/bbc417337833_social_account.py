@@ -29,7 +29,6 @@ def upgrade() -> None:
             sa.Enum("Yandex", "Google", name="socialnetworksenum"),
             nullable=True,
         ),
-        sa.Column("full_prov_data", sa.JSON(), nullable=True),
         sa.ForeignKeyConstraint(
             ["user_id"],
             ["users.id"],

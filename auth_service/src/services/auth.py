@@ -25,6 +25,10 @@ class AuthServiceABC(ABC):
         ...
 
     @abstractmethod
+    def login_by_oauth(self, *, login: str) -> GenericResult[Token]:
+        ...
+
+    @abstractmethod
     def logout(self):
         ...
 
@@ -119,6 +123,20 @@ class AuthService(AuthServiceABC):
         _ = await self._user_service.insert_user_login(
             user_id=user.id, history_row=user_history
         )
+        tokens = await self._generate_token(user_id=str(user.id))
+        await self._auth_jwt_service.set_access_cookies(tokens.access_token)
+        await self._auth_jwt_service.set_refresh_cookies(tokens.refresh_token)
+        return GenericResult.success(tokens)
+
+    async def login_by_oauth(self, *, login: str) -> GenericResult[Token]:
+        user = await self._user_service.get_user_by_login(login=login)
+        if not user:
+            return GenericResult.failure(
+                error=Error(
+                    error_code="WrongUsernameOrPassword",
+                    reason="Имя пользователя и / или пароль неверны",
+                )
+            )
         tokens = await self._generate_token(user_id=str(user.id))
         await self._auth_jwt_service.set_access_cookies(tokens.access_token)
         await self._auth_jwt_service.set_refresh_cookies(tokens.refresh_token)

@@ -2,6 +2,7 @@ import datetime
 import uuid
 
 from pydantic import BaseModel, EmailStr
+from src.models.user import SocialNetworksEnum
 from src.schemas.base import IdentifiableMixin
 from src.schemas.role import RoleBase
 
@@ -56,3 +57,18 @@ class UserShortenedDto(BaseModel):
     login: str | None
     email: str | None
     role: RoleBase
+
+
+class SocialUser(BaseModel):
+    id: str
+    login: str
+    first_name: str | None
+    last_name: str | None
+    email: EmailStr | None
+    social_name: SocialNetworksEnum
+
+
+class SocialCreateDto(BaseModel):
+    user_id: uuid.UUID
+    social_id: str
+    social_name: SocialNetworksEnum
