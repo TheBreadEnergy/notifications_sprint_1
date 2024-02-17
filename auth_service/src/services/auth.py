@@ -119,6 +119,7 @@ class AuthService(AuthServiceABC):
             attempted=datetime.datetime.now(datetime.UTC),
             user_agent=user_agent,
             success=True,
+            user_device_type="web",
         )
         _ = await self._user_service.insert_user_login(
             user_id=user.id, history_row=user_history

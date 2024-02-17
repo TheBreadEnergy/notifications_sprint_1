@@ -9,6 +9,7 @@ from src.core.config import settings
 from src.db.postgres import Base
 from src.models.role import Role
 from src.models.user import User
+from src.models.user_history import UserHistory
 from src.models.user_role import UserRole
 
 # this is the Alembic Config object, which provides

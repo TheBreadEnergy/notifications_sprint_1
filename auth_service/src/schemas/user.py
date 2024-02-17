@@ -11,6 +11,7 @@ class UserHistoryDto(IdentifiableMixin):
     user_id: uuid.UUID
     attempted: datetime.datetime
     user_agent: str
+    user_device_type: str
     success: bool
 
 
@@ -49,6 +50,7 @@ class UserHistoryCreateDto(BaseModel):
     user_id: uuid.UUID
     attempted: datetime.datetime
     user_agent: str
+    user_device_type: str
     success: bool
 
 
