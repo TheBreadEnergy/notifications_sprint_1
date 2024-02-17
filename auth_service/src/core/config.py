@@ -62,6 +62,58 @@ class Settings(BaseSettings):
     authjwt_cookie_csrf_protect: bool = True
     authjwt_cookie_same_site: str = "lax"
 
+    social_auth_redirect_url: str = Field(
+        "http://localhost:8000/api/v1/socials",
+        alias="SOCIAL_AUTH_URL",
+        env="SOCIAL_AUTH_URL",
+    )
+
+    yandex_client_id: str = Field(
+        "27cf19fb151f460ba90f92a028ea829a",
+        alias="YANDEX_CLIENT_ID",
+        env="YANDEX_CLIENT_ID",
+    )
+    yandex_client_secret: str = Field(
+        "853c761b0b0f4d3896c5f58fc1f9eff4",
+        alias="YANDEX_CLIENT_SECRET",
+        env="YANDEX_CLIENT_SECRET",
+    )
+    yandex_auth_base_url: str = Field(
+        "https://oauth.yandex.ru/authorize",
+        alias="YANDEX_AUTH_BASE_URL",
+        env="YANDEX_AUTH_BASE_URL",
+    )
+    yandex_auth_token_url: str = Field(
+        "https://oauth.yandex.ru/token",
+        alias="YANDEX_AUTH_TOKEN_URL",
+        env="YANDEX_TOKEN_URL",
+    )
+    yandex_userinfo_url: str = Field(
+        "https://login.yandex.ru/info",
+        alias="YANDEX_USERINFO_URL",
+        env="YANDEX_USERINFO_URL",
+    )
+
+    google_client_id: str = Field("", alias="GOOGLE_CLIENT_ID", env="GOOGLE_CLIENT_ID")
+    google_client_secret: str = Field(
+        "", alias="GOOGLE_CLIENT_SECRET", env="GOOGLE_CLIENT_SECRET"
+    )
+    google_auth_base_url: str = Field(
+        "https://accounts.google.com/o/oauth2/v2/auth",
+        alias="GOOGLE_AUTH_BASE_URL",
+        env="GOOGLE_AUTH_BASE_URL",
+    )
+    google_auth_token_url: str = Field(
+        "ttps://www.googleapis.com/oauth2/v4/token",
+        alias="GOOGLE_AUTH_TOKEN_URL",
+        env="GOOGLE_AUTH_TOKEN_URL",
+    )
+    google_userinfo_url: str = Field(
+        "https://www.googleapis.com/oauth2/v1/userinfo",
+        alias="GOOGLE_USERINFO_URL",
+        env="GOOGLE_USERINFO_URL",
+    )
+
 
 settings = Settings()
 

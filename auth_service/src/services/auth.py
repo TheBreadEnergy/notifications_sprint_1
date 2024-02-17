@@ -19,33 +19,37 @@ from src.services.user import UserServiceABC
 
 class AuthServiceABC(ABC):
     @abstractmethod
-    def login(
+    async def login(
         self, *, login: str, password: str, user_agent: str
     ) -> GenericResult[Token]:
         ...
 
     @abstractmethod
-    def logout(self):
+    async def login_by_oauth(self, *, login: str) -> GenericResult[Token]:
         ...
 
     @abstractmethod
-    def refresh(self, access_jti: str | None) -> Token:
+    async def logout(self):
         ...
 
     @abstractmethod
-    def require_auth(self):
+    async def refresh(self, access_jti: str | None) -> Token:
         ...
 
     @abstractmethod
-    def optional_auth(self):
+    async def require_auth(self):
         ...
 
     @abstractmethod
-    def get_user(self) -> User | None:
+    async def optional_auth(self):
         ...
 
     @abstractmethod
-    def get_auth_user(self, token: str) -> User | None:
+    async def get_user(self) -> User | None:
+        ...
+
+    @abstractmethod
+    async def get_auth_user(self, token: str) -> User | None:
         ...
 
 
@@ -119,6 +123,20 @@ class AuthService(AuthServiceABC):
         _ = await self._user_service.insert_user_login(
             user_id=user.id, history_row=user_history
         )
+        tokens = await self._generate_token(user_id=str(user.id))
+        await self._auth_jwt_service.set_access_cookies(tokens.access_token)
+        await self._auth_jwt_service.set_refresh_cookies(tokens.refresh_token)
+        return GenericResult.success(tokens)
+
+    async def login_by_oauth(self, *, login: str) -> GenericResult[Token]:
+        user = await self._user_service.get_user_by_login(login=login)
+        if not user:
+            return GenericResult.failure(
+                error=Error(
+                    error_code="WrongUsernameOrPassword",
+                    reason="Имя пользователя и / или пароль неверны",
+                )
+            )
         tokens = await self._generate_token(user_id=str(user.id))
         await self._auth_jwt_service.set_access_cookies(tokens.access_token)
         await self._auth_jwt_service.set_refresh_cookies(tokens.refresh_token)

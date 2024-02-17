@@ -1,13 +1,16 @@
 from abc import ABC, abstractmethod
 from typing import Any, List
 
-from sqlalchemy import select
+from faker import Faker
+from sqlalchemy import and_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import noload, selectinload
-from src.models.user import User
+from src.models.user import SocialAccount, SocialNetworksEnum, User
 from src.models.user_history import UserHistory
 from src.schemas.result import Error, GenericResult
 from src.schemas.user import (
+    SocialCreateDto,
+    SocialUser,
     UserCreateDto,
     UserHistoryCreateDto,
     UserUpdateDto,
@@ -25,17 +28,31 @@ from src.services.cache import CacheServiceABC
 
 class UserRepositoryABC(RepositoryABC, ABC):
     @abstractmethod
-    def get_by_login(self, *, login: str) -> User:
+    async def get_by_login(self, *, login: str) -> User:
         ...
 
     @abstractmethod
-    def get_user_history(
+    async def get_user_history(
         self, *, user_id: Any, skip: int, limit: int
     ) -> List[UserHistory]:
         ...
 
     @abstractmethod
-    def insert_user_login(self, *, user_id: str, enter_data: UserHistoryCreateDto):
+    async def get_user_social(
+        self, *, social_name: SocialNetworksEnum, social_id: str
+    ) -> SocialAccount:
+        ...
+
+    @abstractmethod
+    async def insert_user_login(
+        self, *, user_id: Any, enter_data: UserHistoryCreateDto
+    ) -> GenericResult[UserHistory]:
+        ...
+
+    @abstractmethod
+    async def insert_user_social(
+        self, *, user_id: Any, enter_data: SocialCreateDto
+    ) -> GenericResult[SocialAccount]:
         ...
 
 
@@ -71,6 +88,18 @@ class UserRepository(PostgresRepository[User, UserCreateDto], UserRepositoryABC)
         results = await self._session.execute(statement)
         return results.scalars().all()
 
+    async def get_user_social(
+        self, *, social_name: SocialNetworksEnum, social_id: str
+    ) -> SocialAccount | None:
+        statement = select(SocialAccount).where(
+            and_(
+                SocialAccount.social_name == social_name,
+                SocialAccount.social_id == social_id,
+            ),
+        )
+        results = await self._session.execute(statement)
+        return results.scalar_one_or_none()
+
     async def insert_user_login(
         self, *, user_id: Any, enter_data: UserHistoryCreateDto
     ) -> GenericResult[UserHistory]:
@@ -82,6 +111,18 @@ class UserRepository(PostgresRepository[User, UserCreateDto], UserRepositoryABC)
         user_history = UserHistory(**enter_data.model_dump())
         user.add_user_session(user_history)
         return GenericResult.success(user_history)
+
+    async def insert_user_social(
+        self, *, user_id: Any, enter_data: SocialCreateDto
+    ) -> GenericResult[SocialAccount]:
+        user: User = await self.get(entity_id=user_id)
+        if not user:
+            GenericResult.failure(
+                error=Error(error_code="USER_NOT_FOUND", reason="User not found")
+            )
+        social = SocialAccount(**enter_data.model_dump())
+        user.add_social_account(social)
+        return GenericResult.success(social)
 
 
 class CachedUserRepository(CachedRepository[User, UserCreateDto], UserRepositoryABC):
@@ -103,53 +144,73 @@ class CachedUserRepository(CachedRepository[User, UserCreateDto], UserRepository
             user_id=user_id, skip=skip, limit=limit
         )
 
+    async def get_user_social(
+        self, *, social_name: SocialNetworksEnum, social_id: str
+    ) -> SocialAccount | None:
+        return await self._user_repository.get_user_social(
+            social_name=social_name, social_id=social_id
+        )
+
     async def insert_user_login(
-        self, *, user_id: str, enter_data: UserHistoryCreateDto
-    ):
+        self, *, user_id: Any, enter_data: UserHistoryCreateDto
+    ) -> GenericResult[UserHistory]:
         return await self._user_repository.insert_user_login(
             user_id=user_id, enter_data=enter_data
         )
 
+    async def insert_user_social(
+        self, *, user_id: Any, enter_data: SocialCreateDto
+    ) -> GenericResult[SocialAccount]:
+        return await self._user_repository.insert_user_social(enter_data=enter_data)
+
 
 class UserServiceABC(ABC):
     @abstractmethod
-    def get_user_history(
+    async def get_user_history(
         self, *, user_id: Any, skip: int, limit: int
     ) -> list[UserHistory]:
         ...
 
     @abstractmethod
-    def get_users(self, *, skip: int, limit: int) -> list[User]:
+    async def get_users(self, *, skip: int, limit: int) -> list[User]:
         ...
 
     @abstractmethod
-    def update_password(
+    async def update_password(
         self, *, user_id: Any, password_user: UserUpdatePasswordDto
     ) -> GenericResult[User]:
         ...
 
     @abstractmethod
-    def create_user(self, user_dto: UserCreateDto) -> GenericResult[User]:
+    async def create_user(self, user_dto: UserCreateDto) -> GenericResult[User]:
         ...
 
     @abstractmethod
-    def insert_user_login(self, *, user_id: Any, history_row: UserHistoryCreateDto):
+    async def insert_user_login(
+        self, *, user_id: Any, history_row: UserHistoryCreateDto
+    ):
         ...
 
     @abstractmethod
-    def get_user(self, *, user_id: Any) -> GenericResult[User]:
+    async def get_user(self, *, user_id: Any) -> GenericResult[User]:
         ...
 
     @abstractmethod
-    def get_user_by_login(self, *, login: str) -> User | None:
+    async def get_user_by_login(self, *, login: str) -> User | None:
         ...
 
     @abstractmethod
-    def update_user(self, user_id: Any, user_dto: UserUpdateDto) -> GenericResult[User]:
+    async def get_or_create_user(self, *, social: SocialUser) -> GenericResult[User]:
         ...
 
     @abstractmethod
-    def delete_user(self, *, user_id: Any) -> None:
+    async def update_user(
+        self, user_id: Any, user_dto: UserUpdateDto
+    ) -> GenericResult[User]:
+        ...
+
+    @abstractmethod
+    async def delete_user(self, *, user_id: Any) -> None:
         ...
 
 
@@ -208,6 +269,34 @@ class UserService(UserServiceABC):
     async def get_user_by_login(self, *, login: str) -> User | None:
         user = await self._repository.get_by_login(login=login)
         return user
+
+    async def get_or_create_user(self, *, social: SocialUser) -> GenericResult[User]:
+        social_user = await self._repository.get_user_social(
+            social_name=social.social_name, social_id=social.id
+        )
+        if not social_user:
+            auto_password = Faker().password()
+            user = await self.get_user_by_login(login=social.login)
+            if user:
+                return GenericResult.failure(
+                    Error(error_code="USER_EXISTS", reason="User already exists")
+                )
+            user_dto = UserCreateDto(
+                password=auto_password,
+                login=social.login,
+                first_name=social.first_name,
+                last_name=social.last_name,
+                email=social.email,
+            )
+            user = await self._repository.insert(body=user_dto)
+            user.add_social_account(
+                social_account=SocialAccount(
+                    social_id=social.id, social_name=social.social_name
+                )
+            )
+            await self._uow.commit()
+            return GenericResult.success(user)
+        return await self.get_user(user_id=social_user.user_id)
 
     async def insert_user_login(
         self, *, user_id: Any, history_row: UserHistoryCreateDto

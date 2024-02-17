@@ -7,10 +7,11 @@ from fastapi import FastAPI, Request
 from fastapi.openapi.utils import get_openapi
 from fastapi.responses import ORJSONResponse
 from fastapi.routing import APIRoute
+from fastapi.staticfiles import StaticFiles
 from fastapi_limiter import FastAPILimiter
 from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
 from redis.asyncio import Redis
-from src.api.v1 import accounts, roles, users
+from src.api.v1 import accounts, roles, socials, users
 from src.cli import cli
 from src.core.config import settings
 from src.core.tracing import configure_tracing
@@ -136,6 +137,11 @@ app = FastAPI(
 )
 app.openapi = custom_openapi
 
+app.mount(
+    "/static",
+    StaticFiles(directory="src/static"),
+    name="static",
+)
 
 @app.middleware("http")
 async def before_request(request: Request, call_next):
@@ -155,6 +161,7 @@ FastAPIInstrumentor.instrument_app(app)
 app.include_router(accounts.router, prefix="/api/v1/accounts", tags=["Пользователи"])
 app.include_router(roles.router, prefix="/api/v1/roles", tags=["Роли"])
 app.include_router(users.router, prefix="/api/v1/users", tags=["Пользователи"])
+app.include_router(socials.router, prefix="/api/v1/socials", tags=["OAuth2"])
 
 setup_dependencies(app)
 
