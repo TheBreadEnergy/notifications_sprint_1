@@ -1,3 +1,4 @@
+import os
 from http import HTTPStatus
 
 from async_oauthlib import OAuth2Session
@@ -14,8 +15,7 @@ from src.services.social_providers import SocialNetworkProvider, get_provider
 from src.services.user import UserServiceABC
 
 router = APIRouter()
-
-templates = Jinja2Templates(directory="src/templates")
+templates = Jinja2Templates(directory=os.path.join(settings.base_dir, "templates"))
 
 
 @router.get("/", response_class=HTMLResponse)

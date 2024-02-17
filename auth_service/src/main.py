@@ -1,4 +1,5 @@
 import inspect
+import os
 import re
 from contextlib import asynccontextmanager
 from http import HTTPStatus
@@ -139,9 +140,10 @@ app.openapi = custom_openapi
 
 app.mount(
     "/static",
-    StaticFiles(directory="src/static"),
+    StaticFiles(directory=os.path.join(settings.base_dir, "static")),
     name="static",
 )
+
 
 @app.middleware("http")
 async def before_request(request: Request, call_next):

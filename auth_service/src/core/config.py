@@ -1,4 +1,4 @@
-import os
+from pathlib import Path
 
 from async_fastapi_jwt_auth import AuthJWT
 from pydantic import Field, PostgresDsn
@@ -20,7 +20,7 @@ class Settings(BaseSettings):
     version: str = Field("1.0.0", alias="VERSION", env="VERSION")
     cache_host: str = Field("localhost", alias="CACHE_HOST", env="REDIS_HOST")
     cache_port: int = Field("6379", alias="CACHE_PORT", env="CACHE_PORT")
-    base_dir: str = os.path.join(os.path.dirname(os.path.abspath(__file__)))
+    base_dir: str = str(Path(__file__).parent.parent)
     postgres_conn: PostgresDsn = Field(
         "postgresql+asyncpg://app:123qwe@localhost:5432/users",
         alias="DATABASE_CONN",

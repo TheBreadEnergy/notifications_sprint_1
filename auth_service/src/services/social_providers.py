@@ -1,4 +1,5 @@
 from abc import ABC
+from http import HTTPStatus
 
 import httpx
 from async_oauthlib import OAuth2Session
@@ -50,15 +51,20 @@ class SocialNetworkProvider(ABC):
             "grant_type": "authorization_code",
             "redirect_uri": settings.social_auth_redirect_url,
         }
-        async with httpx.AsyncClient() as client:
-            token_response = await client.post(self.auth_token_url, data=data)
-            token_response.raise_for_status()
-            token = token_response.json()["access_token"]
+        try:
+            async with httpx.AsyncClient() as client:
+                token_response = await client.post(self.auth_token_url, data=data)
+                token_response.raise_for_status()
+                token = token_response.json()["access_token"]
 
-            headers = {"Authorization": f"Bearer {token}"}
-            userinfo_response = await client.get(self.userinfo_url, headers=headers)
-            userinfo_response.raise_for_status()
-            return userinfo_response.json()
+                headers = {"Authorization": f"Bearer {token}"}
+                userinfo_response = await client.get(self.userinfo_url, headers=headers)
+                userinfo_response.raise_for_status()
+                return userinfo_response.json()
+        except httpx.HTTPStatusError:
+            raise HTTPException(
+                status_code=HTTPStatus.UNAUTHORIZED, detail="Code is expired"
+            )
 
 
 class Yandex(SocialNetworkProvider):

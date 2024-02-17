@@ -96,7 +96,7 @@ class AuthService(AuthServiceABC):
         try:
             return await self._auth_jwt_service.get_raw_jwt(token)
         except JWTDecodeError as err:
-            raise HTTPException(status_code=401, detail=err.message)
+            raise HTTPException(status_code=HTTPStatus.UNAUTHORIZED, detail=err.message)
 
     # TODO: do refractoring for example decorator.
     async def login(
