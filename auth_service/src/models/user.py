@@ -15,11 +15,41 @@ from sqlalchemy import (
     Text,
     UniqueConstraint,
 )
-from sqlalchemy.orm import Mapped, backref, relationship
+from sqlalchemy.orm import Mapped, relationship
 from src.db.postgres import Base
 from src.models.role import Role
 from src.models.user_history import UserHistory
 from src.models.user_role import UserRole
+
+
+# TODO: Place this in another file
+class SocialNetworksEnum(enum.Enum):
+    Yandex = "Yandex"
+    Google = "Google"
+
+
+class SocialAccount(Base):
+    __tablename__ = "social_account"
+
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid4)
+    user_id = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=False)
+    user = relationship("User", back_populates="social_accounts", cascade="all, delete")
+
+    social_id = Column(Text, nullable=False)
+    social_name = Column(Enum(SocialNetworksEnum))
+
+    __table_args__ = (UniqueConstraint("social_id", "social_name", name="social_pk"),)
+
+    def __init__(
+        self,
+        social_id: str,
+        social_name: SocialNetworksEnum,
+    ) -> None:
+        self.social_id = social_id
+        self.social_name = social_name
+
+    def __repr__(self):
+        return f"<SocialAccount {self.social_name}:{self.user_id}>"
 
 
 class User(Base):
@@ -39,6 +69,12 @@ class User(Base):
     )
     history: Mapped[List["UserHistory"]] = relationship(
         "UserHistory", back_populates="user", cascade="all, delete-orphan"
+    )
+    social_accounts: Mapped[List["SocialAccount"]] = relationship(
+        "SocialAccount",
+        back_populates="user",
+        cascade="all, delete-orphan",
+        lazy="selectin",
     )
     created = Column(
         DateTime(timezone=True), default=datetime.datetime.now(datetime.UTC)
@@ -62,6 +98,7 @@ class User(Base):
         self.first_name = first_name
         self.last_name = last_name
         self.email = email
+        self.social_accounts = []
 
     def check_password(self, password: str) -> bool:
         return pbkdf2_sha256.verify(password, self.password_hash)
@@ -109,36 +146,5 @@ class User(Base):
     def add_user_session(self, session: UserHistory) -> None:
         self.history.append(session)
 
-
-class SocialNetworksEnum(enum.Enum):
-    Yandex = "Yandex"
-    Google = "Google"
-
-
-class SocialAccount(Base):
-    __tablename__ = "social_account"
-
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid4)
-    user_id = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=False)
-    user = relationship(
-        User,
-        backref=backref("social_account", cascade="all,delete", lazy=True),
-    )
-
-    social_id = Column(Text, nullable=False)
-    social_name = Column(Enum(SocialNetworksEnum))
-
-    __table_args__ = (UniqueConstraint("social_id", "social_name", name="social_pk"),)
-
-    def __init__(
-        self,
-        user_id: UUID,
-        social_id: str,
-        social_name: SocialNetworksEnum,
-    ) -> None:
-        self.user_id = user_id
-        self.social_id = social_id
-        self.social_name = social_name
-
-    def __repr__(self):
-        return f"<SocialAccount {self.social_name}:{self.user_id}>"
+    def add_social_account(self, social_account: SocialAccount) -> None:
+        self.social_accounts.append(social_account)

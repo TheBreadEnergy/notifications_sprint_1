@@ -132,7 +132,11 @@ app = FastAPI(
 )
 app.openapi = custom_openapi
 
-app.mount("/static", StaticFiles(directory="static"), name="static")
+app.mount(
+    "/static",
+    StaticFiles(directory="src/static"),
+    name="static",
+)
 
 app.include_router(accounts.router, prefix="/api/v1/accounts", tags=["Пользователи"])
 app.include_router(roles.router, prefix="/api/v1/roles", tags=["Роли"])

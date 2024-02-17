@@ -19,37 +19,37 @@ from src.services.user import UserServiceABC
 
 class AuthServiceABC(ABC):
     @abstractmethod
-    def login(
+    async def login(
         self, *, login: str, password: str, user_agent: str
     ) -> GenericResult[Token]:
         ...
 
     @abstractmethod
-    def login_by_oauth(self, *, login: str) -> GenericResult[Token]:
+    async def login_by_oauth(self, *, login: str) -> GenericResult[Token]:
         ...
 
     @abstractmethod
-    def logout(self):
+    async def logout(self):
         ...
 
     @abstractmethod
-    def refresh(self, access_jti: str | None) -> Token:
+    async def refresh(self, access_jti: str | None) -> Token:
         ...
 
     @abstractmethod
-    def require_auth(self):
+    async def require_auth(self):
         ...
 
     @abstractmethod
-    def optional_auth(self):
+    async def optional_auth(self):
         ...
 
     @abstractmethod
-    def get_user(self) -> User | None:
+    async def get_user(self) -> User | None:
         ...
 
     @abstractmethod
-    def get_auth_user(self, token: str) -> User | None:
+    async def get_auth_user(self, token: str) -> User | None:
         ...
 
 

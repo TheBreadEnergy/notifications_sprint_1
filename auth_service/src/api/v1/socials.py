@@ -15,7 +15,7 @@ from src.services.user import UserServiceABC
 
 router = APIRouter()
 
-templates = Jinja2Templates(directory="templates")
+templates = Jinja2Templates(directory="src/templates")
 
 
 @router.get("/", response_class=HTMLResponse)

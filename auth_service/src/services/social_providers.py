@@ -5,6 +5,7 @@ from async_oauthlib import OAuth2Session
 from fastapi import HTTPException, status
 from src.core.config import settings
 from src.models.user import SocialNetworksEnum, User
+from src.schemas.result import GenericResult
 from src.schemas.user import SocialUser
 from src.services.user import UserServiceABC
 
@@ -30,7 +31,9 @@ class SocialNetworkProvider(ABC):
             self.client_id, redirect_uri=settings.social_auth_redirect_url
         )
 
-    async def process_user(self, code: str, user_service: UserServiceABC) -> User:
+    async def process_user(
+        self, code: str, user_service: UserServiceABC
+    ) -> GenericResult[User]:
         data = await self.fetch_data(code)
         user = await user_service.get_or_create_user(
             social=SocialUser(
