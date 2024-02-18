@@ -491,5 +491,8 @@ cython_debug/
 ./envs/.env.api.films
 ./envs/.env.database
 ./envs/.env.etl
+./envs/.env.api.auth
+./envs/.env.database.auth
+./envs/.env.files
 
 .idea

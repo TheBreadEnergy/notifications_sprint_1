@@ -2,8 +2,7 @@ from http import HTTPStatus
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, Header, HTTPException
-from fastapi_limiter.depends import RateLimiter
-from src.core.config import settings
+from src.core.extensions import build_dependencies
 from src.models.user import User
 from src.schemas.auth import RefreshRequestDto, UserLoginDto
 from src.schemas.result import GenericResult
@@ -22,14 +21,7 @@ router = APIRouter()
     description="Регистрация нового пользователя",
     tags=["Авторизация"],
     summary="Создание аккаунта для нового пользователя",
-    dependencies=[
-        Depends(
-            RateLimiter(
-                times=settings.rate_limit_requests_per_interval,
-                seconds=settings.requests_interval,
-            )
-        )
-    ],
+    dependencies=build_dependencies(),
 )
 async def register(
     user: UserCreateDto, user_service: UserServiceABC = Depends()
@@ -49,14 +41,7 @@ async def register(
     tags=["Авторизация"],
     summary="Авторизация с использование JWT",
     response_description="Пара токенов access и refresh",
-    dependencies=[
-        Depends(
-            RateLimiter(
-                times=settings.rate_limit_requests_per_interval,
-                seconds=settings.requests_interval,
-            )
-        )
-    ],
+    dependencies=build_dependencies(),
 )
 async def login(
     user_login: UserLoginDto,
@@ -82,14 +67,7 @@ async def login(
     description="Выдача новых токенов,  если access token устарел",
     tags=["Авторизация"],
     response_description="Пара токенов access и refresh",
-    dependencies=[
-        Depends(
-            RateLimiter(
-                times=settings.rate_limit_requests_per_interval,
-                seconds=settings.requests_interval,
-            )
-        )
-    ],
+    dependencies=build_dependencies(),
 )
 async def refresh(
     token: RefreshRequestDto,

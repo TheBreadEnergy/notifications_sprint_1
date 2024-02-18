@@ -19,7 +19,7 @@ from src.services.cache import CacheServiceABC
 
 class RoleRepositoryABC(RepositoryABC, ABC):
     @abstractmethod
-    def get_role_by_name(self, *, name: str) -> Role | None:
+    async def get_role_by_name(self, *, name: str) -> Role | None:
         ...
 
 
@@ -48,23 +48,25 @@ class CachedRoleRepository(CachedRepository[Role, RoleCreateDto], RoleRepository
 
 class RoleServiceABC(ABC):
     @abstractmethod
-    def get_roles(self, *, skip: int, limit: int) -> list[Role]:
+    async def get_roles(self, *, skip: int, limit: int) -> list[Role]:
         ...
 
     @abstractmethod
-    def create_role(self, role: RoleCreateDto) -> GenericResult[Role]:
+    async def create_role(self, role: RoleCreateDto) -> GenericResult[Role]:
         ...
 
     @abstractmethod
-    def get_role(self, role_id: Any) -> GenericResult[Role]:
+    async def get_role(self, role_id: Any) -> GenericResult[Role]:
         ...
 
     @abstractmethod
-    def update_role(self, role_id: Any, role_dto: RoleUpdateDto) -> GenericResult[Role]:
+    async def update_role(
+        self, role_id: Any, role_dto: RoleUpdateDto
+    ) -> GenericResult[Role]:
         ...
 
     @abstractmethod
-    def delete_role(self, role_id: Any) -> None:
+    async def delete_role(self, role_id: Any) -> None:
         ...
 
 
@@ -122,11 +124,11 @@ class RoleService(RoleServiceABC):
 
 class UserRoleServiceABC(ABC):
     @abstractmethod
-    def assign_role_to_user(self, *, user_id: Any, role_id: Any) -> Result:
+    async def assign_role_to_user(self, *, user_id: Any, role_id: Any) -> Result:
         ...
 
     @abstractmethod
-    def remove_role_from_user(self, *, user_id: Any, role_id: Any) -> Result:
+    async def remove_role_from_user(self, *, user_id: Any, role_id: Any) -> Result:
         ...
 
 

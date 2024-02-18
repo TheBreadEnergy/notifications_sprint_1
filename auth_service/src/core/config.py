@@ -22,7 +22,7 @@ class Settings(BaseSettings):
     cache_port: int = Field("6379", alias="CACHE_PORT", env="CACHE_PORT")
     base_dir: str = str(Path(__file__).parent.parent)
     postgres_conn: PostgresDsn = Field(
-        "postgresql+asyncpg://app:123qwe@localhost:5432/users",
+        "postgresql+asyncpg://<username>:<password>@localhost:5432/users",
         alias="DATABASE_CONN",
         env="DATABASE_CONN",
     )
@@ -69,12 +69,12 @@ class Settings(BaseSettings):
     )
 
     yandex_client_id: str = Field(
-        "27cf19fb151f460ba90f92a028ea829a",
+        "<client_id>",
         alias="YANDEX_CLIENT_ID",
         env="YANDEX_CLIENT_ID",
     )
     yandex_client_secret: str = Field(
-        "853c761b0b0f4d3896c5f58fc1f9eff4",
+        "<client_secret>",
         alias="YANDEX_CLIENT_SECRET",
         env="YANDEX_CLIENT_SECRET",
     )
@@ -94,9 +94,13 @@ class Settings(BaseSettings):
         env="YANDEX_USERINFO_URL",
     )
 
-    google_client_id: str = Field("", alias="GOOGLE_CLIENT_ID", env="GOOGLE_CLIENT_ID")
+    google_client_id: str = Field(
+        "<google_client_id>", alias="GOOGLE_CLIENT_ID", env="GOOGLE_CLIENT_ID"
+    )
     google_client_secret: str = Field(
-        "", alias="GOOGLE_CLIENT_SECRET", env="GOOGLE_CLIENT_SECRET"
+        "<google_client_secret>",
+        alias="GOOGLE_CLIENT_SECRET",
+        env="GOOGLE_CLIENT_SECRET",
     )
     google_auth_base_url: str = Field(
         "https://accounts.google.com/o/oauth2/v2/auth",
@@ -113,6 +117,8 @@ class Settings(BaseSettings):
         alias="GOOGLE_USERINFO_URL",
         env="GOOGLE_USERINFO_URL",
     )
+    enable_limiter: bool = Field(True, alias="ENABLE_LIMITER", env="ENABLE_LIMITER")
+    enable_tracer: bool = Field(True, alias="ENABLE_TRACER", env="ENABLE_TRACER")
 
 
 settings = Settings()

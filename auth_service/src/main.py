@@ -120,12 +120,14 @@ async def lifespan(_: FastAPI):
     redis.redis = Redis(
         host=settings.cache_host, port=settings.cache_port, decode_responses=True
     )
-    await FastAPILimiter.init(redis.redis)
+    if settings.enable_limiter:
+        await FastAPILimiter.init(redis.redis)
     yield
     await redis.redis.close()
 
 
-configure_tracing()
+if settings.enable_tracer:
+    configure_tracing()
 
 app = FastAPI(
     title=settings.project_name,
@@ -144,20 +146,20 @@ app.mount(
     name="static",
 )
 
+if settings.enable_tracer:
 
-@app.middleware("http")
-async def before_request(request: Request, call_next):
-    response = await call_next(request)
-    request_id = request.headers.get("X-Request-Id")
-    if not request_id:
-        return ORJSONResponse(
-            status_code=HTTPStatus.NOT_FOUND,
-            content={"detail": "X-Request-Id is required"},
-        )
-    return response
+    @app.middleware("http")
+    async def before_request(request: Request, call_next):
+        response = await call_next(request)
+        request_id = request.headers.get("X-Request-Id")
+        if not request_id:
+            return ORJSONResponse(
+                status_code=HTTPStatus.NOT_FOUND,
+                content={"detail": "X-Request-Id is required"},
+            )
+        return response
 
-
-FastAPIInstrumentor.instrument_app(app)
+    FastAPIInstrumentor.instrument_app(app)
 
 
 app.include_router(accounts.router, prefix="/api/v1/accounts", tags=["Пользователи"])

@@ -42,7 +42,7 @@ async def get_role(
     role_id: Any,
     role_service: RoleServiceABC = Depends(),
     auth_service: AuthServiceABC = Depends(),
-) -> RoleDto:
+) -> RoleDto | None:
     role: GenericResult[Role] = await role_service.get_role(role_id=role_id)
     if not role.is_success:
         raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail=role.error.reason)
@@ -86,7 +86,9 @@ async def update_role(
 ):
     result = await role_service.update_role(role_id=role_id, role_dto=role_data)
     if not result.is_success:
-        raise HTTPException(status_code=400, detail=result.error.reason)
+        raise HTTPException(
+            status_code=HTTPStatus.BAD_REQUEST, detail=result.error.reason
+        )
 
 
 @router.delete(
