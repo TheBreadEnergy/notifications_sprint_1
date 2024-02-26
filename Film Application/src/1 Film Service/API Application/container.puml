@@ -1,4 +1,4 @@
-@startuml
+@startuml Architecture
 !include https://raw.githubusercontent.com/adrianvlupu/C4-PlantUML/latest/C4_Component.puml
 
 LAYOUT_WITH_LEGEND()
@@ -11,32 +11,41 @@ Container(rdb3, "Film Database", "Relational Database Schema", "Stores films, ge
 Container(s3, "Minio File Storage", "S3 Storage", "Stores files")
 Container(redis, "Cache Storage Container", "Redis, one per service", "Stores cached data")
 Container(proxy, "Proxy and Load balancer", "NGINX", "Navigate request to concrete service")
+Container(clickhouse, "Data analysis for user events (UGC)", "ClickHouse", "Store, process and analyze user generated content" )
+Container(message_broker, "Message Broker", "Kafka/RabbitMQ", "Message bus for inter service communication and event driven design")
 Container_Boundary(api, "API Application") {
     Component(auth, "Auth Service", "fastapi", "Allows users to sign in to the film system")
     Component(films, "Film Service", "fastapi", "Provides films, genre, users data to user")
     Component(files, "File Service", "fastapi", "Provides access to film storage")
     Component(django, "Admin Service", "django, drf", "Provides admin functionality")
-    Component(etl, "Etl proccess", "Python", "Extract load transform process for films" )
-    Rel(films, auth, "Verify token")
-    Rel(files, auth, "Verify token")
-    Rel(django, auth, "Fetches roles from")
+    Component(etl, "Etl process", "Python", "Extract load transform process for films" )
+    Component(kafka_etl, "Etl process for kafka to clickhouse", "Python", "Extract load transform process for user events")
+    Component(queue_wrapper, "Queue service","Flask", "Wrapper for operating with message broker in broker agnostic model")
+    BiRel(films, auth, "Verify token and get user")
+    BiRel(files, auth, "Verify token and get user")
+    BiRel(django, auth, "Fetches roles from")
     Rel(django, files, "Stores file to")
+    BiRel(queue_wrapper, auth, "Verify token and get user")
 
 }
+Rel(message_broker, kafka_etl, "data from message broker")
+Rel(kafka_etl, clickhouse, "Store user events to clickhouse")
+Rel(proxy, queue_wrapper, "Redirect for sending user events")
 Rel(proxy, auth, "Redirect to")
 Rel(proxy, files, "Redirect to")
 Rel(proxy, django, "Redirect to")
 Rel(proxy, films, "Redirect to")
 Rel(etl, rdb3, "Fetch data from")
+BiRel(queue_wrapper, message_broker, "Send/Receive events and messages")
 Rel(etl, edb, "Write data to")
 Rel(files, s3, "Stores files")
-Rel(files, redis, Stores to and loads from cached data )
-Rel(auth, rdb1, "Stores and loads and loads user data and sessions")
-Rel(auth, redis, "Stores invalid token pairs")
+BiRel(files, redis, "Stores to and loads from cached data" )
+BiRel(auth, rdb1, "Stores and loads and loads user data and sessions")
+BiRel(auth, redis, "Stores/check invalid token pairs")
 Rel(films, edb, "Fetch data from")
-Rel(films, redis, "Stores and loads from cached data")
-Rel(files, rdb2, "Stores and loads files metas")
+BiRel(films, redis, "Stores and loads from cached data")
+BiRel(files, rdb2, "Stores and loads files metas")
 Rel(spa, proxy, "Uses", "JSON/HTTPS")
-Rel(django, rdb3, "Stores and loads films, genres, persons")
+BiRel(django, rdb3, "Stores and loads films, genres, persons")
 
 @enduml
