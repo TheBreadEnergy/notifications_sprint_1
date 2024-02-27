@@ -129,10 +129,6 @@
 
 <img src="./assets/images/Architecture.png"/>
 
-Взаимодействие подсистем детальнее представлена на следующей модели:
-
-<img src="./Film Application/src/1 Film Service/API Application/final_diagram.png"/></img>
-
 <h2> 4. Требования к программному комплексу </h2>
 <p> Функциональными требованиями к итоговому программному комплексу являются: </p>
 <ul>
