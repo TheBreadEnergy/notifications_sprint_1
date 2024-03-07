@@ -4,6 +4,10 @@ basedir = os.path.abspath(os.path.dirname(__file__))
 
 
 class Config:
+    DEBUG = os.environ.get("DEBUG", "True") == "True"
+    REQUEST_ID_UNIQUE_VALUE_PREFIX = os.environ.get(
+        "REQUEST_ID_UNIQUE_VALUE_PREFIX", ""
+    )
     JWT_SECRET_KEY = os.environ.get("JWT_SECRET_KEY", default="secret")
     JWT_ACCESS_TOKEN_EXPIRES = int(
         os.environ.get("JWT_ACCESS_TOKEN_EXPIRES", default=3600)
@@ -22,3 +26,5 @@ class Config:
     KAFKA_VIDEO_TOPIC = os.environ.get("KAFKA_VIDEO_TOPIC", default="video-quality")
     KAFKA_FILM_TOPIC = os.environ.get("KAFKA_FILM_TOPIC", default="film-view")
     KAFKA_FILTER_TOPIC = os.environ.get("KAFKA_FILTER_TOPIC", default="filter")
+    JAEGER_HOST = os.environ.get("JAEGER_HOST", default="localhost")
+    JAEGER_PORT = int(os.environ.get("JAEGER_PORT", default=4317))

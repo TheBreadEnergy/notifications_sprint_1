@@ -2,9 +2,11 @@ import json
 
 from confluent_kafka import Producer
 from flask import Flask
+from flask_request_id_header.middleware import RequestID
 from marshmallow import ValidationError
 from src.app.extensions import flasgger_app, jwt_app, ma_app
 from src.app.services.message_broker import KafkaMessageBrokerService
+from src.app.tracing import configure_tracing
 from src.config import Config
 
 
@@ -15,7 +17,6 @@ def create_app(config_class=Config):
         "bootstrap.servers": Config.BOOTSTRAP_SERVERS,
         "retry.backoff.ms": Config.RETRY_BACKOFF_MS,
     }
-
     producer = Producer(config)
     extensions.message_broker = KafkaMessageBrokerService(producer=producer)
 
@@ -23,6 +24,8 @@ def create_app(config_class=Config):
     ma_app.init_app(app)
     jwt_app.init_app(app)
     flasgger_app.init_app(app)
+    if Config.DEBUG:
+        configure_tracing(app)
 
     # register blueprints here
     from src.app.events import blueprint as events_blueprint
