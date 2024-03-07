@@ -11,6 +11,7 @@ from src.app.events.v1.routes import (
 )
 from src.app.extensions import docs, jwt_app, ma_app
 from src.app.services.message_broker import KafkaMessageBrokerService
+from src.app.swagger import setup_swagger
 from src.app.tracing import configure_tracing
 from src.config import Config
 
@@ -21,9 +22,9 @@ def create_app(config_class=Config):
     # Initialize flask extensions here
     ma_app.init_app(app)
     jwt_app.init_app(app)
-    docs.init_app(app)
+    setup_swagger(docs, app)
 
-    if Config.DEBUG:
+    if not Config.DEBUG:
         configure_tracing(app)
 
     # register blueprints here

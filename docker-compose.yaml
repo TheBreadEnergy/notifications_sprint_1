@@ -146,9 +146,6 @@ services:
       - elastic
     restart: unless-stopped
 
-
-
-
   jaeger-query:
     image: jaegertracing/jaeger-query:latest
     ports:
@@ -159,7 +156,16 @@ services:
       ES_SERVER_URLS: http://elastic-logs:9200
     restart: unless-stopped
 
-
+  event-api:
+    build: ./ucg_service
+    image: ucg_service:prod
+    env_file:
+      - envs/.env.api.ucg
+    depends_on:
+      - auth-api
+    ports:
+      - "5001:5001"
+    restart: unless-stopped
 
 
 volumes:

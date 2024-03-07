@@ -7,7 +7,7 @@ from src.config import Config
 
 ma_app = Marshmallow()
 jwt_app = JWTManager()
-docs = FlaskApiSpec()
+docs = FlaskApiSpec(document_options=False)
 
 
 config = {
