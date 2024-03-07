@@ -1,9 +1,20 @@
 import os
 
+from apispec import APISpec
+from apispec.ext.marshmallow import MarshmallowPlugin
+
 basedir = os.path.abspath(os.path.dirname(__file__))
 
 
 class Config:
+    APISPEC_SPEC = APISpec(
+        title="UGC Service",
+        version="0.1.0",
+        plugins=[MarshmallowPlugin()],
+        openapi_version="2.0.0",
+    )
+    APISPEC_SWAGGER_URL = "/swagger/"
+    APISPEC_SWAGGER_UI_URL = "/ucg/"
     DEBUG = os.environ.get("DEBUG", "True") == "True"
     REQUEST_ID_UNIQUE_VALUE_PREFIX = os.environ.get(
         "REQUEST_ID_UNIQUE_VALUE_PREFIX", ""
@@ -16,7 +27,7 @@ class Config:
         os.environ.get("JWT_REFRESH_TOKEN_EXPIRES", default=3600)
     )
     BOOTSTRAP_SERVERS = os.environ.get(
-        "BOOTSTRAP_SERVERS", default="158.160.73.60:9094"
+        "BOOTSTRAP_SERVERS", default="158.160.24.130:9094"
     )
     AUTO_OFFSET_RESET = os.environ.get("AUTO_OFFSET_RESET", default="earliest")
     ENABLE_AUTO_COMMIT = bool(os.environ.get("ENABLE_AUTO_COMMIT", default="False"))

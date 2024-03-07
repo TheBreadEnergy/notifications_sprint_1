@@ -1,7 +1,8 @@
 import dataclasses
 import json
 
-from flask import jsonify, request
+from flask import jsonify
+from flask_apispec import doc, marshal_with, use_kwargs
 from flask_jwt_extended import get_jwt_identity, jwt_required
 from src.app.events import blueprint
 from src.app.extensions import message_broker
@@ -13,22 +14,29 @@ from src.app.models.events import (
     KafkaVideoQualityEvent,
 )
 from src.app.schemas.events import (
-    changed_video_quality_event_schema,
-    film_view_completed_event_schema,
-    filter_user_event_schema,
-    user_clicked_event_schema,
-    user_seen_page_event_schema,
+    ChangedVideoQualityEventSchema,
+    FilmViewCompletedEventSchema,
+    UserClickedEventSchema,
+    UserFilteredEventSchema,
+    UserSeenPageEventSchema,
 )
 from src.app.utilities import serialize_datetime
 from src.config import Config
 
 
-@blueprint.route("/click", methods=["POST"])
-@jwt_required()
-def process_click_event():
-    data = request.get_json()
-    user = get_jwt_identity()
-    event = user_clicked_event_schema.load(data)
+@blueprint.route("/clicks", methods=["POST"])
+# @jwt_required()
+@use_kwargs(UserClickedEventSchema)
+@marshal_with(UserClickedEventSchema, description="Отправленное событие", code=200)
+@marshal_with(None, description="Ошибка валидации.", code=422)
+@doc(
+    description="Обработка событий связанных с кликами",
+    summary="Обработка событий связанных с кликами",
+    tags=["events"],
+)
+def process_click_event(**event):
+    # user = get_jwt_identity()
+    user = "aaaa"
     message = KafkaClickedEvent(
         user_id=user, timestamp=event["timestamp"], type=event["type"]
     )
@@ -37,15 +45,21 @@ def process_click_event():
         key=user,
         message=json.dumps(dataclasses.asdict(message), default=serialize_datetime),
     )
-    return jsonify(data), 200
+    return jsonify(event), 200
 
 
 @blueprint.route("/seen-pages", methods=["POST"])
 @jwt_required()
-def process_seen_pages():
-    data = request.get_json()
+@use_kwargs(UserSeenPageEventSchema)
+@marshal_with(UserSeenPageEventSchema, description="Отправленное событие", code=200)
+@marshal_with(None, description="Ошибка валидации.", code=422)
+@doc(
+    description="Обработка событий связанных с просмотром страниц",
+    summary="Обработка событий связанных с просмотром страниц",
+    tags=["events"],
+)
+def process_seen_pages(**event):
     user = get_jwt_identity()
-    event = user_seen_page_event_schema.load(data)
     message = KafkaSeenPageEvent(
         user_id=user,
         timestamp=event["timestamp"],
@@ -57,15 +71,23 @@ def process_seen_pages():
         key=user,
         message=json.dumps(dataclasses.asdict(message), default=serialize_datetime),
     )
-    return jsonify(data), 200
+    return jsonify(event), 200
 
 
 @blueprint.route("/video-quality", methods=["POST"])
 @jwt_required()
-def process_video_quality():
-    data = request.get_json()
+@use_kwargs(ChangedVideoQualityEventSchema)
+@marshal_with(
+    ChangedVideoQualityEventSchema, description="Отправленное событие", code=200
+)
+@marshal_with(None, description="Ошибка валидации.", code=422)
+@doc(
+    description="Обработка событий связанных с изменением качества видео",
+    summary="Обработка событий связанных с изменением качества видео",
+    tags=["events"],
+)
+def process_video_quality(**event):
     user = get_jwt_identity()
-    event = changed_video_quality_event_schema.load(data=data)
     message = KafkaVideoQualityEvent(
         user_id=user,
         timestamp=event["timestamp"],
@@ -77,15 +99,23 @@ def process_video_quality():
         key=user,
         message=json.dumps(dataclasses.asdict(message), default=serialize_datetime),
     )
-    return jsonify(data), 200
+    return jsonify(event), 200
 
 
 @blueprint.route("/film-view", methods=["POST"])
 @jwt_required()
-def process_film_view():
-    data = request.get_json()
+@use_kwargs(FilmViewCompletedEventSchema)
+@marshal_with(
+    FilmViewCompletedEventSchema, description="Отправленное событие", code=200
+)
+@marshal_with(None, description="Ошибка валидации.", code=422)
+@doc(
+    description="Обработка событий связанных с просмотром до конца фильма",
+    summary="Обработка событий связанных с просмотром до конца фильма",
+    tags=["events"],
+)
+def process_film_view(**event):
     user = get_jwt_identity()
-    event = film_view_completed_event_schema.load(data=data)
     message = KafkaFilmViewCompletedEvent(
         user_id=user, timestamp=event["timestamp"], film_id=event["film_id"]
     )
@@ -94,15 +124,21 @@ def process_film_view():
         key=user,
         message=json.dumps(dataclasses.asdict(message), default=serialize_datetime),
     )
-    return jsonify(data), 200
+    return jsonify(event), 200
 
 
 @blueprint.route("/filter", methods=["POST"])
 @jwt_required()
-def process_filter():
-    data = request.get_json()
+@use_kwargs(UserFilteredEventSchema)
+@marshal_with(UserFilteredEventSchema, description="Отправленное событие", code=200)
+@marshal_with(None, description="Ошибка валидации.", code=422)
+@doc(
+    description="Обработка событий связанных с фильтрацией контента",
+    summary="Обработка событий связанных с фильтрацией контента",
+    tags=["events"],
+)
+def process_filter(**event):
     user = get_jwt_identity()
-    event = filter_user_event_schema.load(data=data)
     message = KafkaFilteredEvent(
         user_id=user, timestamp=event["timestamp"], filtered_by=event["filter_by"]
     )
@@ -111,4 +147,4 @@ def process_filter():
         key=user,
         message=json.dumps(dataclasses.asdict(message), default=serialize_datetime),
     )
-    return jsonify(data), 200
+    return jsonify(event), 200
