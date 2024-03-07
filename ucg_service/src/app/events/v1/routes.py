@@ -25,7 +25,7 @@ from src.config import Config
 
 
 @blueprint.route("/clicks", methods=["POST"])
-# @jwt_required()
+@jwt_required()
 @use_kwargs(UserClickedEventSchema)
 @marshal_with(UserClickedEventSchema, description="Отправленное событие", code=200)
 @marshal_with(None, description="Ошибка валидации.", code=422)
@@ -35,8 +35,7 @@ from src.config import Config
     tags=["events"],
 )
 def process_click_event(**event):
-    # user = get_jwt_identity()
-    user = "aaaa"
+    user = get_jwt_identity()
     message = KafkaClickedEvent(
         user_id=user, timestamp=event["timestamp"], type=event["type"]
     )
