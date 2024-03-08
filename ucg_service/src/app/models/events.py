@@ -1,5 +1,4 @@
 from dataclasses import dataclass
-from datetime import datetime
 from uuid import UUID
 
 from src.app.schemas.events import ContentTypeEnum
@@ -8,7 +7,6 @@ from src.app.schemas.events import ContentTypeEnum
 @dataclass
 class KafkaEvent:
     user_id: str
-    timestamp: datetime
 
 
 @dataclass

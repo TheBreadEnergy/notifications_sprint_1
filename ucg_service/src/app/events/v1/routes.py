@@ -36,9 +36,7 @@ from src.config import Config
 @marshal_with(None, description="Ошибка валидации.", code=422)
 def process_click_event(**event):
     user = get_jwt_identity()
-    message = KafkaClickedEvent(
-        user_id=user, timestamp=event["timestamp"], type=event["type"]
-    )
+    message = KafkaClickedEvent(user_id=user, type=event["type"])
     message_broker.publish(
         topic=Config.KAFKA_CLICK_TOPIC,
         key=user,
@@ -61,7 +59,6 @@ def process_seen_pages(**event):
     user = get_jwt_identity()
     message = KafkaSeenPageEvent(
         user_id=user,
-        timestamp=event["timestamp"],
         url=event["url"],
         duration=event["duration"],
     )
@@ -89,7 +86,6 @@ def process_video_quality(**event):
     user = get_jwt_identity()
     message = KafkaVideoQualityEvent(
         user_id=user,
-        timestamp=event["timestamp"],
         old_quality=event["old_quality"],
         new_quality=event["new_quality"],
     )
@@ -115,9 +111,7 @@ def process_video_quality(**event):
 )
 def process_film_view(**event):
     user = get_jwt_identity()
-    message = KafkaFilmViewCompletedEvent(
-        user_id=user, timestamp=event["timestamp"], film_id=event["film_id"]
-    )
+    message = KafkaFilmViewCompletedEvent(user_id=user, film_id=event["film_id"])
     message_broker.publish(
         Config.KAFKA_FILM_TOPIC,
         key=user,
@@ -138,9 +132,7 @@ def process_film_view(**event):
 )
 def process_filter(**event):
     user = get_jwt_identity()
-    message = KafkaFilteredEvent(
-        user_id=user, timestamp=event["timestamp"], filtered_by=event["filter_by"]
-    )
+    message = KafkaFilteredEvent(user_id=user, filtered_by=event["filter_by"])
     message_broker.publish(
         Config.KAFKA_FILTER_TOPIC,
         key=user,
