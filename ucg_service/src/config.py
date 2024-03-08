@@ -9,12 +9,13 @@ basedir = os.path.abspath(os.path.dirname(__file__))
 class Config:
     APISPEC_SPEC = APISpec(
         title="UGC Service",
+        description="API для отправки событий о пользовательских действиях",
         version="0.1.0",
         plugins=[MarshmallowPlugin()],
         openapi_version="2.0.0",
     )
     APISPEC_SWAGGER_URL = "/swagger/"
-    APISPEC_SWAGGER_UI_URL = "/ucg/"
+    APISPEC_SWAGGER_UI_URL = "/api/ucg/"
     DEBUG = os.environ.get("DEBUG", "True") == "True"
     REQUEST_ID_UNIQUE_VALUE_PREFIX = os.environ.get(
         "REQUEST_ID_UNIQUE_VALUE_PREFIX", ""
