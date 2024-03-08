@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from data_processor import (
+from src.data_processor import (
     process_clicked_event,
     process_film_view_completed_event,
     process_filtered_event,
