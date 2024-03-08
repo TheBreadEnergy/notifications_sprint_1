@@ -1,6 +1,6 @@
 import json
 
-from message_router import MessageRouter
+from src.message_router import MessageRouter
 from src.clickhouse.client import ClickHouseClient
 from src.kafka.consumer import KafkaConsumer
 

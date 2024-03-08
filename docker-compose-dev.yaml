@@ -162,6 +162,13 @@ services:
       - "5001:5001"
     restart: unless-stopped
 
+  event-etl:
+    build: ucg_etl
+    image: ucg_etl:dev
+    env_file:
+      - envs/.env.etl.ucg
+    restart: unless-stopped
+
 
 
 
