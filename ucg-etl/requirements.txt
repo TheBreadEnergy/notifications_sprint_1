@@ -1,0 +1,10 @@
+annotated-types==0.6.0
+clickhouse-driver==0.2.7
+confluent-kafka==2.3.0
+pydantic==2.6.3
+pydantic-settings==2.2.1
+pydantic_core==2.16.3
+python-dotenv==1.0.1
+pytz==2024.1
+typing_extensions==4.10.0
+tzlocal==5.2
