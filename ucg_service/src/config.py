@@ -28,7 +28,7 @@ class Config:
         os.environ.get("JWT_REFRESH_TOKEN_EXPIRES", default=3600)
     )
     BOOTSTRAP_SERVERS = os.environ.get(
-        "BOOTSTRAP_SERVERS", default="158.160.24.130:9094"
+        "BOOTSTRAP_SERVERS", default="158.160.14.223:9094"
     )
     AUTO_OFFSET_RESET = os.environ.get("AUTO_OFFSET_RESET", default="earliest")
     ENABLE_AUTO_COMMIT = bool(os.environ.get("ENABLE_AUTO_COMMIT", default="False"))

@@ -1,5 +1,6 @@
 import dataclasses
 import json
+from http import HTTPStatus
 
 from flask import jsonify
 from flask_apispec import doc, marshal_with, use_kwargs
@@ -32,7 +33,9 @@ from src.config import Config
 )
 @jwt_required()
 @use_kwargs(UserClickedEventSchema)
-@marshal_with(UserClickedEventSchema, description="Отправленное событие", code=200)
+@marshal_with(
+    UserClickedEventSchema, description="Отправленное событие", code=HTTPStatus.OK
+)
 @marshal_with(None, description="Ошибка валидации.", code=422)
 def process_click_event(**event):
     user = get_jwt_identity()
@@ -42,13 +45,15 @@ def process_click_event(**event):
         key=user,
         message=json.dumps(dataclasses.asdict(message), default=serialize_datetime),
     )
-    return jsonify(event), 200
+    return jsonify(event), HTTPStatus.OK
 
 
 @blueprint.route("/seen-pages", methods=["POST"])
 @jwt_required()
 @use_kwargs(UserSeenPageEventSchema)
-@marshal_with(UserSeenPageEventSchema, description="Отправленное событие", code=200)
+@marshal_with(
+    UserSeenPageEventSchema, description="Отправленное событие", code=HTTPStatus.OK
+)
 @marshal_with(None, description="Ошибка валидации.", code=422)
 @doc(
     description="Обработка событий связанных с просмотром страниц",
@@ -67,14 +72,16 @@ def process_seen_pages(**event):
         key=user,
         message=json.dumps(dataclasses.asdict(message), default=serialize_datetime),
     )
-    return jsonify(event), 200
+    return jsonify(event), HTTPStatus.OK
 
 
 @blueprint.route("/video-quality", methods=["POST"])
 @jwt_required()
 @use_kwargs(ChangedVideoQualityEventSchema)
 @marshal_with(
-    ChangedVideoQualityEventSchema, description="Отправленное событие", code=200
+    ChangedVideoQualityEventSchema,
+    description="Отправленное событие",
+    code=HTTPStatus.OK,
 )
 @marshal_with(None, description="Ошибка валидации.", code=422)
 @doc(
@@ -94,14 +101,14 @@ def process_video_quality(**event):
         key=user,
         message=json.dumps(dataclasses.asdict(message), default=serialize_datetime),
     )
-    return jsonify(event), 200
+    return jsonify(event), HTTPStatus.OK
 
 
 @blueprint.route("/film-view", methods=["POST"])
 @jwt_required()
 @use_kwargs(FilmViewCompletedEventSchema)
 @marshal_with(
-    FilmViewCompletedEventSchema, description="Отправленное событие", code=200
+    FilmViewCompletedEventSchema, description="Отправленное событие", code=HTTPStatus.OK
 )
 @marshal_with(None, description="Ошибка валидации.", code=422)
 @doc(
@@ -117,13 +124,15 @@ def process_film_view(**event):
         key=user,
         message=json.dumps(dataclasses.asdict(message), default=serialize_datetime),
     )
-    return jsonify(event), 200
+    return jsonify(event), HTTPStatus.OK
 
 
 @blueprint.route("/filter", methods=["POST"])
 @jwt_required()
 @use_kwargs(UserFilteredEventSchema)
-@marshal_with(UserFilteredEventSchema, description="Отправленное событие", code=200)
+@marshal_with(
+    UserFilteredEventSchema, description="Отправленное событие", code=HTTPStatus.OK
+)
 @marshal_with(None, description="Ошибка валидации.", code=422)
 @doc(
     description="Обработка событий связанных с фильтрацией контента",
@@ -138,4 +147,4 @@ def process_filter(**event):
         key=user,
         message=json.dumps(dataclasses.asdict(message), default=serialize_datetime),
     )
-    return jsonify(event), 200
+    return jsonify(event), HTTPStatus.OK
