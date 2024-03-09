@@ -1,4 +1,5 @@
 from datetime import datetime
+import logging
 
 from src.data_processor import (
     process_clicked_event,
@@ -8,6 +9,8 @@ from src.data_processor import (
     process_video_quality_event,
 )
 from src.core.config import settings
+
+logger = logging.getLogger(__name__)
 
 
 class MessageRouter:
@@ -37,14 +40,11 @@ class MessageRouter:
             ),
         }
 
-    def route_message(self, message, topic_name, msg):
-        _, timestamp_ms = msg.timestamp()
-        timestamp = datetime.fromtimestamp(
-            timestamp_ms / 1000.0
-        )  # Преобразуем из миллисекунд в секунды
+    async def route_message(self, message, topic_name, msg):
+        timestamp = datetime.fromtimestamp(msg.timestamp / 1000.0)  # Преобразование из миллисекунд в секунды
         if topic_name in self.topic_to_handler:
             process_function, insert_function = self.topic_to_handler[topic_name]
             data = process_function(message, timestamp)
             insert_function(data)
         else:
-            print(f"No handler for topic {topic_name}")
+            logger.warning(f"No handler for topic {topic_name}")

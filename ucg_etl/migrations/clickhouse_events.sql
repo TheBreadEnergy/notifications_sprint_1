@@ -32,7 +32,6 @@ CREATE TABLE film_view_completed_events
 ) ENGINE = MergeTree()
 ORDER BY timestamp;
 
-
 CREATE TABLE user_filtered_events
 (
     timestamp DateTime,
