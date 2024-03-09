@@ -1,4 +1,4 @@
-FROM python:latest
+FROM python:3.12.2
 ENV PYTHONFAULTHANDLER=1 \
   PYTHONUNBUFFERED=1 \
   PYTHONDONTWRITEBYTECODE=1 \
@@ -21,14 +21,11 @@ RUN groupadd -r django && useradd -d /opt/app -r -g django django \
 COPY  requirements.txt requirements.txt
 COPY  entrypoint.sh entrypoint.sh
 
-
 RUN  python -m pip install --upgrade pip \
      && pip install --no-cache-dir -r  requirements.txt \
      && chmod +x entrypoint.sh
 
-
 COPY . .
-
 
 USER django
 
