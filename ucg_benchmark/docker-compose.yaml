@@ -1,0 +1,12 @@
+version: '3'
+services:
+  clickhouse:
+    image: clickhouse/clickhouse-server:24.1.6
+    ports:
+      - "8123:8123"
+      - "9000:9000"
+
+  vertica:
+    image: jbfavre/vertica:9.x
+    ports:
+      - "5433:5433"
