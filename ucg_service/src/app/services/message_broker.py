@@ -21,6 +21,7 @@ class KafkaMessageBrokerService(MessageBrokerService):
             key=key,
             value=message,
         )
+        self._producer.flush()
 
 
 class AioKafkaMessageBrokerService(MessageBrokerService):
