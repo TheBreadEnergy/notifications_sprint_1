@@ -35,7 +35,7 @@ class ClickHouseClient:
 
     async def flush_buffers_periodically(self):
         while True:
-            await asyncio.sleep(5)  # Периодическая отправка каждые 60 секунд
+            await asyncio.sleep(60)  # Периодическая отправка каждые 60 секунд
             for event_type in self.buffers.keys():
                 if self.buffers[event_type]:
                     await self.flush_buffer(event_type)
