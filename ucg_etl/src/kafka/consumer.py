@@ -1,4 +1,5 @@
 from aiokafka import AIOKafkaConsumer
+
 from src.core.config import settings
 
 
