@@ -1,6 +1,7 @@
+import json
 from datetime import datetime
 import logging
-
+from aiokafka import ConsumerRecord
 from src.data_processor import (
     process_clicked_event,
     process_film_view_completed_event,
@@ -40,11 +41,16 @@ class MessageRouter:
             ),
         }
 
-    async def route_message(self, message, topic_name, msg):
-        timestamp = datetime.fromtimestamp(msg.timestamp / 1000.0)  # Преобразование из миллисекунд в секунды
-        if topic_name in self.topic_to_handler:
-            process_function, insert_function = self.topic_to_handler[topic_name]
-            data = process_function(message, timestamp)
-            insert_function(data)
-        else:
-            logger.warning(f"No handler for topic {topic_name}")
+    async def route_message(self, msg: ConsumerRecord):
+        try:
+            topic_name = msg.topic
+            if topic_name in self.topic_to_handler:
+                timestamp = datetime.fromtimestamp(msg.timestamp / 1000.0)  # Преобразование из миллисекунд в секунды
+                message = json.loads(msg.value.decode("utf-8"))
+                process_function, insert_function = self.topic_to_handler[topic_name]
+                data = process_function(message, timestamp)
+                insert_function(data)
+            else:
+                logger.warning(f"Нет обработчика для топика {topic_name}")
+        except json.JSONDecodeError as e:
+            logger.error(f"Ошибка декодирования JSON: {e}")
