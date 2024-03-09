@@ -1,6 +1,5 @@
 from gevent import monkey
-
-from .app import create_app
+from src.app import create_app
 
 monkey.patch_all()
 
