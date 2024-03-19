@@ -47,6 +47,7 @@ jobs:
         with:
           python-version: 3.12
       - name: Отправка сообщения об успешности пайплайна
+        if: always()
         uses: robotomize/notify-telegram@v0.2.4
         with:
           chat: ${{ secrets.CHAT_ID }}
