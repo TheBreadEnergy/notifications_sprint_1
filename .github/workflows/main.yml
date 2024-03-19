@@ -20,13 +20,17 @@ jobs:
           python -m pip install --upgrade pip
           pip install flake8 wemake-python-styleguide flake8-html flake8-github flake8-bandit bandit
       - name: Прогон через wemake-python-styleguide
-        run: flake8 . --format=html --htmldir=flake-report || true
+        id: flake8
+        run: flake8 . --format=html --htmldir=flake-report
+        continue-on-error: true
       - name: Сохранение артефактов HTML
+        if: always()
         uses: actions/upload-artifact@v4.3.1
         with:
           name: html-reports
           path: flake-report/*.html
       - name: Формирование артефактов для GH
+        id: storeghartefacts
         uses: actions/upload-pages-artifact@v3.0.1
         with:
           name: linting-summary
@@ -37,9 +41,30 @@ jobs:
         with:
           artifact_name: linting-summary
           preview: True
-          
+      - name: Проверка типизации
+        id: mypy
+        uses: jpetrucciani/mypy-check@0.991
+        with:
+          python-version: 3.12
+        continue-on-error: true
+      - name: Отправка сообщения об успешности пайплайна
+        if: always()
+        uses: robotomize/notify-telegram@v0.2.4
+        with:
+          chat: ${{ secrets.CHAT_ID }}
+          token: ${{ secrets.BOT_TOKEN }}
+          status: ${{steps.flake8.status != "failure" && steps.mypy.status != "failure" }}
+          message: |
+            ${{ github.actor }} created pull-request:
+            Commit message: ${{ github.event.commits[0].message }}
+            PR SHA: ${{ github.event.pull_request.head.sha }}
+            Repository: ${{ github.repository }}
         
-      
+  
+
+        
+        
+    
       
 
       
