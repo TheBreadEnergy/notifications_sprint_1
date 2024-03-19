@@ -26,13 +26,18 @@ jobs:
         with:
           name: html-reports
           path: flake-report/*.html
-      - name: Convert HTML to markdown
-        id: html2markdown
-        uses: rknj/html2markdown@v1.1.0
-        with: 
-          html-file: flake-report/index.html
-      - name: Display Markdown Result
-        run: cat ${{ steps.html2markdown.outputs.markdown-file }} >> $GITHUB_STEP_SUMMARY
+      - name: Формирование артефактов для GH
+        uses: actions/upload-pages-artifact@v3.0.1
+        with:
+          name: linting-summary
+          path: flake-report
+          retention-days: 10
+      - name: Публикация GH Pages
+        uses: actions/deploy-pages@v4.0.5
+        with:
+          artifact_name: linting-summary
+          preview: True
+        
       
       
 
