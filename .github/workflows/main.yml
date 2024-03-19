@@ -53,7 +53,7 @@ jobs:
         with:
           chat: ${{ secrets.CHAT_ID }}
           token: ${{ secrets.BOT_TOKEN }}
-          status: ${{steps.flake8.status != "failure" && steps.mypy.status != "failure" }}
+          status: ${{steps.flake8.status != 'failure' && steps.mypy.status != 'failure' }}
           message: |
             ${{ github.actor }} created pull-request:
             Commit message: ${{ github.event.commits[0].message }}
