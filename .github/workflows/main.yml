@@ -55,9 +55,11 @@ jobs:
           token: ${{ secrets.BOT_TOKEN }}
           status: ${{ steps.flake8.outcome == 'success' && steps.mypy.outcome == 'success' }}
           message: |
+            
             ${{ github.actor }} created pull-request:
             PR SHA: ${{ github.event.pull_request.head.sha }}
             Repository: ${{ github.repository }}
+            Status: ${{ steps.flake8.outcome == 'success' && steps.mypy.outcome == 'success' }}
         
   
 
