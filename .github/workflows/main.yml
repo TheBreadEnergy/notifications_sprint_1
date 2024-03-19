@@ -26,9 +26,12 @@ jobs:
         with:
           name: html-reports
           path: flake-report/*.html
-
       - name: Display Summary
-        run: cat flake-report/index.html > $GITHUB_STEP_SUMMARY
+        uses: PavanMudigonda/html-reporter-github-pages@v1.2
+        with:
+          test_results: flake-report
+          gh_pages: gh_pages
+          subfolder: results
         
           
            
