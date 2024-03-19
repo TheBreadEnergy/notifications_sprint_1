@@ -22,14 +22,13 @@ jobs:
       - name: Прогон через wemake-python-styleguide
         id: flake8
         run: flake8 . --format=html --htmldir=flake-report
+        continue-on-error: true
       - name: Сохранение артефактов HTML
-        if: always()
         uses: actions/upload-artifact@v4.3.1
         with:
           name: html-reports
           path: flake-report/*.html
       - name: Формирование артефактов для GH
-        if: always()
         id: storeghartefacts
         uses: actions/upload-pages-artifact@v3.0.1
         with:
@@ -37,24 +36,23 @@ jobs:
           path: flake-report
           retention-days: 10
       - name: Публикация GH Pages
-        if: always()
         uses: actions/deploy-pages@v4.0.5
         with:
           artifact_name: linting-summary
           preview: True
       - name: Проверка типизации
-        if: always()
         id: mypy
         uses: jpetrucciani/mypy-check@0.991
         with:
           python_version: 3.12
+        continue-on-error: true
       - name: Отправка сообщения об успешности пайплайна
         if: always()
         uses: robotomize/notify-telegram@v0.2.4
         with:
           chat: ${{ secrets.CHAT_ID }}
           token: ${{ secrets.BOT_TOKEN }}
-          status: ${{ job.status }}
+          status: ${{ steps.flake8.outcome != 'success' && steps.mypy.outcome != 'success' }}
           message: |
             ${{ github.actor }} created pull-request:
             PR SHA: ${{ github.event.pull_request.head.sha }}
