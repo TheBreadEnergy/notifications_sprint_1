@@ -18,14 +18,17 @@ jobs:
       - name: Установка зависимостей
         run: |
           python -m pip install --upgrade pip
-          pip install flake8 wemake-python-styleguide flake8-html flake8-bandit bandit
+          pip install flake8 wemake-python-styleguide flake8-html flake8-github flake8-bandit bandit
       - name: Прогон через wemake-python-styleguide
         run: flake8 . --format=html --htmldir=flake-report
-      - name: Визуализация результата
-        if: always()
-        uses: pavi2410/html-preview-action@v2
+      - name: Сохранение артефактов HTML
+        uses: actions/upload-artifact@4.3.1
         with:
-          html_file: flake-report/index.html
+          name: html-reports
+          path: flake-report/*.html
+          retention-days: 5
+          overwrite: true
+        
           
            
       
