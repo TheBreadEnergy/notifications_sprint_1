@@ -36,12 +36,6 @@ jobs:
           name: linting-summary
           path: flake-report
           retention-days: 10
-      - name: Публикация GH Pages
-        if: always()
-        uses: actions/deploy-pages@v4.0.5
-        with:
-          artifact_name: linting-summary
-          preview: True
       - name: Проверка типизации
         id: mypy
         uses: jpetrucciani/mypy-check@0.991
