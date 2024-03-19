@@ -22,7 +22,7 @@ jobs:
       - name: Прогон через wemake-python-styleguide
         run: flake8 . --format=html --htmldir=flake-report
       - name: Сохранение артефактов HTML
-        uses: actions/upload-artifact@4.3.1
+        uses: actions/upload-artifact@v4.3.1
         with:
           name: html-reports
           path: flake-report/*.html
