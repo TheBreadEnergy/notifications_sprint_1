@@ -29,6 +29,7 @@ jobs:
           name: html-reports
           path: flake-report/*.html
       - name: Формирование артефактов для GH
+        if: always()
         id: storeghartefacts
         uses: actions/upload-pages-artifact@v3.0.1
         with:
@@ -36,11 +37,13 @@ jobs:
           path: flake-report
           retention-days: 10
       - name: Публикация GH Pages
+        if: always()
         uses: actions/deploy-pages@v4.0.5
         with:
           artifact_name: linting-summary
           preview: True
       - name: Проверка типизации
+        if: always()
         id: mypy
         uses: jpetrucciani/mypy-check@0.991
         with:
