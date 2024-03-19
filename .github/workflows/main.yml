@@ -26,12 +26,11 @@ jobs:
         with:
           name: html-reports
           path: flake-report/*.html
-      - name: Display Summary
-        uses: PavanMudigonda/html-reporter-github-pages@v1.2
+      - name: Upload Github Pages artifact
+        uses: actions/upload-pages-artifact@v3.0.1
         with:
-          test_results: flake-report
-          gh_pages: gh_pages
-          subfolder: results
+          path: flake-report/
+          retention-days: 10
         
           
            
