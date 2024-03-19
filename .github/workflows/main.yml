@@ -46,17 +46,14 @@ jobs:
         uses: jpetrucciani/mypy-check@0.991
         with:
           python-version: 3.12
-        continue-on-error: true
       - name: Отправка сообщения об успешности пайплайна
-        if: always()
         uses: robotomize/notify-telegram@v0.2.4
         with:
           chat: ${{ secrets.CHAT_ID }}
           token: ${{ secrets.BOT_TOKEN }}
-          status: ${{steps.flake8.status != 'failure' && steps.mypy.status != 'failure' }}
+          status: ${{ job.status }}
           message: |
             ${{ github.actor }} created pull-request:
-            Commit message: ${{ github.event.commits[0].message }}
             PR SHA: ${{ github.event.pull_request.head.sha }}
             Repository: ${{ github.repository }}
         
