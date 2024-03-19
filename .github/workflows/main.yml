@@ -26,11 +26,17 @@ jobs:
         with:
           name: html-reports
           path: flake-report/*.html
-      - name: Upload Github Pages artifact
-        uses: actions/upload-pages-artifact@v3.0.1
-        with:
-          path: flake-report/
-          retention-days: 10
+      - name: Convert HTML to markdown
+        id: html2markdown
+        uses: rknj/html2markdown@v1.1.0
+        with: 
+          html-file: flake-report/index.html
+      - name: Display Markdown Result
+        run: cat ${{ steps.html2markdown.outputs.markdown-file }} >> $GITHUB_STEP_SUMMARY
+      
+      
+
+      
         
           
            
