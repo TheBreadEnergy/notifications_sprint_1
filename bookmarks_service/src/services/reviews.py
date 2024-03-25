@@ -25,6 +25,10 @@ class ReviewsServiceABC(ABC):
         ...
 
     @abstractmethod
+    async def update_review(self, review_id: UUID, review_text: str) -> Review | None:
+        ...
+
+    @abstractmethod
     async def add_like_to_review(
         self, *, review_id: UUID, user: UserMeta, like_type: LikeType
     ) -> Review:
@@ -56,6 +60,11 @@ class ReviewsService(ReviewsServiceABC):
     async def create_review(self, *, data: ReviewCreateDto, user: UserMeta) -> Review:
         review = Review(user=user, film=data.film, text=data.text)
         return await self._repo.insert(entity=review)
+
+    async def update_review(self, review_id: UUID, review_text: str) -> Review | None:
+        return await self._repo.update_review_text(
+            review_id=review_id, text=review_text
+        )
 
     async def add_like_to_review(
         self, *, review_id: UUID, user: UserMeta, like_type: LikeType

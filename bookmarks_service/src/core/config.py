@@ -1,7 +1,12 @@
+import logging
 from pathlib import Path
 
+import backoff
+from aiohttp import ClientConnectorError
 from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
+from src.errors.rate_limit import RateLimitException
+from src.rate.rate_limiter import is_circuit_processable
 
 
 class Settings(BaseSettings):
@@ -33,3 +38,15 @@ class Settings(BaseSettings):
 
 
 settings = Settings()
+
+logger = logging.getLogger(__name__)
+
+BACKOFF_CONFIG = {
+    "wait_gen": backoff.expo,
+    "exception": (ClientConnectorError, RateLimitException),
+    "logger": logger,
+    "max_tries": settings.backoff_max_retries,
+}
+
+
+CIRCUIT_CONFIG = {"expected_exception": is_circuit_processable}

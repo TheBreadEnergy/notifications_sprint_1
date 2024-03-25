@@ -11,6 +11,10 @@ from src.schema.user import UserMeta
 
 class ReviewsRepositoryABC(RepositoryABC, ABC):
     @abstractmethod
+    async def update_review_text(self, review_id: UUID, text: str) -> Review | None:
+        ...
+
+    @abstractmethod
     async def add_like_to_review(
         self, review_id: UUID, user: UserMeta, like_type: LikeType
     ) -> Review | None:
@@ -26,6 +30,13 @@ class ReviewsRepositoryABC(RepositoryABC, ABC):
 class MongoReviewsRepository(MongoRepository[Review], ReviewsRepositoryABC):
     def __init__(self):
         super().__init__(model=Review)
+
+    async def update_review_text(self, review_id: UUID, text: str) -> Review | None:
+        review = await Review.find_one(Review.id == review_id)
+        if not review:
+            return None
+        await review.update({Review.text: text})
+        return review
 
     async def add_like_to_review(
         self, review_id: UUID, user: UserMeta, like_type: LikeType
