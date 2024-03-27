@@ -1,10 +1,18 @@
 version: '3'
+x-filebeat-common:
+  &filebeat-common
+  build:
+    context: ./logging/deploy/filebeat
+  depends_on:
+    - elastic-elk
+    - logstash
+    - kibana-elk
+    - proxy
+
 services:
   django-admin:
     build: django_admin
     image: app-django-admin:run
-    volumes:
-      - static:/opt/app/static
     depends_on:
       - postgres
     env_file:
@@ -12,6 +20,9 @@ services:
     expose:
       - "8000"
     restart: unless-stopped
+    volumes:
+      - static:/opt/app/static
+      - django-admin-logs:/opt/logs # Для ELK+Filebeat
 
   auth-api:
     build: auth_service
@@ -22,6 +33,8 @@ services:
     env_file:
       - envs/.env.api.auth
     restart: unless-stopped
+    volumes:
+      - auth-api-logs:/opt/logs # Для ELK+Filebeat
 
   film-api:
     build: filmwork_service
@@ -32,6 +45,8 @@ services:
     env_file:
       - envs/.env.api.films
     restart: unless-stopped
+    volumes:
+      - film-api-logs:/opt/logs # Для ELK+Filebeat
 
   file-api:
     build: file_service
@@ -43,6 +58,8 @@ services:
     env_file:
       - envs/.env.files
     restart: unless-stopped
+    volumes:
+      - file-api-logs:/opt/logs # Для ELK+Filebeat
 
   redis-films:
     image: redis:latest
@@ -62,6 +79,7 @@ services:
     image: app-nginx-proxy:latest
     volumes:
       - static:/data/static/:ro
+      - nginx-logs:/var/log/nginx/ # Логирование в файл для ELK+Filebeat
     depends_on:
       - django-admin
     ports:
@@ -166,6 +184,8 @@ services:
     ports:
       - "5001:5001"
     restart: unless-stopped
+    volumes:
+      - event-api-logs:/opt/logs # Для ELK+Filebeat
 
   event-etl:
     build: ucg_etl
@@ -174,6 +194,95 @@ services:
       - envs/.env.etl.ucg
     restart: unless-stopped
 
+  logstash:
+    image: logstash:8.10.2
+    depends_on:
+      - elastic-elk
+    environment:
+      XPACK_MONITORING_ENABLED: "false"
+      ES_HOST: "elastic-elk:9200"
+    volumes:
+      - ./logging/deploy/logstash.conf:/config/logstash.conf:ro
+      # - /tmp/logs/nginx/:/var/log/nginx/:ro
+    command: logstash -f /config/logstash.conf 
+
+  elastic-elk:
+    image: elasticsearch:8.10.2
+    environment:
+      - discovery.type=single-node
+      - bootstrap.memory_lock=true
+      - "ES_JAVA_OPTS=-Xms265m -Xmx265m"
+      - xpack.security.enabled=false
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - elastic-elk-data:/usr/share/elasticsearch/data
+
+  kibana-elk:
+    image: kibana:8.10.2
+    ports:
+      - "5601:5601"
+    environment:
+      - ELASTICSEARCH_HOSTS=http://elastic-elk:9200
+      - "ES_JAVA_OPTS=-Xms128m -Xmx128m"
+    depends_on:
+      - elastic-elk
+
+  filebeat-nginx:
+    <<: *filebeat-common
+    environment:
+      - SERVICE_NAME=nginx
+    depends_on:
+      - proxy
+    volumes:
+      - nginx-logs:/var/app/log:ro # Логирование в файл для ELK+Filebeat
+
+  filebeat-django-admin:
+    <<: *filebeat-common
+    environment:
+      - SERVICE_NAME=django-admin
+    depends_on:
+      - django-admin
+    volumes:
+      - django-admin-logs:/var/app/log:ro
+
+  filebeat-auth-api:
+    <<: *filebeat-common
+    environment:
+      - SERVICE_NAME=auth-api
+    depends_on:
+      - auth-api
+    volumes:
+      - auth-api-logs:/var/app/log:ro
+
+  filebeat-film-api:
+    <<: *filebeat-common
+    environment:
+      - SERVICE_NAME=film-api
+    depends_on:
+      - film-api
+    volumes:
+      - film-api-logs:/var/app/log:ro
+
+  filebeat-file-api:
+    <<: *filebeat-common
+    environment:
+      - SERVICE_NAME=file-api
+    depends_on:
+      - file-api
+    volumes:
+      - file-api-logs:/var/app/log:ro
+
+  filebeat-event-api:
+    <<: *filebeat-common
+    environment:
+      - SERVICE_NAME=event-api
+    depends_on:
+      - event-api
+    volumes:
+      - event-api-logs:/var/app/log:ro
 
 volumes:
   static:
@@ -186,4 +295,12 @@ volumes:
   auth-cache:
   minio_storage:
   elastic-logs:
+  elastic-elk-data:
+  # Filebeat volumes
+  nginx-logs:
+  django-admin-logs:
+  auth-api-logs:
+  film-api-logs:
+  file-api-logs:
+  event-api-logs:
 
