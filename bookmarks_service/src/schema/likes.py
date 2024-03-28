@@ -1,7 +1,9 @@
+from datetime import datetime
 from enum import IntEnum
 
 from pydantic import BaseModel
-from src.schema.user import UserMeta
+from src.schema.film import FilmMeta
+from src.schema.user import IdentifiableMixin, UserMeta
 
 
 class LikeType(IntEnum):
@@ -12,3 +14,15 @@ class LikeType(IntEnum):
 class ReviewLikeMeta(BaseModel):
     type: LikeType
     user: UserMeta
+
+
+class FilmLikeDto(IdentifiableMixin):
+    film: FilmMeta
+    user: UserMeta
+    like_type: LikeType
+    created: datetime
+
+
+class FilmLikeCreateDto(BaseModel):
+    film: FilmMeta
+    like_type: LikeType

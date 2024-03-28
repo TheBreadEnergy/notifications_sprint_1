@@ -3,6 +3,7 @@ from uuid import UUID
 
 from beanie.odm.operators.find.comparison import Eq
 from beanie.odm.operators.update.array import AddToSet, Pull
+from beanie.odm.operators.update.general import Set
 from src.models.review import Review
 from src.repositories.base import MongoRepository, RepositoryABC
 from src.schema.likes import LikeType, ReviewLikeMeta
@@ -11,7 +12,9 @@ from src.schema.user import UserMeta
 
 class ReviewsRepositoryABC(RepositoryABC, ABC):
     @abstractmethod
-    async def update_review_text(self, review_id: UUID, text: str) -> Review | None:
+    async def update_review_text(
+        self, review_id: UUID, user_id: UUID, text: str
+    ) -> Review | None:
         ...
 
     @abstractmethod
@@ -31,11 +34,15 @@ class MongoReviewsRepository(MongoRepository[Review], ReviewsRepositoryABC):
     def __init__(self):
         super().__init__(model=Review)
 
-    async def update_review_text(self, review_id: UUID, text: str) -> Review | None:
-        review = await Review.find_one(Review.id == review_id)
+    async def update_review_text(
+        self, review_id: UUID, user_id: UUID, text: str
+    ) -> Review | None:
+        review = await Review.find_one(
+            Review.id == review_id and Review.user.id == user_id
+        )
         if not review:
             return None
-        await review.update({Review.text: text})
+        await review.update(Set({Review.text: text}))
         return review
 
     async def add_like_to_review(
@@ -56,5 +63,5 @@ class MongoReviewsRepository(MongoRepository[Review], ReviewsRepositoryABC):
         review = await Review.find_one(Review.id == review_id)
         if not review:
             return None
-        await review.update(Pull(Eq(ReviewLikeMeta.user.user_id, user_id)))
+        await review.update(Pull(Eq(ReviewLikeMeta.user.id, user_id)))
         return review

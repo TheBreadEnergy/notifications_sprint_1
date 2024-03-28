@@ -34,15 +34,15 @@ LOGGING = {
             "class": "logging.StreamHandler",
             "stream": "ext://sys.stdout",
         },
-        "loggers": {
-            "": {"handlers": LOG_DEFAULT_HANDLERS, "level": "INFO"},
-            "uvicorn.error": {"level": "ERROR"},
-            "uvicorn.access": {"level": "INFO", "propagate": False},
-        },
-        "root": {
-            "level": "INFO",
-            "formatter": "verbose",
-            "handlers": LOG_DEFAULT_HANDLERS,
-        },
+    },
+    "loggers": {
+        "": {"handlers": LOG_DEFAULT_HANDLERS, "level": "INFO"},
+        "uvicorn.error": {"level": "ERROR"},
+        "uvicorn.access": {"level": "INFO", "propagate": False},
+    },
+    "root": {
+        "level": "INFO",
+        "formatter": "verbose",
+        "handlers": LOG_DEFAULT_HANDLERS,
     },
 }

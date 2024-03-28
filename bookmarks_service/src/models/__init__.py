@@ -2,9 +2,10 @@ import sys
 from typing import Sequence, Type, TypeVar
 
 from beanie import Document
-from bookmark import Bookmark  # noqa: F401
-from film_like import FilmLike  # noqa: F401
-from review import Review  # noqa: F401
+
+from .bookmark import Bookmark  # noqa: F401
+from .film_like import FilmLike  # noqa: F401
+from .review import Review  # noqa: F401
 
 DocType = TypeVar("DocType", bound=Document)
 

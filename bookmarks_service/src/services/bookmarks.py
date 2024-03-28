@@ -5,7 +5,7 @@ from src.core.pagination import PaginatedPage
 from src.models.bookmark import Bookmark
 from src.repositories.base import MongoRepository
 from src.schema.bookmarks import BookmarkCreateDto
-from src.schema.user import UserMeta
+from src.schema.user import UserDto, UserMeta
 
 
 class BookmarkServiceABC(ABC):
@@ -20,7 +20,7 @@ class BookmarkServiceABC(ABC):
         ...
 
     @abstractmethod
-    async def delete_bookmark(self, bookmark_id: UUID) -> None:
+    async def delete_bookmark(self, bookmark_id: UUID, user: UserDto) -> None:
         ...
 
     @abstractmethod
@@ -44,5 +44,5 @@ class BookmarkService(BookmarkServiceABC):
     async def get_bookmarks_for_user(self, user_id: UUID) -> PaginatedPage[Bookmark]:
         return await self._repo.search(user_id=user_id)
 
-    async def delete_bookmark(self, bookmark_id: UUID) -> None:
-        return await self._repo.delete(entity_id=bookmark_id)
+    async def delete_bookmark(self, bookmark_id: UUID, user: UserDto) -> None:
+        return await self._repo.delete(entity_id=bookmark_id, user_id=user.id)

@@ -1,9 +1,13 @@
-import uuid
+from datetime import datetime
 
-from pydantic import BaseModel
 from src.schema.film import FilmMeta
+from src.schema.user import IdentifiableMixin
 
 
-class BookmarkCreateDto(BaseModel):
-    id: uuid.UUID
+class BookmarkCreateDto(IdentifiableMixin):
     film: FilmMeta
+
+
+class BookmarkDto(IdentifiableMixin):
+    film: FilmMeta
+    created: datetime

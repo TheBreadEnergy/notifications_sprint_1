@@ -1,7 +1,12 @@
 import uuid
-from uuid import UUID
 
 from pydantic import BaseModel
+
+
+class Roles:
+    SUPER_ADMIN = "super_admin"
+    ADMIN = "admin"
+    USER = "user"
 
 
 class IdentifiableMixin(BaseModel):
@@ -13,17 +18,12 @@ class RoleBase(IdentifiableMixin):
     description: str | None
 
 
-class UserMeta(BaseModel):
-    user_id: UUID
+class UserMeta(IdentifiableMixin):
     login: str | None
     email: str | None
     first_name: str | None
     last_name: str | None
 
 
-class UserDto(IdentifiableMixin):
-    login: str | None
-    email: str | None
-    first_name: str | None
-    last_name: str | None
+class UserDto(UserMeta):
     roles: list[RoleBase] | None

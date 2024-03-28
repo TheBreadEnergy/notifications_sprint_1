@@ -44,7 +44,8 @@ class MongoRepository(RepositoryABC, Generic[ModelType]):
         if not user_id and not film_id:
             raise ValueError("You should provide either user_id or film_id")
         if user_id:
-            query = self._model.find_many(self._model.user.user_id == user_id)
+            query = self._model.find(self._model.user.id == user_id)
+
         else:
             query = self._model.find_many(self._model.film.film_id == film_id)
         if sort_by:
@@ -66,10 +67,14 @@ class MongoRepository(RepositoryABC, Generic[ModelType]):
             raise ValueError(
                 "You should provide either entity_id or film_id or user_id"
             )
+        if entity_id and not user_id:
+            raise ValueError("You should provide user_id")
         if entity_id:
-            query = self._model.find(self._model.id == entity_id)
+            query = self._model.find(
+                self._model.id == entity_id and self._model.user.id == user_id
+            )
         elif film_id:
-            query = self._model.find(self._model.film_id == film_id)
+            query = self._model.find(self._model.film.film_id == film_id)
         else:
-            query = self._model.find(self._model.user.user_id == user_id)
+            query = self._model.find(self._model.user.id == user_id)
         await query.delete()

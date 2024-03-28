@@ -8,11 +8,12 @@ from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from src.core.config import BACKOFF_CONFIG, CIRCUIT_CONFIG, settings
 from src.errors.rate_limit import RateLimitException
 from src.schema.token import TokenPayload
+from src.schema.user import UserDto
 
 
 @backoff.on_exception(**BACKOFF_CONFIG)
 @circuit(**CIRCUIT_CONFIG)
-async def get_user_info(token: str) -> dict:
+async def get_user_info(token: str) -> UserDto:
     token_payload = TokenPayload(access_token=token).model_dump(mode="json")
     async with ClientSession() as session:
         response = await session.post(
@@ -24,14 +25,15 @@ async def get_user_info(token: str) -> dict:
             raise RateLimitException()
         if response.status != HTTPStatus.OK:
             raise HTTPException(status_code=response.status, detail=response.reason)
-        return await response.json()
+        body = await response.json()
+        return UserDto(**body)
 
 
 class JwtBearer(HTTPBearer):
     def __init__(self, auto_error: bool = True):
         super().__init__(auto_error=auto_error)
 
-    async def __call__(self, request: Request) -> dict:
+    async def __call__(self, request: Request) -> UserDto:
         try:
             credentials: HTTPAuthorizationCredentials = await super().__call__(request)
             if not credentials:
@@ -51,7 +53,7 @@ class JwtBearer(HTTPBearer):
             )
 
     @staticmethod
-    async def get_user(token: str):
+    async def get_user(token: str) -> UserDto:
         return await get_user_info(token=token)
 
 

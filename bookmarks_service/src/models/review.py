@@ -8,6 +8,5 @@ class Review(DomainBase):
     likes: list[ReviewLikeMeta] = Field(default=list())
 
     class Settings:
-        use_cache = True
         name = "reviews"
         use_state_management = True

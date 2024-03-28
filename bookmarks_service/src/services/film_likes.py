@@ -18,7 +18,7 @@ class FilmLikeServiceABC(ABC):
 
     @abstractmethod
     async def create_film_like(
-        self, film_id: UUID, user: UserMeta, like_type: LikeType
+        self, film: FilmMeta, user: UserMeta, like_type: LikeType
     ) -> FilmLike:
         ...
 

@@ -6,6 +6,5 @@ class FilmLike(DomainBase):
     like_type: LikeType
 
     class Settings:
-        use_cache = True
         name = "likes"
         use_state_management = True
