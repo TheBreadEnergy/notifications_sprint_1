@@ -46,6 +46,10 @@ class ReviewsServiceABC(ABC):
     async def delete_review(self, *, review_id: UUID, user: UserDto) -> None:
         ...
 
+    @abstractmethod
+    async def delete_review_like(self, *, review_id: UUID, user: UserDto) -> Review:
+        ...
+
 
 def check_admin_role(user: UserDto) -> bool:
     role_names = [role.name for role in user.roles]
@@ -95,6 +99,9 @@ class ReviewsService(ReviewsServiceABC):
             review_id=review_id, user_id=user.id
         ):
             await self._repo.delete(entity_id=id)
+
+    async def delete_review_like(self, *, review_id: UUID, user: UserDto) -> Review:
+        return await self._repo.delete_like_from_review(review_id, user_id=user.id)
 
     async def _check_ownership(self, review_id: UUID, user_id: UUID) -> bool:
         entity = await self._repo.get(entity_id=review_id)

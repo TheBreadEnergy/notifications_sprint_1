@@ -51,7 +51,6 @@ class MongoReviewsRepository(MongoRepository[Review], ReviewsRepositoryABC):
         review = await Review.find_one(Review.id == review_id)
         if not review:
             return None
-
         await review.update(
             AddToSet({Review.likes: ReviewLikeMeta(type=like_type, user=user)})
         )

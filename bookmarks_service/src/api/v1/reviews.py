@@ -140,3 +140,17 @@ async def delete_review(
     user: Annotated[UserDto, Depends(security_jwt)] = None,
 ):
     return await review_service.delete_review(review_id=review_id, user=user)
+
+
+@router.delete(
+    "/{review_id}/likes",
+    summary="Удалить отзыв пользователя",
+    description="Удалить отзыв пользователя",
+    tags=["Отзывы"],
+)
+async def delete_review_like(
+    review_id: UUID,
+    review_service: ReviewsServiceABC = Depends(),
+    user: Annotated[UserDto, Depends(security_jwt)] = None,
+):
+    return await review_service.delete_review_like(review_id=review_id, user=user)
