@@ -22,7 +22,7 @@ class Settings(BaseSettings):
     cache_port: int = Field("6379", alias="CACHE_PORT", env="CACHE_PORT")
     base_dir: str = str(Path(__file__).parent.parent)
     postgres_conn: PostgresDsn = Field(
-        "postgresql+asyncpg://<username>:<password>@localhost:5432/users",
+        "postgresql+asyncpg://app:123qwe@localhost:5432/users",
         alias="DATABASE_CONN",
         env="DATABASE_CONN",
     )
@@ -117,8 +117,8 @@ class Settings(BaseSettings):
         alias="GOOGLE_USERINFO_URL",
         env="GOOGLE_USERINFO_URL",
     )
-    enable_limiter: bool = Field(True, alias="ENABLE_LIMITER", env="ENABLE_LIMITER")
-    enable_tracer: bool = Field(True, alias="ENABLE_TRACER", env="ENABLE_TRACER")
+    enable_limiter: bool = Field(False, alias="ENABLE_LIMITER", env="ENABLE_LIMITER")
+    enable_tracer: bool = Field(False, alias="ENABLE_TRACER", env="ENABLE_TRACER")
 
 
 settings = Settings()

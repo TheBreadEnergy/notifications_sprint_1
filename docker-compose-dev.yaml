@@ -1,4 +1,15 @@
-version: '3'
+version: '3.9'
+
+x-mongo-common:
+  &mongo-common
+  image: mongo:5.0.21
+  healthcheck:
+    test: echo 'db.runCommand("ping").ok' | mongo $(hostname)/test --quiet
+    interval: 10s
+    timeout: 5s
+    retries: 3
+    start_period: 10s
+
 services:
   django-admin:
     build: django_admin
@@ -169,8 +180,159 @@ services:
       - envs/.env.etl.ucg
     restart: unless-stopped
 
+  mongo_cnf_n1:
+    <<: *mongo-common
+    hostname: mongo_cnf_n1
+    container_name: mongo_cnf_n1
+    command: mongod --configsvr --replSet mongo_cnf --dbpath /data/db --port 27017 --bind_ip localhost,mongo_cnf_n1
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - mongo_cnf_n1_data:/data/db
+
+  mongo_cnf_n2:
+    <<: *mongo-common
+    hostname: mongo_cnf_n2
+    container_name: mongo_cnf_n2
+    command: mongod --configsvr --replSet mongo_cnf --dbpath /data/db --port 27017 --bind_ip localhost,mongo_cnf_n2
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - mongo_cnf_n2_data:/data/db
+
+  config_cnf_rs:
+    <<: *mongo-common
+    volumes:
+      - ./mongo/rs_cnf_setup.js:/conf/setup.js
+    command: [
+      "mongosh",
+      "--host",
+      "mongo_cnf_n1",
+      "--port",
+      "27017",
+      "/conf/setup.js"
+    ]
+    depends_on:
+      mongo_cnf_n1:
+        condition: service_healthy
+      mongo_cnf_n2:
+        condition: service_healthy
+
+  mongo_rs1_n1:
+    <<: *mongo-common
+    hostname: mongo_rs1_n1
+    container_name: mongo_rs1_n1
+    command: mongod --shardsvr --replSet mongo_rs1 --dbpath /data/db --port 27017 --bind_ip localhost,mongo_rs1_n1
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - mongo_rs1_n1_data:/data/db
+
+  mongo_rs1_n2:
+    <<: *mongo-common
+    hostname: mongo_rs1_n2
+    container_name: mongo_rs1_n2
+    command: mongod --shardsvr --replSet mongo_rs1 --dbpath /data/db --port 27017 --bind_ip localhost,mongo_rs1_n2
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - mongo_rs1_n2_data:/data/db
+
+  config_rs1:
+    <<: *mongo-common
+    volumes:
+      - ./mongo/rs_1_setup.js:/conf/setup.js
+    command: [
+      "mongosh",
+      "--host",
+      "mongo_rs1_n1",
+      "--port",
+      "27017",
+      "/conf/setup.js"
+    ]
+    depends_on:
+      mongo_rs1_n1:
+        condition: service_healthy
+      mongo_rs1_n2:
+        condition: service_healthy
+
+  mongo_rs2_n1:
+    <<: *mongo-common
+    hostname: mongo_rs2_n1
+    container_name: mongo_rs2_n1
+    command: mongod --shardsvr --replSet mongo_rs2 --dbpath /data/db --port 27017 --bind_ip localhost,mongo_rs2_n1
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - mongo_rs2_n1_data:/data/db
+
+  mongo_rs2_n2:
+    <<: *mongo-common
+    hostname: mongo_rs2_n2
+    container_name: mongo_rs2_n2
+    command: mongod --shardsvr --replSet mongo_rs2 --dbpath /data/db --port 27017 --bind_ip localhost,mongo_rs2_n2
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - mongo_rs2_n2_data:/data/db
+
+  config_rs2:
+    <<: *mongo-common
+    volumes:
+      - ./mongo/rs_2_setup.js:/conf/setup.js
+    command: [
+      "mongosh",
+      "--host",
+      "mongo_rs2_n1",
+      "--port",
+      "27017",
+      "/conf/setup.js"
+    ]
+    depends_on:
+      mongo_rs2_n1:
+        condition: service_healthy
+      mongo_rs2_n2:
+        condition: service_healthy
+
+  mongos:
+    <<: *mongo-common
+    command: mongos --configdb mongo_cnf/mongo_cnf_n1:27017,mongo_cnf_n2:27017 --port 27017 --bind_ip localhost,mongos
+    hostname: mongos
+    container_name: mongos
+    ports:
+      - "27017:27017"
+    environment:
+      - MONGO_INITDB_DATABASE=posts_db
+    depends_on:
+      config_rs1:
+        condition: service_completed_successfully
+      config_rs2:
+        condition: service_completed_successfully
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+
+  config_shared_cluster:
+    <<: *mongo-common
+    command: [
+      "mongosh",
+      "--host",
+      "mongos",
+      "--port",
+      "27017",
+      "/conf/setup.js"
+    ]
+    volumes:
+      - ./mongo/sharded_cluster_setup.js:/conf/setup.js
+    depends_on:
+      mongos:
+        condition: service_healthy
 
 
+  bookmarks-api:
+    build: bookmarks_service
+    image: app-bookmarks-api:dev
+    depends_on:
+      mongos:
+        condition: service_healthy
+    env_file:
+      - envs/.env.bookmarks.api
+    ports:
+      - "8004:8000"
+    restart: unless-stopped
 
 
 
@@ -184,4 +346,9 @@ volumes:
   pg-cache:
   auth-cache:
   minio_storage:
-
+  mongo_cnf_n1_data:
+  mongo_cnf_n2_data:
+  mongo_rs1_n1_data:
+  mongo_rs1_n2_data:
+  mongo_rs2_n1_data:
+  mongo_rs2_n2_data:
