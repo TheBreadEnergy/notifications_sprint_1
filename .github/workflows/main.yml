@@ -9,25 +9,28 @@ jobs:
   linter:
     name: Проверка качества кода
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.9", "3.10","3.11", "3.12"]
     steps:
       - uses: actions/checkout@v4.1.2
       - name: Установка Python
         uses: actions/setup-python@v5.0.0
         with:
-          python-version: "3.12"
+          python-version: ${{matrix.python-version}}
       - name: Установка зависимостей
         run: |
           python -m pip install --upgrade pip
           pip install flake8 wemake-python-styleguide flake8-html flake8-github flake8-bandit bandit
       - name: Прогон через wemake-python-styleguide
         id: flake8
-        run: flake8 . --format=html --htmldir=flake-report
+        run: flake8 . --format=html --htmldir=flake-report-${{matrix.python-version}}
       - name: Сохранение артефактов HTML
         if: always()
         uses: actions/upload-artifact@v4.3.1
         with:
           name: html-reports
-          path: flake-report/*.html
+          path: flake-report-${{matrix.python-version}}/*.html
       - name: Формирование артефактов для GH
         id: storeghartefacts
         if: always()
@@ -49,11 +52,11 @@ jobs:
           token: ${{ secrets.BOT_TOKEN }}
           status: ${{ steps.flake8.outcome == 'success' && steps.mypy.outcome == 'success' }}
           message: |
-            
             ${{ github.actor }} created pull-request:
             PR SHA: ${{ github.event.pull_request.head.sha }}
             Repository: ${{ github.repository }}
-            Status: ${{ steps.flake8.outcome == 'success' && steps.mypy.outcome == 'success' }}
+            Status: ${{ steps.flake8.outcome == 'success' && steps.mypy.outcome == 'success' }} на версии ${{matrix.python-version}}
+  
         
   
 
