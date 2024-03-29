@@ -29,8 +29,8 @@ def create_app() -> FastAPI:
     app = FastAPI(
         title=settings.project_name,
         description=settings.description,
-        docs_url="/api/auth/openapi",
-        openapi_url="/api/auth/openapi.json",
+        docs_url="/api/bookmarks/openapi",
+        openapi_url="/api/bookmarks/openapi.json",
         default_response_class=ORJSONResponse,
         version=settings.version,
         lifespan=lifespan,

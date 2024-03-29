@@ -2,7 +2,7 @@ version: '3.9'
 
 x-mongo-common:
   &mongo-common
-  image: mongo:latest
+  image: mongo:5.0.21
   healthcheck:
     test: echo 'db.runCommand("ping").ok' | mongo $(hostname)/test --quiet
     interval: 10s
@@ -203,14 +203,13 @@ services:
     volumes:
       - ./mongo/rs_cnf_setup.js:/conf/setup.js
     command: [
-               "mongosh",
-               "--host",
-               "mongo_cnf_n1",
-               "--port",
-               "27017",
-               "/conf/setup.js"
+      "mongosh",
+      "--host",
+      "mongo_cnf_n1",
+      "--port",
+      "27017",
+      "/conf/setup.js"
     ]
-
     depends_on:
       mongo_cnf_n1:
         condition: service_healthy
@@ -218,33 +217,34 @@ services:
         condition: service_healthy
 
   mongo_rs1_n1:
-   <<: *mongo-common
-   hostname: mongo_rs1_n1
-   command: mongod --shardsvr --replSet mongo_rs1 --dbpath /data/db --port 27017 --bind_ip localhost,mongo_rs1_n1
-   volumes:
-     - /etc/localtime:/etc/localtime:ro
-     - mongo_rs1_n1_data:/data/db
+    <<: *mongo-common
+    hostname: mongo_rs1_n1
+    container_name: mongo_rs1_n1
+    command: mongod --shardsvr --replSet mongo_rs1 --dbpath /data/db --port 27017 --bind_ip localhost,mongo_rs1_n1
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - mongo_rs1_n1_data:/data/db
 
   mongo_rs1_n2:
-   <<: *mongo-common
-   hostname: mongo_rs1_n1
-   command: mongod --shardsvr --replSet mongo_rs1 --dbpath /data/db --port 27017 --bind_ip localhost,mongo_rs1_n2
-   volumes:
-     - /etc/localtime:/etc/localtime:ro
-     - mongo_rs1_n2_data:/data/db
-
+    <<: *mongo-common
+    hostname: mongo_rs1_n2
+    container_name: mongo_rs1_n2
+    command: mongod --shardsvr --replSet mongo_rs1 --dbpath /data/db --port 27017 --bind_ip localhost,mongo_rs1_n2
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - mongo_rs1_n2_data:/data/db
 
   config_rs1:
     <<: *mongo-common
     volumes:
       - ./mongo/rs_1_setup.js:/conf/setup.js
-    command:  [
-                "mongosh",
-                "--host",
-                "mongo_rs1_n1",
-                "--port",
-                "27017",
-                "/conf/setup.js"
+    command: [
+      "mongosh",
+      "--host",
+      "mongo_rs1_n1",
+      "--port",
+      "27017",
+      "/conf/setup.js"
     ]
     depends_on:
       mongo_rs1_n1:
@@ -255,6 +255,7 @@ services:
   mongo_rs2_n1:
     <<: *mongo-common
     hostname: mongo_rs2_n1
+    container_name: mongo_rs2_n1
     command: mongod --shardsvr --replSet mongo_rs2 --dbpath /data/db --port 27017 --bind_ip localhost,mongo_rs2_n1
     volumes:
       - /etc/localtime:/etc/localtime:ro
@@ -263,11 +264,11 @@ services:
   mongo_rs2_n2:
     <<: *mongo-common
     hostname: mongo_rs2_n2
+    container_name: mongo_rs2_n2
     command: mongod --shardsvr --replSet mongo_rs2 --dbpath /data/db --port 27017 --bind_ip localhost,mongo_rs2_n2
     volumes:
       - /etc/localtime:/etc/localtime:ro
       - mongo_rs2_n2_data:/data/db
-
 
   config_rs2:
     <<: *mongo-common
@@ -282,20 +283,20 @@ services:
       "/conf/setup.js"
     ]
     depends_on:
-      mongo_rs1_n1:
+      mongo_rs2_n1:
         condition: service_healthy
-      mongo_rs1_n2:
+      mongo_rs2_n2:
         condition: service_healthy
 
   mongos:
     <<: *mongo-common
-    command: mongos --configdb mongo_cnf/mongo_cnf1:27017,mongo_cnf2:27017 --port 27107 --bind_ip localhost,mongos
+    command: mongos --configdb mongo_cnf/mongo_cnf_n1:27017,mongo_cnf_n2:27017 --port 27017 --bind_ip localhost,mongos
     hostname: mongos
     container_name: mongos
     ports:
       - "27017:27017"
     environment:
-      - MONGO_INITDB_DATABASE=bookmarks
+      - MONGO_INITDB_DATABASE=posts_db
     depends_on:
       config_rs1:
         condition: service_completed_successfully
@@ -307,22 +308,21 @@ services:
   config_shared_cluster:
     <<: *mongo-common
     command: [
-               "mongosh",
-               "--host",
-               "mongos",
-               "--port",
-               "27017",
-               "/conf/setup.js"
+      "mongosh",
+      "--host",
+      "mongos",
+      "--port",
+      "27017",
+      "/conf/setup.js"
     ]
     volumes:
       - ./mongo/sharded_cluster_setup.js:/conf/setup.js
-
     depends_on:
       mongos:
         condition: service_healthy
 
 
-  bookmark-api:
+  bookmarks-api:
     build: bookmarks_service
     image: app-bookmarks-api:dev
     depends_on:
