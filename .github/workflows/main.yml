@@ -22,23 +22,9 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install flake8 wemake-python-styleguide flake8-html flake8-github flake8-bandit bandit
-      - name: Прогон через wemake-python-styleguide
+      - name: Прогон через wemake-python-styleguide с разными версиями
         id: flake8
-        run: flake8 . --format=html --htmldir=flake-report-${{matrix.python-version}}
-      - name: Сохранение артефактов HTML
-        if: always()
-        uses: actions/upload-artifact@v4.3.1
-        with:
-          name: html-reports
-          path: flake-report-${{matrix.python-version}}/*.html
-      - name: Формирование артефактов для GH
-        id: storeghartefacts
-        if: always()
-        uses: actions/upload-pages-artifact@v3.0.1
-        with:
-          name: linting-summary
-          path: flake-report
-          retention-days: 10
+        run: flake8 .
       - name: Проверка типизации
         id: mypy
         uses: jpetrucciani/mypy-check@0.991
@@ -57,7 +43,35 @@ jobs:
             Repository: ${{ github.repository }}
             Status: ${{ steps.flake8.outcome == 'success' && steps.mypy.outcome == 'success' }} на версии ${{matrix.python-version}}
   
-        
+  report:
+    name: Формирование отчета
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4.1.2
+      - name: Установка Python
+        uses: actions/setup-python@v5.0.0
+        with:
+          python-version: "3.12"
+      - name: Установка зависимостей
+        run: |
+          python -m pip install --upgrade pip
+          pip install flake8 wemake-python-styleguide flake8-html flake8-github flake8-bandit bandit
+      - name: Прогон для формирования отчета
+        run: flake8 . --format=html --htmldir=flake-report
+      - name: Сохранение артефактов HTML
+        if: always()
+        uses: actions/upload-artifact@v4.3.1
+        with:
+          name: html-reports
+          path: flake-report/*.html
+      - name: Формирование артефактов для GH
+        id: storeghartefacts
+        if: always()
+        uses: actions/upload-pages-artifact@v3.0.1
+        with:
+          name: linting-summary
+          path: flake-report
+          retention-days: 10
   
 
         
