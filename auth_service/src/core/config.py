@@ -120,6 +120,15 @@ class Settings(BaseSettings):
     enable_limiter: bool = Field(False, alias="ENABLE_LIMITER", env="ENABLE_LIMITER")
     enable_tracer: bool = Field(False, alias="ENABLE_TRACER", env="ENABLE_TRACER")
 
+    # Logging settings
+    log_level: str = "INFO"
+    logger_filename: str = "/opt/logs/auth-api-logs.json"
+    logger_maxbytes: int = 15000000
+    logger_mod: str = "a"
+    logger_backup_count: int = 5
+
+    sentry_dsn: str | None = None
+
 
 settings = Settings()
 
