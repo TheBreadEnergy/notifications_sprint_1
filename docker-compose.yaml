@@ -355,6 +355,8 @@ services:
         condition: service_healthy
     env_file:
       - envs/.env.bookmarks.api
+    volumes:
+      - bookmarks-api-logs:/opt/logs # Для ELK+Filebeat
     ports:
       - "8004:8000"
     restart: unless-stopped
@@ -449,6 +451,16 @@ services:
     volumes:
       - event-api-logs:/var/app/log:ro
 
+  filebeat-bookmarks-api:
+    <<: *filebeat-common
+    environment:
+      - SERVICE_NAME=bookmarks-api
+    depends_on:
+      - bookmarks-api
+    volumes:
+      - bookmarks-api-logs:/var/app/log:ro
+
+
 volumes:
   static:
   auth-data:
@@ -468,6 +480,7 @@ volumes:
   film-api-logs:
   file-api-logs:
   event-api-logs:
+  bookmarks-api-logs:
   mongo_cnf_n1_data:
   mongo_cnf_n2_data:
   mongo_rs1_n1_data:

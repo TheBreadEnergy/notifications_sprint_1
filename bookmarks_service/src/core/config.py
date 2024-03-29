@@ -1,8 +1,9 @@
-import logging
+import os
 from pathlib import Path
 
 import backoff
 from aiohttp import ClientConnectorError
+from loguru import logger
 from pydantic import Field, MongoDsn
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from src.errors.rate_limit import RateLimitException
@@ -42,10 +43,18 @@ class Settings(BaseSettings):
     )
     enable_tracer: bool = Field(False, alias="ENABLE_TRACER", env="ENABLE_TRACER")
 
+    # Logging settings
+    log_level: str = "INFO"
+    logger_filename: str = "/opt/logs/film-api-logs.json"
+    logger_maxbytes: int = 15000000
+    logger_mod: str = "a"
+    logger_backup_count: int = 5
+
+    sentry_dsn: str | None = None
+
 
 settings = Settings()
 
-logger = logging.getLogger(__name__)
 
 BACKOFF_CONFIG = {
     "wait_gen": backoff.expo,
