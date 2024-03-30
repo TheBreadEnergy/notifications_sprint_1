@@ -70,3 +70,5 @@ opentelemetry-sdk==1.22.0
 opentelemetry-api==1.22.0
 opentelemetry-exporter-jaeger==1.21.0
 protobuf==3.20.*
+loguru==0.7.2
+sentry-sdk[fastapi]==1.44.0
