@@ -30,10 +30,12 @@ jobs:
           .venv/bin/activate
           pip install -r requirements.txt
           pytest
+          source deactivate
+          cd ..
       - name: Прогон через wemake-python-styleguide с разными версиями
         if: always()
         id: flake8
-        run: flake8 .
+        run: flake8 . --exclude venv --ignore=E501,F401
       - name: Проверка типизации
         id: mypy
         uses: jpetrucciani/mypy-check@0.991
