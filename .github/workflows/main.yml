@@ -26,6 +26,7 @@ jobs:
         id: pytest
         run: |
           cd bookmarks_service
+          python -m venv .venv
           .venv/bin/activate
           pip install -r requirements.txt
           pytest
