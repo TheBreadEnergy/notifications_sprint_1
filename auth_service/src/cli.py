@@ -1,12 +1,12 @@
 import asyncio
-import logging
+from src.core.config import settings
 from functools import wraps
 from typing import Annotated
+from loguru import logger
 
 import typer
 import uvicorn
 from sqlalchemy import select
-from src.core.logging import LOGGING
 from src.db.postgres import async_session
 from src.models.role import Role
 from src.models.user import User
@@ -21,8 +21,7 @@ def start_app():
         "main:app",
         host="0.0.0.0",
         port=8001,
-        log_config=LOGGING,
-        log_level=logging.INFO,
+        log_level=settings.log_level,
     )
 
 

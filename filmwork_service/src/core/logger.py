@@ -1,58 +1,29 @@
-LOG_FORMAT = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-LOG_DEFAULT_HANDLERS = [
-    "console",
-]
+import sys
 
-LOGGING = {
-    "version": 1,
-    "disable_existing_loggers": False,
-    "formatters": {
-        "verbose": {"format": LOG_FORMAT},
-        "default": {
-            "()": "uvicorn.logging.DefaultFormatter",
-            "fmt": "%(levelprefix)s %(message)s",
-            "use_colors": None,
-        },
-        "access": {
-            "()": "uvicorn.logging.AccessFormatter",
-            "fmt": "%(levelprefix)s %(client_addr)s - "
-            "'%(request_line)s' %(status_code)s",
-        },
-    },
-    "handlers": {
-        "console": {
-            "level": "DEBUG",
-            "class": "logging.StreamHandler",
-            "formatter": "verbose",
-        },
-        "default": {
-            "formatter": "default",
-            "class": "logging.StreamHandler",
-            "stream": "ext://sys.stdout",
-        },
-        "access": {
-            "formatter": "access",
-            "class": "logging.StreamHandler",
-            "stream": "ext://sys.stdout",
-        },
-    },
-    "loggers": {
-        "": {
-            "handlers": LOG_DEFAULT_HANDLERS,
-            "level": "INFO",
-        },
-        "uvicorn.error": {
-            "level": "INFO",
-        },
-        "uvicorn.access": {
-            "handlers": ["access"],
-            "level": "INFO",
-            "propagate": False,
-        },
-    },
-    "root": {
-        "level": "INFO",
-        "formatter": "verbose",
-        "handlers": LOG_DEFAULT_HANDLERS,
-    },
-}
+from loguru import logger
+from src.core.config import settings
+
+REQUEST_LOG_FORMAT = (
+    '{{"request_id": "{extra[request_id]}", "asctime": "{time:YYYY-MM-DD HH:mm:ss}", '
+    '"levelname": "{level.name}", "name": "{name}", "message": "{message}", '
+    '"host": "{extra[host]}", "user-agent": "{extra[user-agent]}", '
+    '"method": "{extra[method]}", "path": "{extra[path]}", '
+    '"query_params": "{extra[query_params]}", "status_code": "{extra[status_code]}"}}'
+)
+
+
+# Логгер для реквестов
+def setup_root_logger():
+    logger.remove()
+    logger.add(
+        settings.logger_filename,
+        format=REQUEST_LOG_FORMAT,
+        level=settings.log_level,
+        rotation="500 MB",
+    )
+    logger.add(
+        sys.stdout,
+        format=REQUEST_LOG_FORMAT,
+        level=settings.log_level,
+        colorize=True,
+    )

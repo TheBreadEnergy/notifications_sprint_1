@@ -40,3 +40,5 @@ class Config:
     KAFKA_FILTER_TOPIC = os.environ.get("KAFKA_FILTER_TOPIC", default="filters")
     JAEGER_HOST = os.environ.get("JAEGER_HOST", default="localhost")
     JAEGER_PORT = int(os.environ.get("JAEGER_PORT", default=4317))
+
+    SENTRY_DSN = os.environ.get("SENTRY_DSN", default="")
