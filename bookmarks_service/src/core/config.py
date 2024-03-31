@@ -45,7 +45,7 @@ class Settings(BaseSettings):
 
     # Logging settings
     log_level: str = "INFO"
-    logger_filename: str = "/opt/logs/film-api-logs.json"
+    logger_filename: str = "/opt/logs/bookmarks-api-logs.json"
     logger_maxbytes: int = 15000000
     logger_mod: str = "a"
     logger_backup_count: int = 5
