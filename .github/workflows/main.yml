@@ -32,6 +32,7 @@ jobs:
         with:
           python_version: 3.12
       - name: Unit test bookmark service
+        if: always()
         id: pytest
         run: |
           cd bookmarks_service
