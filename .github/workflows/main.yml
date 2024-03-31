@@ -30,6 +30,7 @@ jobs:
           .venv/bin/activate
           pip install -r requirements.txt
           pytest
+          deactivate
       - name: Прогон через wemake-python-styleguide с разными версиями
         if: always()
         id: flake8
