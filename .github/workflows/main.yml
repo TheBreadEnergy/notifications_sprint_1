@@ -22,6 +22,15 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install flake8 wemake-python-styleguide flake8-html flake8-github flake8-bandit bandit
+      - name: Прогон через wemake-python-styleguide с разными версиями
+        if: always()
+        id: flake8
+        run: flake8 . --exclude venv --ignore=E501,F401
+      - name: Проверка типизации
+        id: mypy
+        uses: jpetrucciani/mypy-check@0.991
+        with:
+          python_version: 3.12
       - name: Unit test bookmark service
         id: pytest
         run: |
@@ -32,15 +41,6 @@ jobs:
           pytest
           source deactivate
           cd ..
-      - name: Прогон через wemake-python-styleguide с разными версиями
-        if: always()
-        id: flake8
-        run: flake8 . --exclude venv --ignore=E501,F401
-      - name: Проверка типизации
-        id: mypy
-        uses: jpetrucciani/mypy-check@0.991
-        with:
-          python_version: 3.12
       - name: Отправка сообщения об успешности пайплайна
         if: always()
         uses: robotomize/notify-telegram@v0.2.4
