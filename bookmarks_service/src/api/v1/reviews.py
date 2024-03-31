@@ -153,4 +153,4 @@ async def delete_review_like(
     review_service: ReviewsServiceABC = Depends(),
     user: Annotated[UserDto, Depends(security_jwt)] = None,
 ):
-    return await review_service.delete_review_like(review_id=review_id, user=user)
+    return await review_service.remove_like_from_review(review_id=review_id, user=user)
