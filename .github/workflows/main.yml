@@ -27,6 +27,7 @@ jobs:
         id: flake8
         run: flake8 . --exclude venv --ignore=E501,F401
       - name: Проверка типизации
+        if: always()
         id: mypy
         uses: jpetrucciani/mypy-check@0.991
         with:
@@ -40,8 +41,6 @@ jobs:
           .venv/bin/activate
           pip install -r requirements.txt
           pytest
-          source deactivate
-          cd ..
       - name: Отправка сообщения об успешности пайплайна
         if: always()
         uses: robotomize/notify-telegram@v0.2.4
