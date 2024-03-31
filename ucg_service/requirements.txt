@@ -60,4 +60,5 @@ Flask~=3.0.2
 marshmallow~=3.21.1
 aiokafka~=0.10.0
 gevent~=24.2.1
-apispec~=6.5.0sentry-sdk[fastapi]==1.44.0
+apispec~=6.5.0
+sentry-sdk[fastapi]==1.44.0
