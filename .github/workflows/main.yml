@@ -49,8 +49,8 @@ jobs:
           message: |
             ${{ github.actor }} created pull-request:
             PR SHA: ${{ github.event.pull_request.head.sha }}
-            Tests: ${{ steps.pytest.outcome }}
             Repository: ${{ github.repository }}
+            Tests: ${{steps.pytest.outcome}}
             Status: ${{ steps.flake8.outcome == 'success' && steps.mypy.outcome == 'success' }} на версии ${{matrix.python-version}}
   
   report:
@@ -66,6 +66,13 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install flake8 wemake-python-styleguide flake8-html flake8-github flake8-bandit bandit
+      - name: Unit test bookmark service
+        run: |
+          cd bookmarks_service
+          python -m venv .venv
+          .venv/bin/activate
+          pip install -r requirements.txt
+          pytest
       - name: Прогон для формирования отчета
         run: flake8 . --format=html --htmldir=flake-report
       - name: Сохранение артефактов HTML
