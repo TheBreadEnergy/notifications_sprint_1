@@ -1,0 +1,22 @@
+[tool.poetry]
+name = "notifications-admin"
+version = "0.1.0"
+description = "Admin panel for sending and scheduling notifications"
+authors = ["Your Name <you@example.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+django = "^5.0.4"
+django-tinymce = "^4.0.0"
+psycopg2-binary = "^2.9.9"
+django-split-settings = "^1.3.1"
+python-dotenv = "^1.0.1"
+circuitbreaker = "^2.0.0"
+backoff = "^2.2.1"
+django-debug-toolbar = "^4.3.0"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
