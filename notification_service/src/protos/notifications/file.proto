@@ -1,0 +1,10 @@
+syntax = "proto3";
+import "google/protobuf/empty.proto";
+
+message FilmUploadedNotificationRequest {
+    string film_id = 1;
+}
+
+service FilmNotificationService {
+    rpc SendFilmNotification (FilmUploadedNotificationRequest) returns (google.protobuf.Empty) {}
+}

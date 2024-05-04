@@ -10,7 +10,7 @@ repos:
       entry: flake8
       language: python
       types: [python]
-      exclude: (?x)^(django_admin/.* |etl/src/queries/.* | filmwork_service/.*/__init__.py | file_service/.*/__init__.py | auth_service/.*/__init__.py | auth_service/src/migrations/.* | ucg_service/src/app/.*/__init__.py | ucg_service/src/pywsgi.py | ucg_service/src/.*/__init__.py  )$
+      exclude: (?x)^(django_admin/.* |etl/src/queries/.* | filmwork_service/.*/__init__.py | file_service/.*/__init__.py | auth_service/.*/__init__.py | auth_service/src/migrations/.* | ucg_service/src/app/.*/__init__.py | ucg_service/src/pywsgi.py | ucg_service/src/.*/__init__.py | notification_service/src/models/grpc/.* | notification_service/src/services/grpc/.*   )$
 -   repo: https://github.com/timothycrosley/isort
     rev: 5.12.0
     hooks:
