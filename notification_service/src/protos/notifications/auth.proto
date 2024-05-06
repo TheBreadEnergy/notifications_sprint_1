@@ -1,47 +1,28 @@
 syntax = "proto3";
-import "google/protobuf/timestamp.proto";
-import "google/protobuf/duration.proto";
+
 import "google/protobuf/empty.proto";
 
 message UserRegisteredNotificationRequest {
   string user_id = 1;
-  google.protobuf.Timestamp registered_at = 2;
 
-}
-
-message BatchUserRegisteredNotificationRequest {
-  repeated BatchUserRegisteredNotificationRequest events = 1;
 }
 
 message UserActivatedAccountNotificationRequest {
   string user_id = 1;
-  google.protobuf.Timestamp activated_at = 2;
-}
-
-message BatchUserActivatedAccountNotificationRequest {
-  repeated BatchUserActivatedAccountNotificationRequest events = 1;
 }
 
 
 message UserLongNoSeeNotificationRequest {
   string user_id = 1;
-  google.protobuf.Duration duration = 2;
 }
 
-message BatchLongNoSeeNotificationRequest {
-  repeated UserLongNoSeeNotificationRequest events = 1;
-}
 
-message UserNotificationResponse {
-  string notification_id = 1;
-}
+
 
 service UserNotificationService {
+
   rpc SendRegistrationNotification (UserRegisteredNotificationRequest) returns (google.protobuf.Empty) {}
   rpc SendActivationNotification (UserActivatedAccountNotificationRequest) returns (google.protobuf.Empty) {}
   rpc SendLongNoSeeNotification (UserLongNoSeeNotificationRequest) returns (google.protobuf.Empty) {}
 
-  rpc SendBatchRegistrationNotification (BatchUserRegisteredNotificationRequest) returns (google.protobuf.Empty) {}
-  rpc SendBatchActivationNotification (BatchUserActivatedAccountNotificationRequest) returns (google.protobuf.Empty) {}
-  rpc SendBatchLongNoSeeNotification (BatchLongNoSeeNotificationRequest) returns (google.protobuf.Empty) {}
 }

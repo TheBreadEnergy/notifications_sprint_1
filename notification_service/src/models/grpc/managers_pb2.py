@@ -16,7 +16,7 @@ _sym_db = _symbol_database.Default()
 from google.protobuf import timestamp_pb2 as google_dot_protobuf_dot_timestamp__pb2
 
 DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(
-    b'\n\x0emanagers.proto\x1a\x1fgoogle/protobuf/timestamp.proto"\x89\x01\n\x1cSendBatchNotificationRequest\x12\x10\n\x08user_ids\x18\x01 \x03(\t\x12\x13\n\x0btemplate_id\x18\x02 \x01(\t\x12\x0f\n\x07subject\x18\x03 \x01(\t\x12\x0c\n\x04text\x18\x04 \x01(\t\x12#\n\x04type\x18\x05 \x01(\x0e\x32\x15.NotificationTypeEnum"\xc9\x01\n CreateDelayedNotificationRequest\x12\x10\n\x08user_ids\x18\x01 \x03(\t\x12\x13\n\x0btemplate_id\x18\x02 \x01(\t\x12\x0f\n\x07subject\x18\x03 \x01(\t\x12\x0c\n\x04text\x18\x04 \x01(\t\x12#\n\x04type\x18\x05 \x03(\x0e\x32\x15.NotificationTypeEnum\x12+\n\x07\x63reated\x18\x06 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12\r\n\x05\x64\x65lta\x18\x07 \x01(\x05"\xa4\x01\n"CreateReccurentNotificationRequest\x12\x10\n\x08user_ids\x18\x01 \x03(\t\x12\x13\n\x0btemplate_id\x18\x02 \x01(\t\x12\x0f\n\x07subject\x18\x03 \x01(\t\x12\x0c\n\x04text\x18\x04 \x01(\t\x12#\n\x04type\x18\x05 \x03(\x0e\x32\x15.NotificationTypeEnum\x12\x13\n\x0b\x63ron_string\x18\x06 \x01(\t"/\n\x14NotificationResponse\x12\x17\n\x0fnotification_id\x18\x01 \x01(\t*4\n\x14NotificationTypeEnum\x12\t\n\x05\x65mail\x10\x00\x12\x07\n\x03sms\x10\x01\x12\x08\n\x04push\x10\x02\x32\xa5\x02\n\x1aManagerNotificationService\x12Q\n\x17SendNotificationToUsers\x12\x1d.SendBatchNotificationRequest\x1a\x15.NotificationResponse"\x00\x12W\n\x19\x43reateDelayedNotification\x12!.CreateDelayedNotificationRequest\x1a\x15.NotificationResponse"\x00\x12[\n\x1b\x43reateReccurentNotification\x12#.CreateReccurentNotificationRequest\x1a\x15.NotificationResponse"\x00\x62\x06proto3'
+    b'\n\x0emanagers.proto\x1a\x1fgoogle/protobuf/timestamp.proto"\x9d\x01\n\x1cSendBatchNotificationRequest\x12\x12\n\nmanager_id\x18\x01 \x01(\t\x12\x10\n\x08user_ids\x18\x02 \x03(\t\x12\x13\n\x0btemplate_id\x18\x03 \x01(\t\x12\x0f\n\x07subject\x18\x04 \x01(\t\x12\x0c\n\x04text\x18\x05 \x01(\t\x12#\n\x04type\x18\x06 \x01(\x0e\x32\x15.NotificationTypeEnum"\xcb\x01\n CreateDelayedNotificationRequest\x12\x12\n\nmanager_id\x18\x01 \x01(\t\x12\x10\n\x08user_ids\x18\x02 \x03(\t\x12\x13\n\x0btemplate_id\x18\x03 \x01(\t\x12\x0f\n\x07subject\x18\x04 \x01(\t\x12\x0c\n\x04text\x18\x05 \x01(\t\x12#\n\x04type\x18\x06 \x03(\x0e\x32\x15.NotificationTypeEnum\x12(\n\x04send\x18\x07 \x01(\x0b\x32\x1a.google.protobuf.Timestamp"\xb8\x01\n"CreateReccurentNotificationRequest\x12\x12\n\nmanager_id\x18\x01 \x01(\t\x12\x10\n\x08user_ids\x18\x02 \x03(\t\x12\x13\n\x0btemplate_id\x18\x03 \x01(\t\x12\x0f\n\x07subject\x18\x04 \x01(\t\x12\x0c\n\x04text\x18\x05 \x01(\t\x12#\n\x04type\x18\x06 \x03(\x0e\x32\x15.NotificationTypeEnum\x12\x13\n\x0b\x63ron_string\x18\x07 \x01(\t"/\n\x14NotificationResponse\x12\x17\n\x0fnotification_id\x18\x01 \x01(\t*4\n\x14NotificationTypeEnum\x12\t\n\x05\x65mail\x10\x00\x12\x07\n\x03sms\x10\x01\x12\x08\n\x04push\x10\x02\x32\xa5\x02\n\x1aManagerNotificationService\x12Q\n\x17SendNotificationToUsers\x12\x1d.SendBatchNotificationRequest\x1a\x15.NotificationResponse"\x00\x12W\n\x19\x43reateDelayedNotification\x12!.CreateDelayedNotificationRequest\x1a\x15.NotificationResponse"\x00\x12[\n\x1b\x43reateReccurentNotification\x12#.CreateReccurentNotificationRequest\x1a\x15.NotificationResponse"\x00\x62\x06proto3'
 )
 
 _globals = globals()
@@ -24,16 +24,16 @@ _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
 _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, "managers_pb2", _globals)
 if not _descriptor._USE_C_DESCRIPTORS:
     DESCRIPTOR._loaded_options = None
-    _globals["_NOTIFICATIONTYPEENUM"]._serialized_start = 611
-    _globals["_NOTIFICATIONTYPEENUM"]._serialized_end = 663
+    _globals["_NOTIFICATIONTYPEENUM"]._serialized_start = 653
+    _globals["_NOTIFICATIONTYPEENUM"]._serialized_end = 705
     _globals["_SENDBATCHNOTIFICATIONREQUEST"]._serialized_start = 52
-    _globals["_SENDBATCHNOTIFICATIONREQUEST"]._serialized_end = 189
-    _globals["_CREATEDELAYEDNOTIFICATIONREQUEST"]._serialized_start = 192
-    _globals["_CREATEDELAYEDNOTIFICATIONREQUEST"]._serialized_end = 393
-    _globals["_CREATERECCURENTNOTIFICATIONREQUEST"]._serialized_start = 396
-    _globals["_CREATERECCURENTNOTIFICATIONREQUEST"]._serialized_end = 560
-    _globals["_NOTIFICATIONRESPONSE"]._serialized_start = 562
-    _globals["_NOTIFICATIONRESPONSE"]._serialized_end = 609
-    _globals["_MANAGERNOTIFICATIONSERVICE"]._serialized_start = 666
-    _globals["_MANAGERNOTIFICATIONSERVICE"]._serialized_end = 959
+    _globals["_SENDBATCHNOTIFICATIONREQUEST"]._serialized_end = 209
+    _globals["_CREATEDELAYEDNOTIFICATIONREQUEST"]._serialized_start = 212
+    _globals["_CREATEDELAYEDNOTIFICATIONREQUEST"]._serialized_end = 415
+    _globals["_CREATERECCURENTNOTIFICATIONREQUEST"]._serialized_start = 418
+    _globals["_CREATERECCURENTNOTIFICATIONREQUEST"]._serialized_end = 602
+    _globals["_NOTIFICATIONRESPONSE"]._serialized_start = 604
+    _globals["_NOTIFICATIONRESPONSE"]._serialized_end = 651
+    _globals["_MANAGERNOTIFICATIONSERVICE"]._serialized_start = 708
+    _globals["_MANAGERNOTIFICATIONSERVICE"]._serialized_end = 1001
 # @@protoc_insertion_point(module_scope)

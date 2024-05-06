@@ -10,30 +10,32 @@ enum NotificationTypeEnum {
 
 
 message SendBatchNotificationRequest {
-  repeated string user_ids = 1;
-  string template_id = 2;
-  string subject = 3;
-  string text = 4;
-  NotificationTypeEnum type = 5;
+  string manager_id = 1;
+  repeated string user_ids = 2;
+  string template_id = 3;
+  string subject = 4;
+  string text = 5;
+  NotificationTypeEnum type = 6;
 }
 
 message CreateDelayedNotificationRequest {
-  repeated string user_ids = 1;
-  string template_id = 2;
-  string subject = 3;
-  string text = 4;
-  repeated NotificationTypeEnum type = 5;
-  google.protobuf.Timestamp created = 6;
-  int32 delta = 7;
+  string manager_id = 1;
+  repeated string user_ids = 2;
+  string template_id = 3;
+  string subject = 4;
+  string text = 5;
+  repeated NotificationTypeEnum type = 6;
+  google.protobuf.Timestamp send = 7;
 }
 
 message CreateReccurentNotificationRequest {
-  repeated string user_ids = 1;
-  string template_id = 2;
-  string subject = 3;
-  string text = 4;
-  repeated NotificationTypeEnum type = 5;
-  string cron_string = 6;
+  string manager_id = 1;
+  repeated string user_ids = 2;
+  string template_id = 3;
+  string subject = 4;
+  string text = 5;
+  repeated NotificationTypeEnum type = 6;
+  string cron_string = 7;
 }
 
 

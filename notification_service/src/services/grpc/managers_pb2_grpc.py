@@ -3,7 +3,7 @@
 import warnings
 
 import grpc
-from src.models.grpc import managers_pb2 as managers__pb2
+import managers_pb2 as managers__pb2
 
 GRPC_GENERATED_VERSION = "1.63.0"
 GRPC_VERSION = grpc.__version__

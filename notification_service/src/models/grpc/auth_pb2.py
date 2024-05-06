@@ -13,12 +13,10 @@ from google.protobuf.internal import builder as _builder
 _sym_db = _symbol_database.Default()
 
 
-from google.protobuf import duration_pb2 as google_dot_protobuf_dot_duration__pb2
 from google.protobuf import empty_pb2 as google_dot_protobuf_dot_empty__pb2
-from google.protobuf import timestamp_pb2 as google_dot_protobuf_dot_timestamp__pb2
 
 DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(
-    b'\n\nauth.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1egoogle/protobuf/duration.proto\x1a\x1bgoogle/protobuf/empty.proto"g\n!UserRegisteredNotificationRequest\x12\x0f\n\x07user_id\x18\x01 \x01(\t\x12\x31\n\rregistered_at\x18\x02 \x01(\x0b\x32\x1a.google.protobuf.Timestamp"a\n&BatchUserRegisteredNotificationRequest\x12\x37\n\x06\x65vents\x18\x01 \x03(\x0b\x32\'.BatchUserRegisteredNotificationRequest"l\n\'UserActivatedAccountNotificationRequest\x12\x0f\n\x07user_id\x18\x01 \x01(\t\x12\x30\n\x0c\x61\x63tivated_at\x18\x02 \x01(\x0b\x32\x1a.google.protobuf.Timestamp"m\n,BatchUserActivatedAccountNotificationRequest\x12=\n\x06\x65vents\x18\x01 \x03(\x0b\x32-.BatchUserActivatedAccountNotificationRequest"`\n UserLongNoSeeNotificationRequest\x12\x0f\n\x07user_id\x18\x01 \x01(\t\x12+\n\x08\x64uration\x18\x02 \x01(\x0b\x32\x19.google.protobuf.Duration"V\n!BatchLongNoSeeNotificationRequest\x12\x31\n\x06\x65vents\x18\x01 \x03(\x0b\x32!.UserLongNoSeeNotificationRequest"3\n\x18UserNotificationResponse\x12\x17\n\x0fnotification_id\x18\x01 \x01(\t2\xe7\x04\n\x17UserNotificationService\x12\\\n\x1cSendRegistrationNotification\x12".UserRegisteredNotificationRequest\x1a\x16.google.protobuf.Empty"\x00\x12`\n\x1aSendActivationNotification\x12(.UserActivatedAccountNotificationRequest\x1a\x16.google.protobuf.Empty"\x00\x12X\n\x19SendLongNoSeeNotification\x12!.UserLongNoSeeNotificationRequest\x1a\x16.google.protobuf.Empty"\x00\x12\x66\n!SendBatchRegistrationNotification\x12\'.BatchUserRegisteredNotificationRequest\x1a\x16.google.protobuf.Empty"\x00\x12j\n\x1fSendBatchActivationNotification\x12-.BatchUserActivatedAccountNotificationRequest\x1a\x16.google.protobuf.Empty"\x00\x12^\n\x1eSendBatchLongNoSeeNotification\x12".BatchLongNoSeeNotificationRequest\x1a\x16.google.protobuf.Empty"\x00\x62\x06proto3'
+    b'\n\nauth.proto\x1a\x1bgoogle/protobuf/empty.proto"4\n!UserRegisteredNotificationRequest\x12\x0f\n\x07user_id\x18\x01 \x01(\t":\n\'UserActivatedAccountNotificationRequest\x12\x0f\n\x07user_id\x18\x01 \x01(\t"3\n UserLongNoSeeNotificationRequest\x12\x0f\n\x07user_id\x18\x01 \x01(\t2\xb3\x02\n\x17UserNotificationService\x12\\\n\x1cSendRegistrationNotification\x12".UserRegisteredNotificationRequest\x1a\x16.google.protobuf.Empty"\x00\x12`\n\x1aSendActivationNotification\x12(.UserActivatedAccountNotificationRequest\x1a\x16.google.protobuf.Empty"\x00\x12X\n\x19SendLongNoSeeNotification\x12!.UserLongNoSeeNotificationRequest\x1a\x16.google.protobuf.Empty"\x00\x62\x06proto3'
 )
 
 _globals = globals()
@@ -26,20 +24,12 @@ _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
 _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, "auth_pb2", _globals)
 if not _descriptor._USE_C_DESCRIPTORS:
     DESCRIPTOR._loaded_options = None
-    _globals["_USERREGISTEREDNOTIFICATIONREQUEST"]._serialized_start = 108
-    _globals["_USERREGISTEREDNOTIFICATIONREQUEST"]._serialized_end = 211
-    _globals["_BATCHUSERREGISTEREDNOTIFICATIONREQUEST"]._serialized_start = 213
-    _globals["_BATCHUSERREGISTEREDNOTIFICATIONREQUEST"]._serialized_end = 310
-    _globals["_USERACTIVATEDACCOUNTNOTIFICATIONREQUEST"]._serialized_start = 312
-    _globals["_USERACTIVATEDACCOUNTNOTIFICATIONREQUEST"]._serialized_end = 420
-    _globals["_BATCHUSERACTIVATEDACCOUNTNOTIFICATIONREQUEST"]._serialized_start = 422
-    _globals["_BATCHUSERACTIVATEDACCOUNTNOTIFICATIONREQUEST"]._serialized_end = 531
-    _globals["_USERLONGNOSEENOTIFICATIONREQUEST"]._serialized_start = 533
-    _globals["_USERLONGNOSEENOTIFICATIONREQUEST"]._serialized_end = 629
-    _globals["_BATCHLONGNOSEENOTIFICATIONREQUEST"]._serialized_start = 631
-    _globals["_BATCHLONGNOSEENOTIFICATIONREQUEST"]._serialized_end = 717
-    _globals["_USERNOTIFICATIONRESPONSE"]._serialized_start = 719
-    _globals["_USERNOTIFICATIONRESPONSE"]._serialized_end = 770
-    _globals["_USERNOTIFICATIONSERVICE"]._serialized_start = 773
-    _globals["_USERNOTIFICATIONSERVICE"]._serialized_end = 1388
+    _globals["_USERREGISTEREDNOTIFICATIONREQUEST"]._serialized_start = 43
+    _globals["_USERREGISTEREDNOTIFICATIONREQUEST"]._serialized_end = 95
+    _globals["_USERACTIVATEDACCOUNTNOTIFICATIONREQUEST"]._serialized_start = 97
+    _globals["_USERACTIVATEDACCOUNTNOTIFICATIONREQUEST"]._serialized_end = 155
+    _globals["_USERLONGNOSEENOTIFICATIONREQUEST"]._serialized_start = 157
+    _globals["_USERLONGNOSEENOTIFICATIONREQUEST"]._serialized_end = 208
+    _globals["_USERNOTIFICATIONSERVICE"]._serialized_start = 211
+    _globals["_USERNOTIFICATIONSERVICE"]._serialized_end = 518
 # @@protoc_insertion_point(module_scope)

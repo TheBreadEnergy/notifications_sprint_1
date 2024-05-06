@@ -23,12 +23,14 @@ sms: NotificationTypeEnum
 push: NotificationTypeEnum
 
 class SendBatchNotificationRequest(_message.Message):
-    __slots__ = ("user_ids", "template_id", "subject", "text", "type")
+    __slots__ = ("manager_id", "user_ids", "template_id", "subject", "text", "type")
+    MANAGER_ID_FIELD_NUMBER: _ClassVar[int]
     USER_IDS_FIELD_NUMBER: _ClassVar[int]
     TEMPLATE_ID_FIELD_NUMBER: _ClassVar[int]
     SUBJECT_FIELD_NUMBER: _ClassVar[int]
     TEXT_FIELD_NUMBER: _ClassVar[int]
     TYPE_FIELD_NUMBER: _ClassVar[int]
+    manager_id: str
     user_ids: _containers.RepeatedScalarFieldContainer[str]
     template_id: str
     subject: str
@@ -36,6 +38,7 @@ class SendBatchNotificationRequest(_message.Message):
     type: NotificationTypeEnum
     def __init__(
         self,
+        manager_id: _Optional[str] = ...,
         user_ids: _Optional[_Iterable[str]] = ...,
         template_id: _Optional[str] = ...,
         subject: _Optional[str] = ...,
@@ -45,47 +48,57 @@ class SendBatchNotificationRequest(_message.Message):
 
 class CreateDelayedNotificationRequest(_message.Message):
     __slots__ = (
+        "manager_id",
         "user_ids",
         "template_id",
         "subject",
         "text",
         "type",
-        "created",
-        "delta",
+        "send",
     )
+    MANAGER_ID_FIELD_NUMBER: _ClassVar[int]
     USER_IDS_FIELD_NUMBER: _ClassVar[int]
     TEMPLATE_ID_FIELD_NUMBER: _ClassVar[int]
     SUBJECT_FIELD_NUMBER: _ClassVar[int]
     TEXT_FIELD_NUMBER: _ClassVar[int]
     TYPE_FIELD_NUMBER: _ClassVar[int]
-    CREATED_FIELD_NUMBER: _ClassVar[int]
-    DELTA_FIELD_NUMBER: _ClassVar[int]
+    SEND_FIELD_NUMBER: _ClassVar[int]
+    manager_id: str
     user_ids: _containers.RepeatedScalarFieldContainer[str]
     template_id: str
     subject: str
     text: str
     type: _containers.RepeatedScalarFieldContainer[NotificationTypeEnum]
-    created: _timestamp_pb2.Timestamp
-    delta: int
+    send: _timestamp_pb2.Timestamp
     def __init__(
         self,
+        manager_id: _Optional[str] = ...,
         user_ids: _Optional[_Iterable[str]] = ...,
         template_id: _Optional[str] = ...,
         subject: _Optional[str] = ...,
         text: _Optional[str] = ...,
         type: _Optional[_Iterable[_Union[NotificationTypeEnum, str]]] = ...,
-        created: _Optional[_Union[_timestamp_pb2.Timestamp, _Mapping]] = ...,
-        delta: _Optional[int] = ...,
+        send: _Optional[_Union[_timestamp_pb2.Timestamp, _Mapping]] = ...,
     ) -> None: ...
 
 class CreateReccurentNotificationRequest(_message.Message):
-    __slots__ = ("user_ids", "template_id", "subject", "text", "type", "cron_string")
+    __slots__ = (
+        "manager_id",
+        "user_ids",
+        "template_id",
+        "subject",
+        "text",
+        "type",
+        "cron_string",
+    )
+    MANAGER_ID_FIELD_NUMBER: _ClassVar[int]
     USER_IDS_FIELD_NUMBER: _ClassVar[int]
     TEMPLATE_ID_FIELD_NUMBER: _ClassVar[int]
     SUBJECT_FIELD_NUMBER: _ClassVar[int]
     TEXT_FIELD_NUMBER: _ClassVar[int]
     TYPE_FIELD_NUMBER: _ClassVar[int]
     CRON_STRING_FIELD_NUMBER: _ClassVar[int]
+    manager_id: str
     user_ids: _containers.RepeatedScalarFieldContainer[str]
     template_id: str
     subject: str
@@ -94,6 +107,7 @@ class CreateReccurentNotificationRequest(_message.Message):
     cron_string: str
     def __init__(
         self,
+        manager_id: _Optional[str] = ...,
         user_ids: _Optional[_Iterable[str]] = ...,
         template_id: _Optional[str] = ...,
         subject: _Optional[str] = ...,

@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+import "google/protobuf/empty.proto";
+
+message CommentNotificationRequest {
+  string film_id = 1;
+  string user_id = 2;
+}
+
+message OldBookmarkedNotificationRequest {
+  string bookmark_id = 1;
+  string user_id = 2;
+}
+
+
+service UcgNotificationService {
+  rpc SendCommentNotification (CommentNotificationRequest) returns (google.protobuf.Empty) {}
+  rpc SendOldBookmarkedNotification (OldBookmarkedNotificationRequest) returns (google.protobuf.Empty) {}
+}
