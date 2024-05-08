@@ -15,6 +15,10 @@ python-dotenv = "^1.0.1"
 circuitbreaker = "^2.0.0"
 backoff = "^2.2.1"
 django-debug-toolbar = "^4.3.0"
+django-postgres-extra = "^2.0.8"
+uwsgi = "^2.0.25.1"
+loguru = "^0.7.2"
+requests = "^2.31.0"
 
 
 [build-system]
