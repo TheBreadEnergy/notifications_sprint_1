@@ -8,7 +8,7 @@ from config import settings
 from config.settings import BACKOFF_CONFIG, CIRCUIT_CONFIG
 from django.contrib.auth import get_user_model
 from django.contrib.auth.backends import BaseBackend
-from notify.user import Roles
+from notify.models.user import Roles
 from requests import RequestException
 
 

@@ -1,6 +1,7 @@
 from django.contrib import admin
 
-from .models import Message, Notification, Template, User
+from .models import (InstantNotification, RecurringNotification,
+                     ScheduledNotification, Template, User)
 
 
 @admin.register(Template)
@@ -9,25 +10,58 @@ class TemplateAdmin(admin.ModelAdmin):
     search_fields = ("id", "name", "description")
 
 
-@admin.register(Message)
-class MessageAdmin(admin.ModelAdmin):
-    list_display = ("name", "body", "subject", "created", "modified")
-    search_fields = ("id", "name", "body", "subject")
-
-
-@admin.register(Notification)
-class NotificationAdmin(admin.ModelAdmin):
+@admin.register(InstantNotification)
+class InstantNotificationAdmin(admin.ModelAdmin):
     list_display = (
         "id",
         "status",
-        "is_instant",
-        "schedule_at",
+        "subject",
         "template",
-        "message",
         "created",
         "modified",
     )
-    search_fields = ("id", "template", "message")
+    search_fields = (
+        "id",
+        "template",
+        "subject",
+    )
+
+
+@admin.register(ScheduledNotification)
+class ScheduledNotificationAdmin(admin.ModelAdmin):
+    list_display = (
+        "id",
+        "status",
+        "subject",
+        "template",
+        "scheduled_at",
+        "created",
+        "modified",
+    )
+    search_fields = (
+        "id",
+        "template",
+        "subject",
+        "scheduled_at",
+    )
+
+
+@admin.register(RecurringNotification)
+class RecurringNotificationAdmin(admin.ModelAdmin):
+    list_display = (
+        "id",
+        "status",
+        "subject",
+        "template",
+        "cron_string",
+        "created",
+        "modified",
+    )
+    search_fields = (
+        "id",
+        "template",
+        "subject",
+    )
 
 
 @admin.register(User)
