@@ -335,6 +335,26 @@ services:
     restart: unless-stopped
 
 
+  notifications-admin:
+    build: notify_admin
+    volumes:
+      - notifications-admin-static:/opt/app/static
+    depends_on:
+      - postgres-notifications-admin
+    env_file:
+      - envs/.env.notify.admin
+    expose:
+      - "8000"
+    restart: unless-stopped
+
+
+  postgres-notifications-admin:
+    build: notifications_admin/postgres/
+    env_file:
+      - envs/.env.database.notify.admin
+    volumes:
+      - notifications-admin-pg-data:/var/lib/postgresql/data
+
 
 volumes:
   static:
@@ -352,3 +372,5 @@ volumes:
   mongo_rs1_n2_data:
   mongo_rs2_n1_data:
   mongo_rs2_n2_data:
+  notifications-admin-pg-data:
+  notifications-admin-static:
