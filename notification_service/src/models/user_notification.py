@@ -19,15 +19,6 @@ class NotificationType(IntEnum):
     scheduled_notification = 2
 
 
-class NotificationStatus(IntEnum):
-    pending = 0
-    started = 1
-    in_progress = 2
-    completed = 3
-    cancelled = 4
-    sceduled = 5
-
-
 class UserNotificationTask(Base):
     __tablename__ = "user_notifications"
     user_id: Mapped[uuid.UUID] = mapped_column(sqlalchemy.UUID(as_uuid=True))

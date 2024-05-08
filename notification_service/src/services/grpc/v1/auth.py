@@ -8,7 +8,7 @@ from src.schemas.events.v1.user_notification import UserNotificationSchema
 from src.services.grpc.v1.base import process_system_notification
 
 
-class AuthGrpcService(UserNotificationServicer):
+class AuthGrpcNotificationService(UserNotificationServicer):
     def __init__(self, rabbit_connection: RabbitConnection):
         self.rabbit_connection = rabbit_connection
 

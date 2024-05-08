@@ -26,6 +26,7 @@ class Settings(BaseSettings):
     rabbit_password: str = Field(
         "bitnami", alias="RABBIT_PASSWORD", env="RABBIT_PASSWORD"
     )
+    grpc_port: int = Field(50051, alias="GRPC_PORT", env="GRPC_PORT")
     rabbit_host: str = Field("localhost", alias="RABBIT_HOST", env="RABBIT_HOST")
     rabbit_port: int = Field(5672, alias="RABBIT_PORT", env="RABBIT_PORT")
     queue_name: str = Field("workers", alias="QUEUE_NAME", env="QUEUE_NAME")

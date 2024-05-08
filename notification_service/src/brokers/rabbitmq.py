@@ -27,12 +27,12 @@ class RabbitConnection:
         self.connection = None
         self.channel = None
 
-    async def connect(self) -> None:
+    async def connect(self, host: str | None = None) -> None:
         try:
-            self._connection = await connect_robust(
-                f"amqp://{settings.rabbit_login}:{settings.rabbit_password}@"
+            if not host:
+                host = f"amqp://{settings.rabbit_login}:{settings.rabbit_password}@"
                 f"{settings.rabbit_host}:{settings.rabbit_port}"
-            )
+            self._connection = await connect_robust(host)
             self._channel = await self.connection.channel(publisher_confirms=False)
             self._exchange = await self.channel.declare_exchange(
                 settings.delayed_exchange,

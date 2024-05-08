@@ -5,8 +5,9 @@ from pydantic import BaseModel
 from src.brokers.rabbitmq import RabbitConnection
 from src.core.config import settings
 from src.db.postgres import async_session
+from src.models.base import NotificationStatus
 from src.models.system_notification import ContentType, SystemNotificationTask
-from src.models.user_notification import NotificationStatus, UserNotificationTask
+from src.models.user_notification import UserNotificationTask
 from src.schemas.events.v1.send_message import SendMessageSchema
 from src.services.grpc.v1 import VERSION
 

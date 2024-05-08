@@ -1,7 +1,7 @@
 from enum import IntEnum
-from typing import Mapping
 from uuid import UUID
 
+from sqlalchemy.orm import Mapped
 from src.models.base import Base
 
 
@@ -15,8 +15,8 @@ class ContentType(IntEnum):
 
 class SystemNotificationTask(Base):
     __tablename__ = "system_notifications"
-    content_type: Mapping[ContentType]
-    content_id: Mapping[UUID]
+    content_type: Mapped[ContentType]
+    content_id: Mapped[UUID]
 
     def __init__(self, content_type: ContentType, content_id: UUID):
         super().__init__()
