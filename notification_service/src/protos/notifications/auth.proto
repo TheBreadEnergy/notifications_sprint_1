@@ -19,7 +19,7 @@ message UserLongNoSeeNotificationRequest {
 
 
 
-service UserNotificationService {
+service UserNotification {
 
   rpc SendRegistrationNotification (UserRegisteredNotificationRequest) returns (google.protobuf.Empty) {}
   rpc SendActivationNotification (UserActivatedAccountNotificationRequest) returns (google.protobuf.Empty) {}

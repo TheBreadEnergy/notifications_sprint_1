@@ -3,7 +3,9 @@
 import warnings
 
 import grpc
-import managers_pb2 as managers__pb2
+from google.protobuf import empty_pb2 as google_dot_protobuf_dot_empty__pb2
+
+from . import auth_pb2 as auth__pb2
 
 GRPC_GENERATED_VERSION = "1.63.0"
 GRPC_VERSION = grpc.__version__
@@ -23,7 +25,7 @@ except ImportError:
 if _version_not_supported:
     warnings.warn(
         f"The grpc package installed is at version {GRPC_VERSION},"
-        + f" but the generated code in managers_pb2_grpc.py depends on"
+        + f" but the generated code in auth_pb2_grpc.py depends on"
         + f" grpcio>={GRPC_GENERATED_VERSION}."
         + f" Please upgrade your grpc module to grpcio>={GRPC_GENERATED_VERSION}"
         + f" or downgrade your generated code using grpcio-tools<={GRPC_VERSION}."
@@ -33,7 +35,7 @@ if _version_not_supported:
     )
 
 
-class ManagerNotificationServiceStub(object):
+class UserNotificationStub(object):
     """Missing associated documentation comment in .proto file."""
 
     def __init__(self, channel):
@@ -42,78 +44,78 @@ class ManagerNotificationServiceStub(object):
         Args:
             channel: A grpc.Channel.
         """
-        self.SendNotificationToUsers = channel.unary_unary(
-            "/ManagerNotificationService/SendNotificationToUsers",
-            request_serializer=managers__pb2.SendBatchNotificationRequest.SerializeToString,
-            response_deserializer=managers__pb2.NotificationResponse.FromString,
+        self.SendRegistrationNotification = channel.unary_unary(
+            "/UserNotification/SendRegistrationNotification",
+            request_serializer=auth__pb2.UserRegisteredNotificationRequest.SerializeToString,
+            response_deserializer=google_dot_protobuf_dot_empty__pb2.Empty.FromString,
             _registered_method=True,
         )
-        self.CreateDelayedNotification = channel.unary_unary(
-            "/ManagerNotificationService/CreateDelayedNotification",
-            request_serializer=managers__pb2.CreateDelayedNotificationRequest.SerializeToString,
-            response_deserializer=managers__pb2.NotificationResponse.FromString,
+        self.SendActivationNotification = channel.unary_unary(
+            "/UserNotification/SendActivationNotification",
+            request_serializer=auth__pb2.UserActivatedAccountNotificationRequest.SerializeToString,
+            response_deserializer=google_dot_protobuf_dot_empty__pb2.Empty.FromString,
             _registered_method=True,
         )
-        self.CreateReccurentNotification = channel.unary_unary(
-            "/ManagerNotificationService/CreateReccurentNotification",
-            request_serializer=managers__pb2.CreateReccurentNotificationRequest.SerializeToString,
-            response_deserializer=managers__pb2.NotificationResponse.FromString,
+        self.SendLongNoSeeNotification = channel.unary_unary(
+            "/UserNotification/SendLongNoSeeNotification",
+            request_serializer=auth__pb2.UserLongNoSeeNotificationRequest.SerializeToString,
+            response_deserializer=google_dot_protobuf_dot_empty__pb2.Empty.FromString,
             _registered_method=True,
         )
 
 
-class ManagerNotificationServiceServicer(object):
+class UserNotificationServicer(object):
     """Missing associated documentation comment in .proto file."""
 
-    def SendNotificationToUsers(self, request, context):
+    def SendRegistrationNotification(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details("Method not implemented!")
         raise NotImplementedError("Method not implemented!")
 
-    def CreateDelayedNotification(self, request, context):
+    def SendActivationNotification(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details("Method not implemented!")
         raise NotImplementedError("Method not implemented!")
 
-    def CreateReccurentNotification(self, request, context):
+    def SendLongNoSeeNotification(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details("Method not implemented!")
         raise NotImplementedError("Method not implemented!")
 
 
-def add_ManagerNotificationServiceServicer_to_server(servicer, server):
+def add_UserNotificationServicer_to_server(servicer, server):
     rpc_method_handlers = {
-        "SendNotificationToUsers": grpc.unary_unary_rpc_method_handler(
-            servicer.SendNotificationToUsers,
-            request_deserializer=managers__pb2.SendBatchNotificationRequest.FromString,
-            response_serializer=managers__pb2.NotificationResponse.SerializeToString,
+        "SendRegistrationNotification": grpc.unary_unary_rpc_method_handler(
+            servicer.SendRegistrationNotification,
+            request_deserializer=auth__pb2.UserRegisteredNotificationRequest.FromString,
+            response_serializer=google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
         ),
-        "CreateDelayedNotification": grpc.unary_unary_rpc_method_handler(
-            servicer.CreateDelayedNotification,
-            request_deserializer=managers__pb2.CreateDelayedNotificationRequest.FromString,
-            response_serializer=managers__pb2.NotificationResponse.SerializeToString,
+        "SendActivationNotification": grpc.unary_unary_rpc_method_handler(
+            servicer.SendActivationNotification,
+            request_deserializer=auth__pb2.UserActivatedAccountNotificationRequest.FromString,
+            response_serializer=google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
         ),
-        "CreateReccurentNotification": grpc.unary_unary_rpc_method_handler(
-            servicer.CreateReccurentNotification,
-            request_deserializer=managers__pb2.CreateReccurentNotificationRequest.FromString,
-            response_serializer=managers__pb2.NotificationResponse.SerializeToString,
+        "SendLongNoSeeNotification": grpc.unary_unary_rpc_method_handler(
+            servicer.SendLongNoSeeNotification,
+            request_deserializer=auth__pb2.UserLongNoSeeNotificationRequest.FromString,
+            response_serializer=google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
         ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
-        "ManagerNotificationService", rpc_method_handlers
+        "UserNotification", rpc_method_handlers
     )
     server.add_generic_rpc_handlers((generic_handler,))
 
 
 # This class is part of an EXPERIMENTAL API.
-class ManagerNotificationService(object):
+class UserNotification(object):
     """Missing associated documentation comment in .proto file."""
 
     @staticmethod
-    def SendNotificationToUsers(
+    def SendRegistrationNotification(
         request,
         target,
         options=(),
@@ -128,9 +130,9 @@ class ManagerNotificationService(object):
         return grpc.experimental.unary_unary(
             request,
             target,
-            "/ManagerNotificationService/SendNotificationToUsers",
-            managers__pb2.SendBatchNotificationRequest.SerializeToString,
-            managers__pb2.NotificationResponse.FromString,
+            "/UserNotification/SendRegistrationNotification",
+            auth__pb2.UserRegisteredNotificationRequest.SerializeToString,
+            google_dot_protobuf_dot_empty__pb2.Empty.FromString,
             options,
             channel_credentials,
             insecure,
@@ -143,7 +145,7 @@ class ManagerNotificationService(object):
         )
 
     @staticmethod
-    def CreateDelayedNotification(
+    def SendActivationNotification(
         request,
         target,
         options=(),
@@ -158,9 +160,9 @@ class ManagerNotificationService(object):
         return grpc.experimental.unary_unary(
             request,
             target,
-            "/ManagerNotificationService/CreateDelayedNotification",
-            managers__pb2.CreateDelayedNotificationRequest.SerializeToString,
-            managers__pb2.NotificationResponse.FromString,
+            "/UserNotification/SendActivationNotification",
+            auth__pb2.UserActivatedAccountNotificationRequest.SerializeToString,
+            google_dot_protobuf_dot_empty__pb2.Empty.FromString,
             options,
             channel_credentials,
             insecure,
@@ -173,7 +175,7 @@ class ManagerNotificationService(object):
         )
 
     @staticmethod
-    def CreateReccurentNotification(
+    def SendLongNoSeeNotification(
         request,
         target,
         options=(),
@@ -188,9 +190,9 @@ class ManagerNotificationService(object):
         return grpc.experimental.unary_unary(
             request,
             target,
-            "/ManagerNotificationService/CreateReccurentNotification",
-            managers__pb2.CreateReccurentNotificationRequest.SerializeToString,
-            managers__pb2.NotificationResponse.FromString,
+            "/UserNotification/SendLongNoSeeNotification",
+            auth__pb2.UserLongNoSeeNotificationRequest.SerializeToString,
+            google_dot_protobuf_dot_empty__pb2.Empty.FromString,
             options,
             channel_credentials,
             insecure,

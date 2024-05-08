@@ -5,6 +5,6 @@ message FilmUploadedNotificationRequest {
     string film_id = 1;
 }
 
-service FilmNotificationService {
+service FilmNotification {
     rpc SendFilmNotification (FilmUploadedNotificationRequest) returns (google.protobuf.Empty) {}
 }

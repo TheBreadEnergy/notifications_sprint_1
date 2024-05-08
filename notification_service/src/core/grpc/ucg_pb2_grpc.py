@@ -2,9 +2,10 @@
 """Client and server classes corresponding to protobuf-defined services."""
 import warnings
 
-import file_pb2 as file__pb2
 import grpc
 from google.protobuf import empty_pb2 as google_dot_protobuf_dot_empty__pb2
+
+from . import ucg_pb2 as ucg__pb2
 
 GRPC_GENERATED_VERSION = "1.63.0"
 GRPC_VERSION = grpc.__version__
@@ -24,7 +25,7 @@ except ImportError:
 if _version_not_supported:
     warnings.warn(
         f"The grpc package installed is at version {GRPC_VERSION},"
-        + f" but the generated code in file_pb2_grpc.py depends on"
+        + f" but the generated code in ucg_pb2_grpc.py depends on"
         + f" grpcio>={GRPC_GENERATED_VERSION}."
         + f" Please upgrade your grpc module to grpcio>={GRPC_GENERATED_VERSION}"
         + f" or downgrade your generated code using grpcio-tools<={GRPC_VERSION}."
@@ -34,7 +35,7 @@ if _version_not_supported:
     )
 
 
-class FilmNotificationServiceStub(object):
+class UcgNotificationStub(object):
     """Missing associated documentation comment in .proto file."""
 
     def __init__(self, channel):
@@ -43,44 +44,44 @@ class FilmNotificationServiceStub(object):
         Args:
             channel: A grpc.Channel.
         """
-        self.SendFilmNotification = channel.unary_unary(
-            "/FilmNotificationService/SendFilmNotification",
-            request_serializer=file__pb2.FilmUploadedNotificationRequest.SerializeToString,
+        self.SendOldBookmarkedNotification = channel.unary_unary(
+            "/UcgNotification/SendOldBookmarkedNotification",
+            request_serializer=ucg__pb2.OldBookmarkedNotificationRequest.SerializeToString,
             response_deserializer=google_dot_protobuf_dot_empty__pb2.Empty.FromString,
             _registered_method=True,
         )
 
 
-class FilmNotificationServiceServicer(object):
+class UcgNotificationServicer(object):
     """Missing associated documentation comment in .proto file."""
 
-    def SendFilmNotification(self, request, context):
+    def SendOldBookmarkedNotification(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details("Method not implemented!")
         raise NotImplementedError("Method not implemented!")
 
 
-def add_FilmNotificationServiceServicer_to_server(servicer, server):
+def add_UcgNotificationServicer_to_server(servicer, server):
     rpc_method_handlers = {
-        "SendFilmNotification": grpc.unary_unary_rpc_method_handler(
-            servicer.SendFilmNotification,
-            request_deserializer=file__pb2.FilmUploadedNotificationRequest.FromString,
+        "SendOldBookmarkedNotification": grpc.unary_unary_rpc_method_handler(
+            servicer.SendOldBookmarkedNotification,
+            request_deserializer=ucg__pb2.OldBookmarkedNotificationRequest.FromString,
             response_serializer=google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
         ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
-        "FilmNotificationService", rpc_method_handlers
+        "UcgNotification", rpc_method_handlers
     )
     server.add_generic_rpc_handlers((generic_handler,))
 
 
 # This class is part of an EXPERIMENTAL API.
-class FilmNotificationService(object):
+class UcgNotification(object):
     """Missing associated documentation comment in .proto file."""
 
     @staticmethod
-    def SendFilmNotification(
+    def SendOldBookmarkedNotification(
         request,
         target,
         options=(),
@@ -95,8 +96,8 @@ class FilmNotificationService(object):
         return grpc.experimental.unary_unary(
             request,
             target,
-            "/FilmNotificationService/SendFilmNotification",
-            file__pb2.FilmUploadedNotificationRequest.SerializeToString,
+            "/UcgNotification/SendOldBookmarkedNotification",
+            ucg__pb2.OldBookmarkedNotificationRequest.SerializeToString,
             google_dot_protobuf_dot_empty__pb2.Empty.FromString,
             options,
             channel_credentials,

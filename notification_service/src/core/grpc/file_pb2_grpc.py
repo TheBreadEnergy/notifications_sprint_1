@@ -3,8 +3,9 @@
 import warnings
 
 import grpc
-import ucg_pb2 as ucg__pb2
 from google.protobuf import empty_pb2 as google_dot_protobuf_dot_empty__pb2
+
+from . import file_pb2 as file__pb2
 
 GRPC_GENERATED_VERSION = "1.63.0"
 GRPC_VERSION = grpc.__version__
@@ -24,7 +25,7 @@ except ImportError:
 if _version_not_supported:
     warnings.warn(
         f"The grpc package installed is at version {GRPC_VERSION},"
-        + f" but the generated code in ucg_pb2_grpc.py depends on"
+        + f" but the generated code in file_pb2_grpc.py depends on"
         + f" grpcio>={GRPC_GENERATED_VERSION}."
         + f" Please upgrade your grpc module to grpcio>={GRPC_GENERATED_VERSION}"
         + f" or downgrade your generated code using grpcio-tools<={GRPC_VERSION}."
@@ -34,7 +35,7 @@ if _version_not_supported:
     )
 
 
-class UcgNotificationServiceStub(object):
+class FilmNotificationStub(object):
     """Missing associated documentation comment in .proto file."""
 
     def __init__(self, channel):
@@ -43,61 +44,44 @@ class UcgNotificationServiceStub(object):
         Args:
             channel: A grpc.Channel.
         """
-        self.SendCommentNotification = channel.unary_unary(
-            "/UcgNotificationService/SendCommentNotification",
-            request_serializer=ucg__pb2.CommentNotificationRequest.SerializeToString,
-            response_deserializer=google_dot_protobuf_dot_empty__pb2.Empty.FromString,
-            _registered_method=True,
-        )
-        self.SendOldBookmarkedNotification = channel.unary_unary(
-            "/UcgNotificationService/SendOldBookmarkedNotification",
-            request_serializer=ucg__pb2.OldBookmarkedNotificationRequest.SerializeToString,
+        self.SendFilmNotification = channel.unary_unary(
+            "/FilmNotification/SendFilmNotification",
+            request_serializer=file__pb2.FilmUploadedNotificationRequest.SerializeToString,
             response_deserializer=google_dot_protobuf_dot_empty__pb2.Empty.FromString,
             _registered_method=True,
         )
 
 
-class UcgNotificationServiceServicer(object):
+class FilmNotificationServicer(object):
     """Missing associated documentation comment in .proto file."""
 
-    def SendCommentNotification(self, request, context):
-        """Missing associated documentation comment in .proto file."""
-        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
-        context.set_details("Method not implemented!")
-        raise NotImplementedError("Method not implemented!")
-
-    def SendOldBookmarkedNotification(self, request, context):
+    def SendFilmNotification(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details("Method not implemented!")
         raise NotImplementedError("Method not implemented!")
 
 
-def add_UcgNotificationServiceServicer_to_server(servicer, server):
+def add_FilmNotificationServicer_to_server(servicer, server):
     rpc_method_handlers = {
-        "SendCommentNotification": grpc.unary_unary_rpc_method_handler(
-            servicer.SendCommentNotification,
-            request_deserializer=ucg__pb2.CommentNotificationRequest.FromString,
-            response_serializer=google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
-        ),
-        "SendOldBookmarkedNotification": grpc.unary_unary_rpc_method_handler(
-            servicer.SendOldBookmarkedNotification,
-            request_deserializer=ucg__pb2.OldBookmarkedNotificationRequest.FromString,
+        "SendFilmNotification": grpc.unary_unary_rpc_method_handler(
+            servicer.SendFilmNotification,
+            request_deserializer=file__pb2.FilmUploadedNotificationRequest.FromString,
             response_serializer=google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
         ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
-        "UcgNotificationService", rpc_method_handlers
+        "FilmNotification", rpc_method_handlers
     )
     server.add_generic_rpc_handlers((generic_handler,))
 
 
 # This class is part of an EXPERIMENTAL API.
-class UcgNotificationService(object):
+class FilmNotification(object):
     """Missing associated documentation comment in .proto file."""
 
     @staticmethod
-    def SendCommentNotification(
+    def SendFilmNotification(
         request,
         target,
         options=(),
@@ -112,38 +96,8 @@ class UcgNotificationService(object):
         return grpc.experimental.unary_unary(
             request,
             target,
-            "/UcgNotificationService/SendCommentNotification",
-            ucg__pb2.CommentNotificationRequest.SerializeToString,
-            google_dot_protobuf_dot_empty__pb2.Empty.FromString,
-            options,
-            channel_credentials,
-            insecure,
-            call_credentials,
-            compression,
-            wait_for_ready,
-            timeout,
-            metadata,
-            _registered_method=True,
-        )
-
-    @staticmethod
-    def SendOldBookmarkedNotification(
-        request,
-        target,
-        options=(),
-        channel_credentials=None,
-        call_credentials=None,
-        insecure=False,
-        compression=None,
-        wait_for_ready=None,
-        timeout=None,
-        metadata=None,
-    ):
-        return grpc.experimental.unary_unary(
-            request,
-            target,
-            "/UcgNotificationService/SendOldBookmarkedNotification",
-            ucg__pb2.OldBookmarkedNotificationRequest.SerializeToString,
+            "/FilmNotification/SendFilmNotification",
+            file__pb2.FilmUploadedNotificationRequest.SerializeToString,
             google_dot_protobuf_dot_empty__pb2.Empty.FromString,
             options,
             channel_credentials,

@@ -16,7 +16,7 @@ _sym_db = _symbol_database.Default()
 from google.protobuf import empty_pb2 as google_dot_protobuf_dot_empty__pb2
 
 DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(
-    b'\n\nauth.proto\x1a\x1bgoogle/protobuf/empty.proto"4\n!UserRegisteredNotificationRequest\x12\x0f\n\x07user_id\x18\x01 \x01(\t":\n\'UserActivatedAccountNotificationRequest\x12\x0f\n\x07user_id\x18\x01 \x01(\t"3\n UserLongNoSeeNotificationRequest\x12\x0f\n\x07user_id\x18\x01 \x01(\t2\xb3\x02\n\x17UserNotificationService\x12\\\n\x1cSendRegistrationNotification\x12".UserRegisteredNotificationRequest\x1a\x16.google.protobuf.Empty"\x00\x12`\n\x1aSendActivationNotification\x12(.UserActivatedAccountNotificationRequest\x1a\x16.google.protobuf.Empty"\x00\x12X\n\x19SendLongNoSeeNotification\x12!.UserLongNoSeeNotificationRequest\x1a\x16.google.protobuf.Empty"\x00\x62\x06proto3'
+    b'\n\nauth.proto\x1a\x1bgoogle/protobuf/empty.proto"4\n!UserRegisteredNotificationRequest\x12\x0f\n\x07user_id\x18\x01 \x01(\t":\n\'UserActivatedAccountNotificationRequest\x12\x0f\n\x07user_id\x18\x01 \x01(\t"3\n UserLongNoSeeNotificationRequest\x12\x0f\n\x07user_id\x18\x01 \x01(\t2\xac\x02\n\x10UserNotification\x12\\\n\x1cSendRegistrationNotification\x12".UserRegisteredNotificationRequest\x1a\x16.google.protobuf.Empty"\x00\x12`\n\x1aSendActivationNotification\x12(.UserActivatedAccountNotificationRequest\x1a\x16.google.protobuf.Empty"\x00\x12X\n\x19SendLongNoSeeNotification\x12!.UserLongNoSeeNotificationRequest\x1a\x16.google.protobuf.Empty"\x00\x62\x06proto3'
 )
 
 _globals = globals()
@@ -30,6 +30,6 @@ if not _descriptor._USE_C_DESCRIPTORS:
     _globals["_USERACTIVATEDACCOUNTNOTIFICATIONREQUEST"]._serialized_end = 155
     _globals["_USERLONGNOSEENOTIFICATIONREQUEST"]._serialized_start = 157
     _globals["_USERLONGNOSEENOTIFICATIONREQUEST"]._serialized_end = 208
-    _globals["_USERNOTIFICATIONSERVICE"]._serialized_start = 211
-    _globals["_USERNOTIFICATIONSERVICE"]._serialized_end = 518
+    _globals["_USERNOTIFICATION"]._serialized_start = 211
+    _globals["_USERNOTIFICATION"]._serialized_end = 511
 # @@protoc_insertion_point(module_scope)

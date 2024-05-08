@@ -106,13 +106,13 @@ services:
       - redis-data:/data
 
   elastic:
-    build: elastic/
-    image: app-elasticsearch
-    restart: unless-stopped
-    volumes:
-      - elastic-data:/usr/share/elasticsearch/data
-    ports:
-      - "9200:9200"
+      build: elastic/
+      image: app-elasticsearch
+      restart: unless-stopped
+      volumes:
+        - elastic-data:/usr/share/elasticsearch/data
+      ports:
+        - "9200:9200"
 
   etl:
     build: ./etl

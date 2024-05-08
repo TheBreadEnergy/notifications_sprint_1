@@ -1,5 +1,5 @@
 syntax = "proto3";
-import "google/protobuf/timestamp.proto";
+import "google/protobuf/empty.proto";
 
 enum NotificationTypeEnum {
   email = 0;
@@ -9,44 +9,36 @@ enum NotificationTypeEnum {
 
 
 
-message SendBatchNotificationRequest {
+message SendNotificationRequest {
   string manager_id = 1;
   repeated string user_ids = 2;
-  string template_id = 3;
-  string subject = 4;
-  string text = 5;
-  NotificationTypeEnum type = 6;
+  string notification_id = 3;
+  string template_id = 4;
+  string subject = 5;
+  string text = 6;
+  NotificationTypeEnum type = 7;
 }
 
 message CreateDelayedNotificationRequest {
   string manager_id = 1;
   repeated string user_ids = 2;
-  string template_id = 3;
-  string subject = 4;
-  string text = 5;
-  repeated NotificationTypeEnum type = 6;
-  google.protobuf.Timestamp send = 7;
+  string notification_id = 3;
+  string template_id = 4;
+  string subject = 5;
+  string text = 6;
+  repeated NotificationTypeEnum type = 7;
+  int32 delay = 8;
 }
 
-message CreateReccurentNotificationRequest {
-  string manager_id = 1;
-  repeated string user_ids = 2;
-  string template_id = 3;
-  string subject = 4;
-  string text = 5;
-  repeated NotificationTypeEnum type = 6;
-  string cron_string = 7;
-}
 
 
 message NotificationResponse {
-  string notification_id = 1;
+  string task_id = 1;
 }
 
-service ManagerNotificationService {
-  rpc SendNotificationToUsers (SendBatchNotificationRequest) returns (NotificationResponse) {}
-  rpc CreateDelayedNotification (CreateDelayedNotificationRequest) returns (NotificationResponse) {}
-  rpc CreateReccurentNotification (CreateReccurentNotificationRequest) returns (NotificationResponse) {}
+service ManagerNotification {
+  rpc SendNotificationToUsers (SendNotificationRequest) returns (google.protobuf.Empty) {}
+  rpc CreateDelayedNotification (CreateDelayedNotificationRequest) returns (google.protobuf.Empty) {}
 }
 
 
