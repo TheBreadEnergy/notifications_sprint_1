@@ -1,10 +1,8 @@
-from uuid import UUID
-
 from pydantic import BaseModel
 
 
 class UserNotificationSchema(BaseModel):
-    task_id: UUID
+    task_id: str | None
     user_id: str
 
 

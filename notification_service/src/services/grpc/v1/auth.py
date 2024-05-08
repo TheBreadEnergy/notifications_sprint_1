@@ -1,4 +1,5 @@
 import grpc
+from google.protobuf import empty_pb2
 from src.brokers.rabbitmq import RabbitConnection
 from src.core.config import settings
 from src.core.grpc import auth_pb2
@@ -24,6 +25,7 @@ class AuthGrpcNotificationService(UserNotificationServicer):
             routing_key=settings.register_routing_key,
             data={"user_id": request.user_id},
         )
+        return empty_pb2.Empty()
 
     async def SendActivationNotification(
         self,
@@ -37,6 +39,7 @@ class AuthGrpcNotificationService(UserNotificationServicer):
             routing_key=settings.activation_routing_key,
             data={"user_id": request.user_id},
         )
+        return empty_pb2.Empty()
 
     async def SendLongNoSeeNotification(
         self,
@@ -50,3 +53,4 @@ class AuthGrpcNotificationService(UserNotificationServicer):
             routing_key=settings.long_notification_routing_key,
             data={"user_id": request.user_id},
         )
+        return empty_pb2.Empty()

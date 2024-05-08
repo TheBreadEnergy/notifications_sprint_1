@@ -17,14 +17,14 @@ class Settings(BaseSettings):
         env="DESCRIPTION",
     )
     postgres_conn: PostgresDsn = Field(
-        "postgresql+asyncpg://app:123qwe@localhost:5432/users",
+        "postgresql+asyncpg://app:123qwe@localhost:5432/notifications",
         alias="DATABASE_CONN",
         env="DATABASE_CONN",
     )
     version: str = Field("1.0.0", alias="VERSION", env="VERSION")
-    rabbit_login: str = Field("user", alias="RABBIT_LOGIN", env="RABBIT_LOGIN")
+    rabbit_login: str = Field("admin", alias="RABBIT_LOGIN", env="RABBIT_LOGIN")
     rabbit_password: str = Field(
-        "bitnami", alias="RABBIT_PASSWORD", env="RABBIT_PASSWORD"
+        "password", alias="RABBIT_PASSWORD", env="RABBIT_PASSWORD"
     )
     grpc_port: int = Field(50051, alias="GRPC_PORT", env="GRPC_PORT")
     rabbit_host: str = Field("localhost", alias="RABBIT_HOST", env="RABBIT_HOST")

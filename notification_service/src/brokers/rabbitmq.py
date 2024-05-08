@@ -33,14 +33,19 @@ class RabbitConnection:
                 host = f"amqp://{settings.rabbit_login}:{settings.rabbit_password}@"
                 f"{settings.rabbit_host}:{settings.rabbit_port}"
             self._connection = await connect_robust(host)
-            self._channel = await self.connection.channel(publisher_confirms=False)
-            self._exchange = await self.channel.declare_exchange(
+            self._channel = await self._connection.channel(publisher_confirms=False)
+            self._exchange = await self._channel.declare_exchange(
                 settings.delayed_exchange,
                 ExchangeType.X_DELAYED_MESSAGE,
                 arguments={"x-delayed-type": "direct"},
                 durable=True,
             )
-            await self._channel.declare_queue(name=settings.queue_name, durable=True)
+            queue = await self._channel.declare_queue(
+                name=settings.queue_name, durable=True
+            )
+            await queue.bind(
+                exchange=self._exchange, routing_key=settings.register_routing_key
+            )
         except Exception as e:
             await self._clear()
             raise e
@@ -51,14 +56,14 @@ class RabbitConnection:
     async def send_messages(
         self, messages: list | dict, routing_key: str, delay: int | None = None
     ) -> None:
-        if not self.channel:
+        if not self._channel:
             raise RuntimeError(
                 "The message could not be sent because"
                 " the connection with RabbitMQ is not established"
             )
         if isinstance(messages, dict):
             messages = [messages]
-        async with self.channel.transaction():
+        async with self._channel.transaction():
             headers = None
             if delay:
                 headers = {"x-delay": delay * 1000, "X-Request-Id": str(uuid.uuid4())}

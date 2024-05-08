@@ -1,3 +1,4 @@
+import uuid
 from typing import Type
 from uuid import UUID
 
@@ -19,16 +20,19 @@ async def process_system_notification(
     routing_key: str,
     data: dict,
     key: str = "user_id",
-) -> None:
+):
     async with async_session() as session:
         try:
             if key not in data:
                 raise KeyError(f"{key} missed in data!")
             event = SystemNotificationTask(
-                content_type=content_type, content_id=data[key]
+                content_type=content_type,
+                content_id=data[key],
+                status=NotificationStatus.in_progress,
             )
             session.add(event)
-            data["task_id"] = event.id
+            print(event.id)
+            data["task_id"] = str(uuid.uuid4())
             notification = notification_type(**data)
             await broker.send_messages(
                 messages=notification.model_dump(),
@@ -69,7 +73,7 @@ async def process_user_notification(
             for indx in range(0, len(messages), settings.batch_size):
                 await broker.send_messages(
                     messages=messages[indx : indx + settings.batch_size],
-                    routing_key=f"{settings.routing_prefix}.{VERSION}.{routing_key}",
+                    routing_key=f"{routing_key}",
                     delay=delay,
                 )
             await session.commit()
