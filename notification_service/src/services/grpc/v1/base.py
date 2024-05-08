@@ -26,12 +26,13 @@ async def process_system_notification(
             event = SystemNotificationTask(
                 content_type=content_type, content_id=data[key]
             )
+            session.add(event)
+            data["task_id"] = event.id
             notification = notification_type(**data)
             await broker.send_messages(
                 messages=notification.model_dump(),
                 routing_key=f"{settings.routing_prefix}.{VERSION}.{routing_key}",
             )
-            session.add(event)
             await session.commit()
         except Exception as e:
             await session.rollback()

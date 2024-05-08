@@ -28,6 +28,7 @@ class Settings(BaseSettings):
     )
     rabbit_host: str = Field("localhost", alias="RABBIT_HOST", env="RABBIT_HOST")
     rabbit_port: int = Field(5672, alias="RABBIT_PORT", env="RABBIT_PORT")
+    queue_name: str = Field("workers", alias="QUEUE_NAME", env="QUEUE_NAME")
     delayed_exchange: str = Field(
         "workers-exchange", alias="DELAYED_EXCHANGE", env="DELAYED_EXCHANGE"
     )

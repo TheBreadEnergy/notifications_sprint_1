@@ -40,6 +40,7 @@ class RabbitConnection:
                 arguments={"x-delayed-type": "direct"},
                 durable=True,
             )
+            await self._channel.declare_queue(name=settings.queue_name, durable=True)
         except Exception as e:
             await self._clear()
             raise e

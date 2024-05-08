@@ -37,12 +37,6 @@ class UserNotificationTask(Base):
     template_id: Mapped[uuid.UUID]
     subject: Mapped[str]
     text: Mapped[str]
-    last_updated: Mapped[datetime.datetime] = mapped_column(
-        default=datetime.datetime.now(datetime.timezone.utc),
-        onupdate=datetime.datetime.now(datetime.timezone.utc),
-    )
-    last_notification_send: Mapped[datetime.datetime]
-    status: Mapped[NotificationStatus]
 
     def __init__(
         self,
