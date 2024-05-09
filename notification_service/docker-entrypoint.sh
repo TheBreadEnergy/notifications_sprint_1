@@ -27,7 +27,7 @@ exec $cmd
 
 if [ "$RUN_MODE" = "GRPC" ]
 then
-  python main_grpc.py
+  python -m src.main_grpc
 else
   gunicorn src.main:app --workers 4 --worker-class uvicorn.workers.UvicornWorker --bind 0.0.0.0:8000
 fi

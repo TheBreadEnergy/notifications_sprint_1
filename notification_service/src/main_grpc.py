@@ -2,12 +2,12 @@ import asyncio
 import logging
 
 import grpc
-from core.config import settings
-from core.grpc import auth_pb2_grpc, file_pb2_grpc, managers_pb2_grpc, ucg_pb2_grpc
-from services.grpc.v1.auth import AuthGrpcNotificationService
-from services.grpc.v1.films import FilmGrpcNotificationService
-from services.grpc.v1.managers import ManagerGrpcNotificationService
-from services.grpc.v1.ucgs import UcgGrpcNotificationService
+from src.core.config import settings
+from src.core.grpc import auth_pb2_grpc, file_pb2_grpc, managers_pb2_grpc, ucg_pb2_grpc
+from src.services.grpc.v1.auth import AuthGrpcNotificationService
+from src.services.grpc.v1.films import FilmGrpcNotificationService
+from src.services.grpc.v1.managers import ManagerGrpcNotificationService
+from src.services.grpc.v1.ucgs import UcgGrpcNotificationService
 from src.brokers.rabbit_message_broker import RabbitMessageBroker
 
 
