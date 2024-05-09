@@ -2,8 +2,8 @@ from abc import ABC, abstractmethod
 from typing import Sequence
 from uuid import UUID
 
+from src.models.base import NotificationStatus
 from src.models.system_notification import ContentType, SystemNotificationTask
-from src.models.user_notification import NotificationStatus
 from src.repositories.system_notification_task import (
     SystemNotificationTaskRepositoryABC,
 )

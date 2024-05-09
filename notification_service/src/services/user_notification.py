@@ -2,11 +2,8 @@ from abc import ABC, abstractmethod
 from typing import Sequence
 from uuid import UUID
 
-from src.models.user_notification import (
-    NotificationChannelType,
-    NotificationStatus,
-    UserNotificationTask,
-)
+from src.models.base import NotificationStatus
+from src.models.user_notification import NotificationChannelType, UserNotificationTask
 from src.repositories.user_notification_task import UserNotificationTaskRepositoryABC
 
 
