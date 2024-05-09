@@ -3,8 +3,8 @@ from typing import Iterable as _Iterable
 from typing import Optional as _Optional
 from typing import Union as _Union
 
+import status_pb2 as _status_pb2
 from google.protobuf import descriptor as _descriptor
-from google.protobuf import empty_pb2 as _empty_pb2
 from google.protobuf import message as _message
 from google.protobuf.internal import containers as _containers
 from google.protobuf.internal import enum_type_wrapper as _enum_type_wrapper
@@ -81,7 +81,7 @@ class CreateDelayedNotificationRequest(_message.Message):
     template_id: str
     subject: str
     text: str
-    type: _containers.RepeatedScalarFieldContainer[NotificationTypeEnum]
+    type: NotificationTypeEnum
     delay: int
     def __init__(
         self,
@@ -91,7 +91,7 @@ class CreateDelayedNotificationRequest(_message.Message):
         template_id: _Optional[str] = ...,
         subject: _Optional[str] = ...,
         text: _Optional[str] = ...,
-        type: _Optional[_Iterable[_Union[NotificationTypeEnum, str]]] = ...,
+        type: _Optional[_Union[NotificationTypeEnum, str]] = ...,
         delay: _Optional[int] = ...,
     ) -> None: ...
 

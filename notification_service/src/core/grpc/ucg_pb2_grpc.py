@@ -3,8 +3,8 @@
 import warnings
 
 import grpc
-from google.protobuf import empty_pb2 as google_dot_protobuf_dot_empty__pb2
 
+from . import status_pb2 as status__pb2
 from . import ucg_pb2 as ucg__pb2
 
 GRPC_GENERATED_VERSION = "1.63.0"
@@ -47,7 +47,7 @@ class UcgNotificationStub(object):
         self.SendOldBookmarkedNotification = channel.unary_unary(
             "/UcgNotification/SendOldBookmarkedNotification",
             request_serializer=ucg__pb2.OldBookmarkedNotificationRequest.SerializeToString,
-            response_deserializer=google_dot_protobuf_dot_empty__pb2.Empty.FromString,
+            response_deserializer=status__pb2.Status.FromString,
             _registered_method=True,
         )
 
@@ -67,7 +67,7 @@ def add_UcgNotificationServicer_to_server(servicer, server):
         "SendOldBookmarkedNotification": grpc.unary_unary_rpc_method_handler(
             servicer.SendOldBookmarkedNotification,
             request_deserializer=ucg__pb2.OldBookmarkedNotificationRequest.FromString,
-            response_serializer=google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
+            response_serializer=status__pb2.Status.SerializeToString,
         ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -98,7 +98,7 @@ class UcgNotification(object):
             target,
             "/UcgNotification/SendOldBookmarkedNotification",
             ucg__pb2.OldBookmarkedNotificationRequest.SerializeToString,
-            google_dot_protobuf_dot_empty__pb2.Empty.FromString,
+            status__pb2.Status.FromString,
             options,
             channel_credentials,
             insecure,

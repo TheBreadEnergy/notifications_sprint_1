@@ -3,9 +3,9 @@
 import warnings
 
 import grpc
-from google.protobuf import empty_pb2 as google_dot_protobuf_dot_empty__pb2
 
 from . import auth_pb2 as auth__pb2
+from . import status_pb2 as status__pb2
 
 GRPC_GENERATED_VERSION = "1.63.0"
 GRPC_VERSION = grpc.__version__
@@ -47,19 +47,19 @@ class UserNotificationStub(object):
         self.SendRegistrationNotification = channel.unary_unary(
             "/UserNotification/SendRegistrationNotification",
             request_serializer=auth__pb2.UserRegisteredNotificationRequest.SerializeToString,
-            response_deserializer=google_dot_protobuf_dot_empty__pb2.Empty.FromString,
+            response_deserializer=status__pb2.Status.FromString,
             _registered_method=True,
         )
         self.SendActivationNotification = channel.unary_unary(
             "/UserNotification/SendActivationNotification",
             request_serializer=auth__pb2.UserActivatedAccountNotificationRequest.SerializeToString,
-            response_deserializer=google_dot_protobuf_dot_empty__pb2.Empty.FromString,
+            response_deserializer=status__pb2.Status.FromString,
             _registered_method=True,
         )
         self.SendLongNoSeeNotification = channel.unary_unary(
             "/UserNotification/SendLongNoSeeNotification",
             request_serializer=auth__pb2.UserLongNoSeeNotificationRequest.SerializeToString,
-            response_deserializer=google_dot_protobuf_dot_empty__pb2.Empty.FromString,
+            response_deserializer=status__pb2.Status.FromString,
             _registered_method=True,
         )
 
@@ -91,17 +91,17 @@ def add_UserNotificationServicer_to_server(servicer, server):
         "SendRegistrationNotification": grpc.unary_unary_rpc_method_handler(
             servicer.SendRegistrationNotification,
             request_deserializer=auth__pb2.UserRegisteredNotificationRequest.FromString,
-            response_serializer=google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
+            response_serializer=status__pb2.Status.SerializeToString,
         ),
         "SendActivationNotification": grpc.unary_unary_rpc_method_handler(
             servicer.SendActivationNotification,
             request_deserializer=auth__pb2.UserActivatedAccountNotificationRequest.FromString,
-            response_serializer=google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
+            response_serializer=status__pb2.Status.SerializeToString,
         ),
         "SendLongNoSeeNotification": grpc.unary_unary_rpc_method_handler(
             servicer.SendLongNoSeeNotification,
             request_deserializer=auth__pb2.UserLongNoSeeNotificationRequest.FromString,
-            response_serializer=google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
+            response_serializer=status__pb2.Status.SerializeToString,
         ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -132,7 +132,7 @@ class UserNotification(object):
             target,
             "/UserNotification/SendRegistrationNotification",
             auth__pb2.UserRegisteredNotificationRequest.SerializeToString,
-            google_dot_protobuf_dot_empty__pb2.Empty.FromString,
+            status__pb2.Status.FromString,
             options,
             channel_credentials,
             insecure,
@@ -162,7 +162,7 @@ class UserNotification(object):
             target,
             "/UserNotification/SendActivationNotification",
             auth__pb2.UserActivatedAccountNotificationRequest.SerializeToString,
-            google_dot_protobuf_dot_empty__pb2.Empty.FromString,
+            status__pb2.Status.FromString,
             options,
             channel_credentials,
             insecure,
@@ -192,7 +192,7 @@ class UserNotification(object):
             target,
             "/UserNotification/SendLongNoSeeNotification",
             auth__pb2.UserLongNoSeeNotificationRequest.SerializeToString,
-            google_dot_protobuf_dot_empty__pb2.Empty.FromString,
+            status__pb2.Status.FromString,
             options,
             channel_credentials,
             insecure,

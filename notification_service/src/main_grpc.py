@@ -8,17 +8,19 @@ from services.grpc.v1.auth import AuthGrpcNotificationService
 from services.grpc.v1.films import FilmGrpcNotificationService
 from services.grpc.v1.managers import ManagerGrpcNotificationService
 from services.grpc.v1.ucgs import UcgGrpcNotificationService
-from src.brokers.rabbitmq import RabbitConnection
+from src.brokers.rabbit_message_broker import RabbitMessageBroker
 
 
 async def serve() -> None:
     server = grpc.aio.server()
-    broker = RabbitConnection()
+    broker = RabbitMessageBroker(
+        host=settings.rabbit_host,
+        port=settings.rabbit_port,
+        username=settings.rabbit_login,
+        password=settings.rabbit_password,
+    )
     try:
-        await broker.connect(
-            host=f"amqp://{settings.rabbit_login}:{settings.rabbit_password}@"
-            f"{settings.rabbit_host}:{settings.rabbit_port}"
-        )
+        await broker.idempotency_startup()
         auth_pb2_grpc.add_UserNotificationServicer_to_server(
             AuthGrpcNotificationService(rabbit_connection=broker), server
         )
@@ -35,7 +37,7 @@ async def serve() -> None:
         await server.start()
         await server.wait_for_termination()
     finally:
-        await broker.disconnect()
+        await broker.idempotency_shutdown()
 
 
 if __name__ == "__main__":

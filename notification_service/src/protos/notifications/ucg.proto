@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-import "google/protobuf/empty.proto";
+import "status.proto";
 
 
 message OldBookmarkedNotificationRequest {
@@ -9,5 +9,5 @@ message OldBookmarkedNotificationRequest {
 
 
 service UcgNotification {
-  rpc SendOldBookmarkedNotification (OldBookmarkedNotificationRequest) returns (google.protobuf.Empty) {}
+  rpc SendOldBookmarkedNotification (OldBookmarkedNotificationRequest) returns (Status) {}
 }

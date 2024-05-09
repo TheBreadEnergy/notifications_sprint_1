@@ -3,9 +3,9 @@
 import warnings
 
 import grpc
-from google.protobuf import empty_pb2 as google_dot_protobuf_dot_empty__pb2
 
 from . import managers_pb2 as managers__pb2
+from . import status_pb2 as status__pb2
 
 GRPC_GENERATED_VERSION = "1.63.0"
 GRPC_VERSION = grpc.__version__
@@ -47,13 +47,13 @@ class ManagerNotificationStub(object):
         self.SendNotificationToUsers = channel.unary_unary(
             "/ManagerNotification/SendNotificationToUsers",
             request_serializer=managers__pb2.SendNotificationRequest.SerializeToString,
-            response_deserializer=google_dot_protobuf_dot_empty__pb2.Empty.FromString,
+            response_deserializer=status__pb2.Status.FromString,
             _registered_method=True,
         )
         self.CreateDelayedNotification = channel.unary_unary(
             "/ManagerNotification/CreateDelayedNotification",
             request_serializer=managers__pb2.CreateDelayedNotificationRequest.SerializeToString,
-            response_deserializer=google_dot_protobuf_dot_empty__pb2.Empty.FromString,
+            response_deserializer=status__pb2.Status.FromString,
             _registered_method=True,
         )
 
@@ -79,12 +79,12 @@ def add_ManagerNotificationServicer_to_server(servicer, server):
         "SendNotificationToUsers": grpc.unary_unary_rpc_method_handler(
             servicer.SendNotificationToUsers,
             request_deserializer=managers__pb2.SendNotificationRequest.FromString,
-            response_serializer=google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
+            response_serializer=status__pb2.Status.SerializeToString,
         ),
         "CreateDelayedNotification": grpc.unary_unary_rpc_method_handler(
             servicer.CreateDelayedNotification,
             request_deserializer=managers__pb2.CreateDelayedNotificationRequest.FromString,
-            response_serializer=google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
+            response_serializer=status__pb2.Status.SerializeToString,
         ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -115,7 +115,7 @@ class ManagerNotification(object):
             target,
             "/ManagerNotification/SendNotificationToUsers",
             managers__pb2.SendNotificationRequest.SerializeToString,
-            google_dot_protobuf_dot_empty__pb2.Empty.FromString,
+            status__pb2.Status.FromString,
             options,
             channel_credentials,
             insecure,
@@ -145,7 +145,7 @@ class ManagerNotification(object):
             target,
             "/ManagerNotification/CreateDelayedNotification",
             managers__pb2.CreateDelayedNotificationRequest.SerializeToString,
-            google_dot_protobuf_dot_empty__pb2.Empty.FromString,
+            status__pb2.Status.FromString,
             options,
             channel_credentials,
             insecure,

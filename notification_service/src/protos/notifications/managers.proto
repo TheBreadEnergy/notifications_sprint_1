@@ -1,5 +1,6 @@
 syntax = "proto3";
-import "google/protobuf/empty.proto";
+
+import "status.proto";
 
 enum NotificationTypeEnum {
   email = 0;
@@ -26,7 +27,7 @@ message CreateDelayedNotificationRequest {
   string template_id = 4;
   string subject = 5;
   string text = 6;
-  repeated NotificationTypeEnum type = 7;
+  NotificationTypeEnum type = 7;
   int32 delay = 8;
 }
 
@@ -37,8 +38,8 @@ message NotificationResponse {
 }
 
 service ManagerNotification {
-  rpc SendNotificationToUsers (SendNotificationRequest) returns (google.protobuf.Empty) {}
-  rpc CreateDelayedNotification (CreateDelayedNotificationRequest) returns (google.protobuf.Empty) {}
+  rpc SendNotificationToUsers (SendNotificationRequest) returns (Status) {}
+  rpc CreateDelayedNotification (CreateDelayedNotificationRequest) returns (Status) {}
 }
 
 
