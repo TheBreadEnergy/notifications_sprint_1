@@ -10,6 +10,7 @@ backoff==2.2.1
 certifi==2024.2.2
 charset-normalizer==3.3.2
 click==8.1.7
+circuitbreaker==2.0.0
 croniter==2.0.5
 Deprecated==1.2.14
 dnspython==2.6.1

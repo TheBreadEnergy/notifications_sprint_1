@@ -81,23 +81,28 @@ services:
       - static:/data/static/:ro
     depends_on:
       - django-admin
+      - file-api
+      - auth-api
     ports:
       - "81:80"
+    restart: always
 
   postgres:
     build: postgres/
     image: app-postgres
     env_file:
-      - envs/.env.database
+      - ./envs/.env.database
     volumes:
       - postgres-data:/var/lib/postgresql/data
 
   postgres-auth:
     image: postgres:latest
     env_file:
-      - envs/.env.database.auth
+      - ./envs/.env.database.auth
     volumes:
       - auth-data:/var/lib/postgresql/data
+    ports:
+      - "6342:5432"
 
 
   postgres-notifications:
@@ -105,7 +110,7 @@ services:
     env_file:
       - envs/.env.database.notifications
     volumes:
-      - auth-data:/var/lib/postgresql/data
+      - notification-data:/var/lib/postgresql/data
 
 
   notifications-grpc:
@@ -129,15 +134,15 @@ services:
       - postgres-notifications
       - rabbit
     ports:
-      - "90:81"
+      - "90:8000"
 
   rabbit:
-    image: rabbitmq:latest
+    image: rabbitmq:management
     env_file:
       - envs/.env.rabbit
     ports:
       - "5672:5672"
-      - "15672:15672"
+      - "25673:15672"
 
   redis:
     image: redis:latest
@@ -392,3 +397,4 @@ volumes:
   mongo_rs1_n2_data:
   mongo_rs2_n1_data:
   mongo_rs2_n2_data:
+  notification-data:

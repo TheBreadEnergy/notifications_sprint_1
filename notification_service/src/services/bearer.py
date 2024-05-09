@@ -61,5 +61,5 @@ security_jwt = JwtBearer()
 
 
 def check_is_admin(user: UserDto) -> bool:
-    role_names = [role_name for role_name in user.roles]
+    role_names = [role_name.name for role_name in user.roles]
     return Roles.SUPER_ADMIN in role_names or Roles.ADMIN in role_names
