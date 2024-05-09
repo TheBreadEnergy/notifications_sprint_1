@@ -25,6 +25,7 @@ done
 # shellcheck disable=SC2086
 exec $cmd
 
+make migrate || true
 if [ "$RUN_MODE" = "GRPC" ]
 then
   python -m src.main_grpc
