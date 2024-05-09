@@ -10,7 +10,7 @@ from src.repositories.user_notification_task import UserNotificationTaskReposito
 class UserNotificationServiceABC(ABC):
     @abstractmethod
     async def get_all_notifications(
-        self, *, skip: int = 0, limit: int = 100
+        self, *, status: NotificationStatus, skip: int = 0, limit: int = 100
     ) -> Sequence[UserNotificationTask]:
         ...
 
@@ -30,7 +30,8 @@ class UserNotificationServiceABC(ABC):
         self,
         *,
         user_id: UUID,
-        filter_by: NotificationChannelType | None,
+        channel_type: NotificationChannelType | None,
+        status: NotificationStatus | None = None,
         skip: int = 0,
         limit: int = 100
     ) -> Sequence[UserNotificationTask]:
@@ -54,18 +55,19 @@ class UserNotificationService(UserNotificationServiceABC):
         )
 
     async def get_all_notifications(
-        self, *, skip: int = 0, limit: int = 100
+        self, *, status: NotificationStatus, skip: int = 0, limit: int = 100
     ) -> Sequence[UserNotificationTask]:
-        return await self._repository.gets(skip=skip, limit=limit)
+        return await self._repository.gets(status=status, skip=skip, limit=limit)
 
     async def search_notifications_by_id(
         self,
         *,
         user_id: UUID,
         filter_by: NotificationChannelType | None,
+        status: NotificationStatus | None = None,
         skip: int = 0,
         limit: int = 100
     ):
         return await self._repository.search_by_id(
-            user_id=user_id, filter_by=filter_by, skip=skip, limit=limit
+            user_id=user_id, filter_by=filter_by, status=status, skip=skip, limit=limit
         )

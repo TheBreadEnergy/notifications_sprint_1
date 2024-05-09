@@ -2,13 +2,10 @@ from abc import ABC, abstractmethod
 from typing import Sequence
 from uuid import UUID
 
-from sqlalchemy import and_, select
+from sqlalchemy import and_, select, true
 from sqlalchemy.ext.asyncio import AsyncSession
-from src.models.user_notification import (
-    NotificationChannelType,
-    NotificationStatus,
-    UserNotificationTask,
-)
+from src.models.base import NotificationStatus
+from src.models.user_notification import NotificationChannelType, UserNotificationTask
 from src.repositories.base import PostgresRepository, RepositoryABC
 
 
@@ -83,11 +80,16 @@ class UserNotificationTaskRepository(
                 and_(
                     UserNotificationTask.user_id == user_id,
                     UserNotificationTask.notification_channel_type == filter_by,
-                    UserNotificationTask.status == status,
+                    UserNotificationTask.status == status if status else true(),
                 )
             )
         else:
-            statement = statement.where(UserNotificationTask.user_id == user_id)
+            statement = statement.where(
+                and_(
+                    UserNotificationTask.user_id == user_id,
+                    UserNotificationTask.status == status if status else true(),
+                )
+            )
         statement = statement.offset(skip).limit(limit)
         results = await self._session.execute(statement)
         return results.scalars().all()
