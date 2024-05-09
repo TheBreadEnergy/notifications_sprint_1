@@ -1,7 +1,12 @@
 import os
 
+import backoff
+from aiohttp import ClientConnectorError
+from loguru import logger
 from pydantic import Field, PostgresDsn
 from pydantic_settings import BaseSettings, SettingsConfigDict
+from src.exceptions.rate_limit import RateLimitException
+from src.rate.rate_limiter import is_circuit_processable
 
 
 class Settings(BaseSettings):
@@ -20,6 +25,9 @@ class Settings(BaseSettings):
         "postgresql+asyncpg://app:123qwe@localhost:5432/notifications",
         alias="DATABASE_CONN",
         env="DATABASE_CONN",
+    )
+    jaeger_endpoint_host: str = Field(
+        "localhost:4317", alias="JAEGER_ENDPOINT_HOST", env="JAEGER_ENDPOINT_HOST"
     )
     version: str = Field("1.0.0", alias="VERSION", env="VERSION")
     rabbit_login: str = Field("admin", alias="RABBIT_LOGIN", env="RABBIT_LOGIN")
@@ -76,6 +84,10 @@ class Settings(BaseSettings):
         env="AUTH_SERVICE",
     )
 
+    backoff_max_retries: int = Field(
+        5, alias="BACKOFF_MAX_RETRIES", env="BACKOFF_MAX_RETRIES"
+    )
+
     batch_size: int = Field(250, alias="BATCH_SIZE", env="BATCH_SIZE")
 
     enable_tracer: bool = Field(False, alias="ENABLE_TRACER", env="ENABLE_TRACER")
@@ -104,3 +116,14 @@ ROUTING_KEYS = [
     settings.bookmark_routing_key,
     settings.film_routing_key,
 ]
+
+
+BACKOFF_CONFIG = {
+    "wait_gen": backoff.expo,
+    "exception": (ClientConnectorError, RateLimitException),
+    "logger": logger,
+    "max_tries": settings.backoff_max_retries,
+}
+
+
+CIRCUIT_CONFIG = {"expected_exception": is_circuit_processable}

@@ -99,6 +99,46 @@ services:
     volumes:
       - auth-data:/var/lib/postgresql/data
 
+
+  postgres-notifications:
+    image: postgres:latest
+    env_file:
+      - envs/.env.database.notifications
+    volumes:
+      - auth-data:/var/lib/postgresql/data
+
+
+  notifications-grpc:
+    build: ./notification_service/
+    image: notification-grpc:dev
+    env_file:
+      - envs/.env.notification.grpc
+    depends_on:
+      - postgres-notifications
+      - rabbit
+    ports:
+      - "50051:50051"
+
+
+  notifications-http:
+    build: ./notification_service/
+    image: notification-grpc:dev
+    env_file:
+      - envs/.env.notification
+    depends_on:
+      - postgres-notifications
+      - rabbit
+    ports:
+      - "90:81"
+
+  rabbit:
+    image: rabbitmq:latest
+    env_file:
+      - envs/.env.rabbit
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+
   redis:
     image: redis:latest
     restart: unless-stopped
