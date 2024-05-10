@@ -336,7 +336,7 @@ services:
 
 
   notifications-admin:
-    build: notify_admin
+    build: notifications_admin
     volumes:
       - notifications-admin-static:/opt/app/static
     depends_on:
