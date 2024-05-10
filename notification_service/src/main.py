@@ -12,14 +12,15 @@ from src.core.tracing import configure_tracing
 from src.dependencies.main import setup_dependencies
 from src.middleware.main import setup_middleware
 
-if settings.sentry_dsn:
-    sentry_sdk.init(
-        dsn=settings.sentry_dsn,
-        traces_sample_rate=1.0,
-        profiles_sample_rate=1.0,
-    )
+if not settings.debug:
+    if settings.sentry_dsn:
+        sentry_sdk.init(
+            dsn=settings.sentry_dsn,
+            traces_sample_rate=1.0,
+            profiles_sample_rate=1.0,
+        )
 
-setup_root_logger()
+    setup_root_logger()
 
 if settings.enable_tracer:
     configure_tracing()

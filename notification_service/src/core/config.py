@@ -92,7 +92,7 @@ class Settings(BaseSettings):
 
     enable_tracer: bool = Field(False, alias="ENABLE_TRACER", env="ENABLE_TRACER")
 
-    debug: bool = Field(False, alias="DEBUG", env="DEBUG")
+    debug: bool = Field(True, alias="DEBUG", env="DEBUG")
 
     log_level: str = "INFO"
     logger_filename: str = "/opt/logs/file-api-logs.json"
