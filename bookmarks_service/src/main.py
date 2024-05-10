@@ -8,7 +8,7 @@ from fastapi.responses import ORJSONResponse
 from fastapi_pagination import add_pagination
 from motor.motor_asyncio import AsyncIOMotorClient
 from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
-from src.api.v1 import bookmarks, film_likes, reviews
+from src.api.v1 import bookmarks, film_likes, healthcheck, reviews
 from src.core.config import settings
 from src.core.logger import setup_root_logger
 from src.core.tracing import configure_tracing
@@ -67,6 +67,8 @@ def create_app() -> FastAPI:
         film_likes.router, prefix="/api/v1/film-likes", tags=["Лайки / Дизлайки"]
     )
     app.include_router(reviews.router, prefix="/api/v1/reviews", tags=["Отзывы"])
+
+    app.include_router(healthcheck.router, tags=["Heathcheck"])
 
     setup_middleware(app)
     add_pagination(app)

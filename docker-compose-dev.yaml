@@ -10,12 +10,29 @@ x-mongo-common:
     retries: 3
     start_period: 10s
 
+x-api-common:
+  &api-common
+  healthcheck:
+    test: curl --header X-Request-Id:1 --fail http://localhost:8000/healthcheck || exit 1
+    interval: 10s
+    retries: 10
+    start_period: 10s
+    timeout: 10s
+
 services:
   django-admin:
     build: django_admin
     image: app-django-admin:dev
     volumes:
       - static:/opt/app/static
+
+    healthcheck:
+      test: curl http://localhost:8000 || exit 1
+      interval: 10s
+      retries: 3
+      start_period: 10s
+      timeout: 5s
+
     depends_on:
       - postgres
     env_file:
@@ -25,6 +42,7 @@ services:
     restart: unless-stopped
 
   auth-api:
+    <<: *api-common
     build: auth_service
     image: app-auth-api:dev
     depends_on:
@@ -37,6 +55,7 @@ services:
     restart: unless-stopped
 
   film-api:
+    <<: *api-common
     build: filmwork_service
     image: app-film-api:dev
     depends_on:
@@ -49,6 +68,7 @@ services:
     restart: unless-stopped
 
   file-api:
+    <<: *api-common
     build: file_service
     image: app-file-api:dev
     depends_on:
@@ -80,24 +100,81 @@ services:
     volumes:
       - static:/data/static/:ro
     depends_on:
-      - django-admin
+      bookmarks-api:
+        condition: service_healthy
+      auth-api:
+        condition: service_healthy
+      file-api:
+        condition: service_healthy
+      film-api:
+        condition: service_healthy
+      notifications-http:
+        condition: service_healthy
+      event-api:
+        condition: service_healthy
+      django-admin:
+        condition: service_healthy
     ports:
       - "81:80"
+    restart: unless-stopped
 
   postgres:
     build: postgres/
     image: app-postgres
     env_file:
-      - envs/.env.database
+      - ./envs/.env.database
     volumes:
       - postgres-data:/var/lib/postgresql/data
 
   postgres-auth:
     image: postgres:latest
     env_file:
-      - envs/.env.database.auth
+      - ./envs/.env.database.auth
     volumes:
       - auth-data:/var/lib/postgresql/data
+    ports:
+      - "6342:5432"
+
+
+  postgres-notifications:
+    image: postgres:latest
+    env_file:
+      - envs/.env.database.notifications
+    volumes:
+      - notification-data:/var/lib/postgresql/data
+
+
+  notifications-grpc:
+    build: ./notification_service/
+    image: notification-grpc:dev
+    env_file:
+      - envs/.env.notification.grpc
+    depends_on:
+      - postgres-notifications
+      - rabbit
+    ports:
+      - "50051:50051"
+
+
+  notifications-http:
+    <<: *api-common
+    build: ./notification_service/
+    image: notification-grpc:dev
+    env_file:
+      - envs/.env.notification
+    depends_on:
+      - postgres-notifications
+      - rabbit
+    ports:
+      - "90:8000"
+
+  rabbit:
+    image: rabbitmq:management
+    env_file:
+      - envs/.env.rabbit
+    ports:
+      - "5672:5672"
+      - "25673:15672"
 
   redis:
     image: redis:latest
@@ -148,6 +225,8 @@ services:
       - "14267:14267"
       - "14268:14268"
       - "9411:9411"
+      - "4317:4317"
+      - "4318:4318"
     depends_on:
       - elastic
     restart: unless-stopped
@@ -167,6 +246,12 @@ services:
     image: ucg_service:dev
     env_file:
       - envs/.env.api.ucg
+    healthcheck:
+      test: curl --header X-Request-Id:1 --fail http://localhost:5001/healthcheck || exit 1
+      interval: 10s
+      retries: 10
+      start_period: 10s
+      timeout: 10s
     depends_on:
       - auth-api
     ports:
@@ -323,6 +408,7 @@ services:
 
 
   bookmarks-api:
+    <<: *api-common
     build: bookmarks_service
     image: app-bookmarks-api:dev
     depends_on:
@@ -374,3 +460,4 @@ volumes:
   mongo_rs2_n2_data:
   notifications-admin-pg-data:
   notifications-admin-static:
+  notification-data:

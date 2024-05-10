@@ -1,7 +1,12 @@
 import os
 
+import backoff
+from aiohttp import ClientConnectorError
+from loguru import logger
 from pydantic import Field, PostgresDsn
 from pydantic_settings import BaseSettings, SettingsConfigDict
+from src.exceptions.rate_limit import RateLimitException
+from src.rate.rate_limiter import is_circuit_processable
 
 
 class Settings(BaseSettings):
@@ -21,6 +26,9 @@ class Settings(BaseSettings):
         alias="DATABASE_CONN",
         env="DATABASE_CONN",
     )
+    jaeger_endpoint_host: str = Field(
+        "localhost:4317", alias="JAEGER_ENDPOINT_HOST", env="JAEGER_ENDPOINT_HOST"
+    )
     version: str = Field("1.0.0", alias="VERSION", env="VERSION")
     rabbit_login: str = Field("admin", alias="RABBIT_LOGIN", env="RABBIT_LOGIN")
     rabbit_password: str = Field(
@@ -30,9 +38,22 @@ class Settings(BaseSettings):
     rabbit_host: str = Field("localhost", alias="RABBIT_HOST", env="RABBIT_HOST")
     rabbit_port: int = Field(5672, alias="RABBIT_PORT", env="RABBIT_PORT")
     queue_name: str = Field("workers", alias="QUEUE_NAME", env="QUEUE_NAME")
-    delayed_exchange: str = Field(
-        "workers-exchange", alias="DELAYED_EXCHANGE", env="DELAYED_EXCHANGE"
+    queue_waiting: str = Field(
+        "workers-waiting", alias="QUEUE_WAITING", env="QUEUE_WAITING"
     )
+    queue_retry: str = Field("workers-retry", alias="QUEUE_RETRY", env="QUEUE_RETRY")
+    default_ttl_ms: int = Field(500, alias="DEFAULT_TTL", env="DEFAULT_TTL")
+    delayed_exchange: str = Field(
+        "workers-exchange-delay", alias="DELAYED_EXCHANGE", env="DELAYED_EXCHANGE"
+    )
+    incoming_exchange: str = Field(
+        "workers-exchange-incoming", alias="DELAYED_EXCHANGE", env="DELAYED_EXCHANGE"
+    )
+    sorting_exchange: str = Field(
+        "workers-exchange-sorting", alias="SORTING_EXCHANGE", env="SORTING_EXCHANGE"
+    )
+    retry_exchange: str = Field("workers-exchange-retry", alias="RETRY_EXCHANGE")
+
     register_routing_key: str = Field(
         "send-welcome", alias="REGISTER_ROUTING_KEY", env="REGISTER_ROUTING_KEY"
     )
@@ -53,13 +74,18 @@ class Settings(BaseSettings):
         "managers-messages", alias="MESSAGE_ROUTING_KEY", env="MESSAGE_ROUTING_KEY"
     )
     routing_prefix: str = Field(
-        "workers.v1", alias="MESSAGE_VERSION", env="MESSAGE_VERSION"
+        "workers", alias="MESSAGE_VERSION", env="MESSAGE_VERSION"
     )
+    supported_message_versions: list[str] = ["v1"]
 
     auth_service: str = Field(
         "http://localhost:8001/api/v1/users/info",
         alias="AUTH_SERVICE",
         env="AUTH_SERVICE",
+    )
+
+    backoff_max_retries: int = Field(
+        5, alias="BACKOFF_MAX_RETRIES", env="BACKOFF_MAX_RETRIES"
     )
 
     batch_size: int = Field(250, alias="BATCH_SIZE", env="BATCH_SIZE")
@@ -81,3 +107,23 @@ class Settings(BaseSettings):
 
 
 settings = Settings()
+
+ROUTING_KEYS = [
+    settings.register_routing_key,
+    settings.activating_routing_key,
+    settings.long_no_see_routing_key,
+    settings.message_routing_key,
+    settings.bookmark_routing_key,
+    settings.film_routing_key,
+]
+
+
+BACKOFF_CONFIG = {
+    "wait_gen": backoff.expo,
+    "exception": (ClientConnectorError, RateLimitException),
+    "logger": logger,
+    "max_tries": settings.backoff_max_retries,
+}
+
+
+CIRCUIT_CONFIG = {"expected_exception": is_circuit_processable}

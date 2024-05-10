@@ -4,8 +4,7 @@ from uuid import UUID
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
-from src.models.base import Base
-from src.models.user_notification import NotificationStatus
+from src.models.base import Base, NotificationStatus
 
 ModelType = TypeVar("ModelType", bound=Base)
 
@@ -34,7 +33,7 @@ class PostgresRepository(RepositoryABC, Generic[ModelType]):
     ) -> Sequence[ModelType]:
         statement = select(self._model)
         if status:
-            statement = statement.where(ModelType.status == status)
+            statement = statement.where(self._model.status == status)
         statement = statement.offset(skip).limit(limit)
         results = await self._session.execute(statement)
         return results.scalars().all()

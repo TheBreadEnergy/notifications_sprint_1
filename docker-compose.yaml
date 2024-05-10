@@ -1,13 +1,4 @@
-version: '3'
-x-filebeat-common:
-  &filebeat-common
-  build:
-    context: ./logging/deploy/filebeat
-  depends_on:
-    - elastic-elk
-    - logstash
-    - kibana-elk
-    - proxy
+version: '3';
 
 x-mongo-common:
   &mongo-common
@@ -19,22 +10,48 @@ x-mongo-common:
     retries: 3
     start_period: 10s
 
+x-api-common:
+  &api-common
+  healthcheck:
+    test: curl --header X-Request-Id:1 --fail http://localhost:8000/healthcheck || exit 1
+    interval: 10s
+    retries: 10
+    start_period: 10s
+    timeout: 10s
+
+x-filebeat-common:
+  &filebeat-common
+  build:
+    context: ./logging/deploy/filebeat
+  depends_on:
+    - elastic-elk
+    - logstash
+    - kibana-elk
+    - proxy
+
+
+
 services:
   django-admin:
     build: django_admin
     image: app-django-admin:run
+    volumes:
+      - static:/opt/app/static
+      - django-admin-logs:/opt/logs # Для ELK+Filebeat
+    healthcheck:
+      test: curl http://localhost:8000 || exit 1
+      interval: 10s
+      retries: 3
+      start_period: 10s
+      timeout: 5s
     depends_on:
       - postgres
     env_file:
       - envs/.env.django
-    expose:
-      - "8000"
     restart: unless-stopped
-    volumes:
-      - static:/opt/app/static
-      - django-admin-logs:/opt/logs # Для ELK+Filebeat
 
   auth-api:
+    <<: *api-common
     build: auth_service
     image: app-auth-api:run
     depends_on:
@@ -42,11 +59,12 @@ services:
       - postgres-auth
     env_file:
       - envs/.env.api.auth
-    restart: unless-stopped
     volumes:
       - auth-api-logs:/opt/logs # Для ELK+Filebeat
+    restart: unless-stopped
 
   film-api:
+    <<: *api-common
     build: filmwork_service
     image: app-film-api:run
     depends_on:
@@ -54,11 +72,12 @@ services:
       - elastic
     env_file:
       - envs/.env.api.films
-    restart: unless-stopped
     volumes:
       - film-api-logs:/opt/logs # Для ELK+Filebeat
+    restart: unless-stopped
 
   file-api:
+    <<: *api-common
     build: file_service
     image: app-file-api:run
     depends_on:
@@ -67,9 +86,9 @@ services:
       - minio
     env_file:
       - envs/.env.files
-    restart: unless-stopped
     volumes:
       - file-api-logs:/opt/logs # Для ELK+Filebeat
+    restart: unless-stopped
 
   redis-films:
     image: redis:latest
@@ -92,7 +111,20 @@ services:
       - static:/data/static/:ro
       - nginx-logs:/var/log/nginx/ # Логирование в файл для ELK+Filebeat
     depends_on:
-      - django-admin
+      bookmarks-api:
+        condition: service_healthy
+      auth-api:
+        condition: service_healthy
+      file-api:
+        condition: service_healthy
+      film-api:
+        condition: service_healthy
+      notifications-http:
+        condition: service_healthy
+      event-api:
+        condition: service_healthy
+      django-admin:
+        condition: service_healthy
     ports:
       - "81:80"
 
@@ -110,6 +142,14 @@ services:
       - envs/.env.database.auth
     volumes:
       - auth-data:/var/lib/postgresql/data
+
+
+  postgres-notifications:
+    image: postgres:latest
+    env_file:
+      - envs/.env.database.notifications
+    volumes:
+      - notification-data:/var/lib/postgresql/data
 
   redis:
     image: redis:latest
@@ -171,6 +211,8 @@ services:
       - "14267:14267"
       - "14268:14268"
       - "9411:9411"
+      - "4317:4317"
+      - "4318:4318"
     depends_on:
       - elastic
     restart: unless-stopped
@@ -195,6 +237,12 @@ services:
     ports:
       - "5001:5001"
     restart: unless-stopped
+    healthcheck:
+      test: curl --header X-Request-Id:1 --fail http://localhost:5001/healthcheck || exit 1
+      interval: 10s
+      retries: 10
+      start_period: 10s
+      timeout: 10s
     volumes:
       - event-api-logs:/opt/logs # Для ELK+Filebeat
 
@@ -204,6 +252,37 @@ services:
     env_file:
       - envs/.env.etl.ucg
     restart: unless-stopped
+
+
+  notifications-grpc:
+    build: ./notification_service/
+    image: notification-grpc:run
+    env_file:
+      - envs/.env.notification.grpc
+    depends_on:
+      - postgres-notifications
+      - rabbit
+
+  notifications-http:
+    <<: *api-common
+    build: ./notification_service/
+    image: notification-http:run
+    env_file:
+      - envs/.env.notification
+    depends_on:
+      - postgres-notifications
+      - rabbit
+    volumes:
+      - notifications-api-logs:/opt/logs # Для ELK+Filebeat
+
+
+  rabbit:
+    image: rabbitmq:management
+    env_file:
+      - envs/.env.rabbit
+    ports:
+      - "5672:5672"
+      - "25673:15672"
 
   mongo_cnf_n1:
     <<: *mongo-common
@@ -348,6 +427,7 @@ services:
 
 
   bookmarks-api:
+    <<: *api-common
     build: bookmarks_service
     image: app-bookmarks-api:dev
     depends_on:
@@ -487,6 +567,7 @@ volumes:
   postgres-data:
   redis-data:
   elastic-data:
+  notification-data:
   films-cache:
   pg-cache:
   auth-cache:
@@ -507,5 +588,7 @@ volumes:
   mongo_rs1_n2_data:
   mongo_rs2_n1_data:
   mongo_rs2_n2_data:
+
   notifications-admin-pg-data:
   notifications-admin-static:
+  notifications-api-logs:

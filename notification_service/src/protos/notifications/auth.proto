@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-import "google/protobuf/empty.proto";
+import public "status.proto";
 
 message UserRegisteredNotificationRequest {
   string user_id = 1;
@@ -21,8 +21,8 @@ message UserLongNoSeeNotificationRequest {
 
 service UserNotification {
 
-  rpc SendRegistrationNotification (UserRegisteredNotificationRequest) returns (google.protobuf.Empty) {}
-  rpc SendActivationNotification (UserActivatedAccountNotificationRequest) returns (google.protobuf.Empty) {}
-  rpc SendLongNoSeeNotification (UserLongNoSeeNotificationRequest) returns (google.protobuf.Empty) {}
+  rpc SendRegistrationNotification (UserRegisteredNotificationRequest) returns (Status) {}
+  rpc SendActivationNotification (UserActivatedAccountNotificationRequest) returns (Status) {}
+  rpc SendLongNoSeeNotification (UserLongNoSeeNotificationRequest) returns (Status) {}
 
 }

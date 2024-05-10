@@ -6,7 +6,7 @@ from elasticsearch import AsyncElasticsearch
 from fastapi import FastAPI
 from fastapi.responses import ORJSONResponse
 from redis.asyncio import Redis
-from src.api.v1 import films, genres, persons
+from src.api.v1 import films, genres, healthcheck, persons
 from src.core.config import settings
 from src.core.logger import setup_root_logger
 from src.db import elastic, redis
@@ -47,6 +47,8 @@ app = FastAPI(
 app.include_router(films.router, prefix="/api/v1/films", tags=["Фильмы"])
 app.include_router(genres.router, prefix="/api/v1/genres", tags=["Жанры"])
 app.include_router(persons.router, prefix="/api/v1/persons", tags=["Персоны"])
+
+app.include_router(healthcheck.router, tags=["Heathcheck"])
 
 setup_middleware(app)
 setup_dependencies(app)

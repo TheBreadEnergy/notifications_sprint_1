@@ -3,9 +3,9 @@
 import warnings
 
 import grpc
-from google.protobuf import empty_pb2 as google_dot_protobuf_dot_empty__pb2
 
 from . import file_pb2 as file__pb2
+from . import status_pb2 as status__pb2
 
 GRPC_GENERATED_VERSION = "1.63.0"
 GRPC_VERSION = grpc.__version__
@@ -47,7 +47,7 @@ class FilmNotificationStub(object):
         self.SendFilmNotification = channel.unary_unary(
             "/FilmNotification/SendFilmNotification",
             request_serializer=file__pb2.FilmUploadedNotificationRequest.SerializeToString,
-            response_deserializer=google_dot_protobuf_dot_empty__pb2.Empty.FromString,
+            response_deserializer=status__pb2.Status.FromString,
             _registered_method=True,
         )
 
@@ -67,7 +67,7 @@ def add_FilmNotificationServicer_to_server(servicer, server):
         "SendFilmNotification": grpc.unary_unary_rpc_method_handler(
             servicer.SendFilmNotification,
             request_deserializer=file__pb2.FilmUploadedNotificationRequest.FromString,
-            response_serializer=google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
+            response_serializer=status__pb2.Status.SerializeToString,
         ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -98,7 +98,7 @@ class FilmNotification(object):
             target,
             "/FilmNotification/SendFilmNotification",
             file__pb2.FilmUploadedNotificationRequest.SerializeToString,
-            google_dot_protobuf_dot_empty__pb2.Empty.FromString,
+            status__pb2.Status.FromString,
             options,
             channel_credentials,
             insecure,
