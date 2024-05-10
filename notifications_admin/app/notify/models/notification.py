@@ -2,14 +2,14 @@ import grpc
 from django.conf import settings
 from django.contrib.postgres.fields import ArrayField
 from django.db import models
+from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from notify.grpc import managers_pb2, managers_pb2_grpc
 from notify.models.mixins import TimeStampedMixin, UUIDMixin
 from tinymce import models as tinymce_models
-from django.utils import timezone
 
 
-class Template(TimeStampedMixin):
+class Template(TimeStampedMixin, UUIDMixin):
     name = models.CharField(_("name"), max_length=255)
     description = models.TextField(_("description"), blank=True)
     layout = tinymce_models.HTMLField(_("layout"))
@@ -77,6 +77,7 @@ class InstantNotification(NotificationBase):
             stub = managers_pb2_grpc.ManagerNotificationStub(channel)
             request = managers_pb2.SendNotificationRequest(
                 user_ids=[str(user_id) for user_id in self.user_ids],
+                notification_id=str(self.id),
                 template_id=str(self.template.id),
                 subject=self.subject,
                 text=self.text,
@@ -95,18 +96,18 @@ class ScheduledNotification(NotificationBase):
 
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
-        channel = grpc.insecure_channel(settings.NOTIFICATION_SERVICE_GRPC)
-        stub = managers_pb2_grpc.ManagerNotificationStub(channel)
-        request = managers_pb2.CreateDelayedNotificationRequest(
-            user_ids=[str(user_id) for user_id in self.user_ids],
-            template_id=str(self.template.id),
-            subject=self.subject,
-            text=self.text,
-            type=self.notification_channel_type,
-            delay=int((self.scheduled_time - timezone.now()).total_seconds()),
-        )
-        stub.CreateDelayedNotification(request)
-        channel.close()
+        with grpc.insecure_channel(settings.NOTIFICATION_SERVICE_GRPC) as channel:
+            stub = managers_pb2_grpc.ManagerNotificationStub(channel)
+            request = managers_pb2.CreateDelayedNotificationRequest(
+                user_ids=[str(user_id) for user_id in self.user_ids],
+                notification_id=str(self.id),
+                template_id=str(self.template.id),
+                subject=self.subject,
+                text=self.text,
+                type=self.notification_channel_type,
+                delay=int((self.scheduled_at - timezone.now()).total_seconds()), ##TODO
+            )
+            stub.CreateDelayedNotification(request)
 
 
 class RecurringNotification(NotificationBase):
