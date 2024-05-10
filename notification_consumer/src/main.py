@@ -4,7 +4,7 @@ import logging.config
 from src.consumers.kafka import KafkaConsumer
 from src.core.config import TOPICS, settings
 from src.core.logger import LOGGING
-from src.router.message import MessageRouter
+from src.router.v1.message import MessageRouter
 from src.services.grpc import GrpcNotificationService
 
 logging.config.dictConfig(LOGGING)

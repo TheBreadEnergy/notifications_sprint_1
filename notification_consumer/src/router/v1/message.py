@@ -8,6 +8,7 @@ from src.events.users.v1.activated import UserActivatedEvent
 from src.events.users.v1.no_seen import UserNotSeenEvent
 from src.events.users.v1.registered import UserRegisteredEvent
 from src.router.base import RouterABC
+from src.router.v1 import VERSION
 from src.schemas import status
 from src.services.base import NotificationServiceABC
 
@@ -18,10 +19,10 @@ class MessageRouter(RouterABC):
     def __init__(self, service: NotificationServiceABC):
         self._service = service
         self._topic_handler = {
-            f"v1.{settings.film_added_topic}": process_film_added,
-            f"v1.{settings.user_registered_topic}": process_user_registered,
-            f"v1.{settings.user_activated_topic}": process_user_activated,
-            f"v1.{settings.user_no_see_topic}": process_user_no_seen,
+            f"{VERSION}.{settings.film_added_topic}": process_film_added,
+            f"{VERSION}.{settings.user_registered_topic}": process_user_registered,
+            f"{VERSION}.{settings.user_activated_topic}": process_user_activated,
+            f"{VERSION}.{settings.user_no_see_topic}": process_user_no_seen,
         }
 
     async def route_message(self, message: ConsumerRecord):
