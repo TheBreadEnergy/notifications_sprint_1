@@ -50,7 +50,7 @@ async def process_system_notification(
                 logging.info("Message task change state to successfull")
             else:
                 logging.error("Notification not published successfully")
-                event.status = NotificationStatus.cancelled
+                event.status = NotificationStatus.pending
                 logging.info("Message task change state to cancelled")
             await session.commit()
         except Exception as e:
@@ -92,7 +92,7 @@ async def process_user_notification(
                 if published:
                     event.status = NotificationStatus.in_progress
                 else:
-                    event.status = NotificationStatus.cancelled
+                    event.status = NotificationStatus.pending
                 session.add(event)
             await session.commit()
         except Exception as e:

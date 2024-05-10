@@ -10,12 +10,29 @@ x-mongo-common:
     retries: 3
     start_period: 10s
 
+x-api-common:
+  &api-common
+  healthcheck:
+    test: curl --fail http://localhost:8000/healthcheck || exit 1
+    interval: 10s
+    retries: 3
+    start_period: 10s
+    timeout: 5s
+
 services:
   django-admin:
     build: django_admin
     image: app-django-admin:dev
     volumes:
       - static:/opt/app/static
+
+    healthcheck:
+      test: curl http://localhost:8000
+      interval: 10s
+      retries: 3
+      start_period: 10s
+      timeout: 5s
+
     depends_on:
       - postgres
     env_file:
@@ -25,6 +42,7 @@ services:
     restart: unless-stopped
 
   auth-api:
+    <<: *api-common
     build: auth_service
     image: app-auth-api:dev
     depends_on:
@@ -37,6 +55,7 @@ services:
     restart: unless-stopped
 
   film-api:
+    <<: *api-common
     build: filmwork_service
     image: app-film-api:dev
     depends_on:
@@ -49,6 +68,7 @@ services:
     restart: unless-stopped
 
   file-api:
+    <<: *api-common
     build: file_service
     image: app-file-api:dev
     depends_on:
@@ -80,12 +100,23 @@ services:
     volumes:
       - static:/data/static/:ro
     depends_on:
-      - django-admin
-      - file-api
-      - auth-api
+      bookmarks-api:
+        condition: service_healthy
+      auth-api:
+        condition: service_healthy
+      file-api:
+        condition: service_healthy
+      film-api:
+        condition: service_healthy
+      notifications-http:
+        condition: service_healthy
+      event-api:
+        condition: service_healthy
+      django-admin:
+        condition: service_healthy
     ports:
       - "81:80"
-    restart: always
+    restart: unless-stopped
 
   postgres:
     build: postgres/
@@ -126,6 +157,7 @@ services:
 
 
   notifications-http:
+    <<: *api-common
     build: ./notification_service/
     image: notification-grpc:dev
     env_file:
@@ -208,6 +240,7 @@ services:
     restart: unless-stopped
 
   event-api:
+    <<: *api-common
     build: ./ucg_service
     image: ucg_service:dev
     env_file:
@@ -368,6 +401,7 @@ services:
 
 
   bookmarks-api:
+    <<: *api-common
     build: bookmarks_service
     image: app-bookmarks-api:dev
     depends_on:

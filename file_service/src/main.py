@@ -8,7 +8,7 @@ from fastapi import FastAPI
 from fastapi.responses import ORJSONResponse
 from miniopy_async import Minio
 from redis.asyncio import Redis
-from src.api.v1 import files
+from src.api.v1 import files, healthcheck
 from src.core.config import settings
 from src.core.logger import setup_root_logger
 from src.db import redis
@@ -52,6 +52,7 @@ app = FastAPI(
 )
 
 app.include_router(files.router, prefix="/api/v1/files", tags=["Файлы"])
+app.include_router(healthcheck.router, tags=["Heathcheck"])
 
 setup_middleware(app)
 setup_dependencies(app)

@@ -4,7 +4,7 @@ import uvicorn
 from fastapi import FastAPI, Request
 from fastapi.responses import ORJSONResponse
 from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
-from src.api.v1 import system_notifications, user_notifications
+from src.api.v1 import healthcheck, system_notifications, user_notifications
 from src.core.config import settings
 from src.core.tracing import configure_tracing
 from src.dependencies.main import setup_dependencies
@@ -60,6 +60,8 @@ app.include_router(
     prefix="/api/v1/system-notifications",
     tags=["Система"],
 )
+
+app.include_router(healthcheck.router, tags=["Health Check"])
 
 setup_middleware(app)
 setup_dependencies(app)

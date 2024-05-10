@@ -13,14 +13,15 @@ from fastapi.staticfiles import StaticFiles
 from fastapi_limiter import FastAPILimiter
 from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
 from redis.asyncio import Redis
+from src.api import healthcheck
 from src.api.v1 import accounts, roles, socials, users
 from src.cli import cli
 from src.core.config import settings
 from src.core.logging import setup_root_logger
-from src.middleware.main import setup_middleware
 from src.core.tracing import configure_tracing
 from src.db import redis
 from src.dependencies.main import setup_dependencies
+from src.middleware.main import setup_middleware
 
 if settings.sentry_dsn:
     sentry_sdk.init(
@@ -30,6 +31,7 @@ if settings.sentry_dsn:
     )
 
 setup_root_logger()
+
 
 def custom_openapi():
     if app.openapi_schema:
@@ -177,6 +179,8 @@ app.include_router(accounts.router, prefix="/api/v1/accounts", tags=["Польз
 app.include_router(roles.router, prefix="/api/v1/roles", tags=["Роли"])
 app.include_router(users.router, prefix="/api/v1/users", tags=["Пользователи"])
 app.include_router(socials.router, prefix="/api/v1/socials", tags=["OAuth2"])
+
+app.include_router(healthcheck.router, tags=["Heathcheck"])
 
 setup_middleware(app)
 setup_dependencies(app)
