@@ -5,7 +5,7 @@ from src.app.healthchecks import blueprint
 from src.app.schemas.healthcheck import HealthcheckSchema
 
 
-@blueprint.route("/healthchecks", methods=["GET"])
+@blueprint.route("/healthcheck", methods=["GET"])
 @doc(
     description="Health checks",
     summary="Health checks",
