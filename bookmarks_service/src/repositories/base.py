@@ -44,7 +44,7 @@ class MongoRepository(RepositoryABC, Generic[ModelType]):
         if not user_id and not film_id:
             raise ValueError("You should provide either user_id or film_id")
         if user_id:
-            query = self._model.find(self._model.user.id == user_id)
+            query = self._model.find_many(self._model.user.id == user_id)
 
         else:
             query = self._model.find_many(self._model.film.film_id == film_id)
@@ -52,6 +52,7 @@ class MongoRepository(RepositoryABC, Generic[ModelType]):
             query.sort(sort_by)
         return await paginate(query)
 
+    # TODO: Add existence check
     async def insert(self, *, entity: ModelType):
         await entity.insert()
         return entity

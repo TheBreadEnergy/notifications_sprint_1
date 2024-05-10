@@ -2,17 +2,28 @@ import logging
 from contextlib import asynccontextmanager
 
 import aiohttp
+import sentry_sdk
 import uvicorn
 from fastapi import FastAPI
 from fastapi.responses import ORJSONResponse
 from miniopy_async import Minio
 from redis.asyncio import Redis
-from src.api.v1 import files
+from src.api.v1 import files, healthcheck
 from src.core.config import settings
-from src.core.logger import LOGGING
+from src.core.logger import setup_root_logger
 from src.db import redis
 from src.dependencies.main import setup_dependencies
+from src.middleware.main import setup_middleware
 from src.storage import minio, session_client
+
+if settings.sentry_dsn:
+    sentry_sdk.init(
+        dsn=settings.sentry_dsn,
+        traces_sample_rate=1.0,
+        profiles_sample_rate=1.0,
+    )
+
+setup_root_logger()
 
 
 @asynccontextmanager
@@ -41,7 +52,9 @@ app = FastAPI(
 )
 
 app.include_router(files.router, prefix="/api/v1/files", tags=["Файлы"])
+app.include_router(healthcheck.router, tags=["Heathcheck"])
 
+setup_middleware(app)
 setup_dependencies(app)
 
 if __name__ == "__main__":
@@ -49,6 +62,5 @@ if __name__ == "__main__":
         "main:app",
         host="0.0.0.0",
         port=8000,
-        log_config=LOGGING,
         log_level=logging.INFO,
     )

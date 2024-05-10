@@ -1,6 +1,4 @@
-import logging
 import os
-from logging import config as logging_config
 
 import backoff
 import elasticsearch
@@ -8,7 +6,7 @@ import redis
 from aiohttp import ClientConnectorError
 from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
-from src.core.logger import LOGGING
+from loguru import logger
 from src.errors.rate_limit import RateLimitException
 
 
@@ -35,15 +33,20 @@ class Settings(BaseSettings):
         alias="AUTH_PROFILE",
         env="AUTH_PROFILE",
     )
+
+    # Logging settings
+    log_level: str = "INFO"
+    logger_filename: str = "/opt/logs/film-api-logs.json"
+    logger_maxbytes: int = 15000000
+    logger_mod: str = "a"
+    logger_backup_count: int = 5
+
+    sentry_dsn: str | None = None
+
     base_dir: str = os.path.dirname(os.path.abspath(__file__))
 
 
 settings = Settings()
-
-# Применяем настройки логирования
-logging_config.dictConfig(LOGGING)
-
-logger = logging.getLogger(__name__)
 
 
 BACKOFF_CONFIG = {

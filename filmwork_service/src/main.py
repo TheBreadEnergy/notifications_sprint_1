@@ -1,16 +1,26 @@
-import logging
 from contextlib import asynccontextmanager
 
+import sentry_sdk
 import uvicorn
 from elasticsearch import AsyncElasticsearch
 from fastapi import FastAPI
 from fastapi.responses import ORJSONResponse
 from redis.asyncio import Redis
-from src.api.v1 import films, genres, persons
+from src.api.v1 import films, genres, healthcheck, persons
 from src.core.config import settings
-from src.core.logger import LOGGING
+from src.core.logger import setup_root_logger
 from src.db import elastic, redis
 from src.dependencies.main import setup_dependencies
+from src.middleware.main import setup_middleware
+
+if settings.sentry_dsn:
+    sentry_sdk.init(
+        dsn=settings.sentry_dsn,
+        traces_sample_rate=1.0,
+        profiles_sample_rate=1.0,
+    )
+
+setup_root_logger()
 
 
 @asynccontextmanager
@@ -38,6 +48,9 @@ app.include_router(films.router, prefix="/api/v1/films", tags=["Фильмы"])
 app.include_router(genres.router, prefix="/api/v1/genres", tags=["Жанры"])
 app.include_router(persons.router, prefix="/api/v1/persons", tags=["Персоны"])
 
+app.include_router(healthcheck.router, tags=["Heathcheck"])
+
+setup_middleware(app)
 setup_dependencies(app)
 
 if __name__ == "__main__":
@@ -45,6 +58,5 @@ if __name__ == "__main__":
         "main:app",
         host="0.0.0.0",
         port=8000,
-        log_config=LOGGING,
-        log_level=logging.INFO,
+        log_level=settings.log_level,
     )
