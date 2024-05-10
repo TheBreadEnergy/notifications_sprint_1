@@ -1,10 +1,7 @@
-import grpc
-from django.conf import settings
 from django.contrib.postgres.fields import ArrayField
 from django.db import models
-from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
-from notify.grpc import managers_pb2, managers_pb2_grpc
+from notify.grpc.utils import GrpcClient
 from notify.models.mixins import TimeStampedMixin, UUIDMixin
 from tinymce import models as tinymce_models
 
@@ -73,17 +70,7 @@ class InstantNotification(NotificationBase):
 
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
-        with grpc.insecure_channel(settings.NOTIFICATION_SERVICE_GRPC) as channel:
-            stub = managers_pb2_grpc.ManagerNotificationStub(channel)
-            request = managers_pb2.SendNotificationRequest(
-                user_ids=[str(user_id) for user_id in self.user_ids],
-                notification_id=str(self.id),
-                template_id=str(self.template.id),
-                subject=self.subject,
-                text=self.text,
-                type=self.notification_channel_type,
-            )
-            stub.SendNotificationToUsers(request)
+        GrpcClient.send_instant_notification(self)
 
 
 class ScheduledNotification(NotificationBase):
@@ -96,18 +83,7 @@ class ScheduledNotification(NotificationBase):
 
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
-        with grpc.insecure_channel(settings.NOTIFICATION_SERVICE_GRPC) as channel:
-            stub = managers_pb2_grpc.ManagerNotificationStub(channel)
-            request = managers_pb2.CreateDelayedNotificationRequest(
-                user_ids=[str(user_id) for user_id in self.user_ids],
-                notification_id=str(self.id),
-                template_id=str(self.template.id),
-                subject=self.subject,
-                text=self.text,
-                type=self.notification_channel_type,
-                delay=int((self.scheduled_at - timezone.now()).total_seconds()), ##TODO
-            )
-            stub.CreateDelayedNotification(request)
+        GrpcClient.create_scheduled_notification(self)
 
 
 class RecurringNotification(NotificationBase):

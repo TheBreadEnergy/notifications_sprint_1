@@ -178,6 +178,20 @@ argon2 = ["argon2-cffi (>=19.1.0)"]
 bcrypt = ["bcrypt"]
 
 [[package]]
+name = "django-currentuser"
+version = "0.7.0"
+description = "Conveniently store reference to request user on thread/db level."
+optional = false
+python-versions = ">=3.8"
+files = [
+    {file = "django-currentuser-0.7.0.tar.gz", hash = "sha256:626ecd5ba82bb8b1315789eb95adfdfd953046a66cf6a95424aa957724b15b7a"},
+    {file = "django_currentuser-0.7.0-py2.py3-none-any.whl", hash = "sha256:6e6c48e285b652c515c067ffc98ff74b2d5daf289125b15fedcbc88629db4c5d"},
+]
+
+[package.dependencies]
+Django = ">=3.2,<4.0 || >4.0,<4.1 || >4.1,<5.1"
+
+[[package]]
 name = "django-debug-toolbar"
 version = "4.3.0"
 description = "A configurable set of panels that display various debug information about the current request/response."
@@ -631,4 +645,4 @@ dev = ["black (>=19.3b0)", "pytest (>=4.6.2)"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.11"
-content-hash = "508b4511388dfdff6cd2eac479b2c30e64cf827f7a35019308dd6cdafe24590d"
+content-hash = "395d868ea03ea518a21f9a2777a3e56da671ffb370c43bdf63fbb0e9c5758fe3"
