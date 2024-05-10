@@ -1,0 +1,13 @@
+aiokafka==0.10.0
+annotated-types==0.6.0
+async-timeout==4.0.3
+grpcio==1.63.0
+grpcio-tools==1.63.0
+packaging==24.0
+protobuf==5.26.1
+pydantic==2.7.1
+pydantic-settings==2.2.1
+pydantic_core==2.18.2
+python-dotenv==1.0.1
+setuptools==69.5.1
+typing_extensions==4.11.0
