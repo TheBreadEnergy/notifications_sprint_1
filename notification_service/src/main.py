@@ -1,23 +1,25 @@
 from http import HTTPStatus
 
+import sentry_sdk
 import uvicorn
 from fastapi import FastAPI, Request
 from fastapi.responses import ORJSONResponse
 from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
 from src.api.v1 import healthcheck, system_notifications, user_notifications
 from src.core.config import settings
+from src.core.logging import setup_root_logger
 from src.core.tracing import configure_tracing
 from src.dependencies.main import setup_dependencies
 from src.middleware.main import setup_middleware
 
-# if settings.sentry_dsn:
-#     sentry_sdk.init(
-#         dsn=settings.sentry_dsn,
-#         traces_sample_rate=1.0,
-#         profiles_sample_rate=1.0,
-#     )
-#
-# setup_root_logger()
+if settings.sentry_dsn:
+    sentry_sdk.init(
+        dsn=settings.sentry_dsn,
+        traces_sample_rate=1.0,
+        profiles_sample_rate=1.0,
+    )
+
+setup_root_logger()
 
 if settings.enable_tracer:
     configure_tracing()

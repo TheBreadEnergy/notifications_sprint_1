@@ -58,5 +58,6 @@ wrapt==1.16.0
 yarl==1.9.4
 zipp==3.18.1
 gunicorn==21.2.0
+sentry-sdk==2.1.1
 loguru==0.7.2
 sentry-sdk[fastapi]==1.44.0
