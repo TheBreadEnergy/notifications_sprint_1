@@ -6,6 +6,7 @@ from src.core.config import settings
 from src.db.functions import get_template_by_id, get_user_by_id
 from src.mail.send import send_email
 from src.models.user_notification import NotificationChannelType
+from src.push.push import send_push
 from src.render.render import render_template
 
 
@@ -19,7 +20,7 @@ async def handle_manager_message(data):
     if data["notification_channel_type"] == NotificationChannelType.email:
         await send_email(user, rendered_content, data["subject"])
     if data["notification_channel_type"] == NotificationChannelType.push:
-        ...
+        await send_push(data["user_id"], rendered_content, data["task_id"])
 
 
 async def handle_register(data):

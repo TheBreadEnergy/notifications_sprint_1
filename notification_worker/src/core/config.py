@@ -68,6 +68,12 @@ class Settings(BaseSettings):
         "key", alias="SENDGRID_API_KEY", env="SENDGRID_API_KEY"
     )
 
+    push_url: str = Field(
+        "http://localhost:8000/api/v1/websockets/notify/",
+        alias="PUSH_URL",
+        env="PUSH_URL",
+    )
+
     debug: bool = Field(False, alias="DEBUG", env="DEBUG")
 
     base_dir: str = os.path.dirname(os.path.abspath(__file__))
