@@ -6,7 +6,7 @@ from .models import (InstantNotification, RecurringNotification,
 
 @admin.register(Template)
 class TemplateAdmin(admin.ModelAdmin):
-    list_display = ("name", "description", "created", "modified")
+    list_display = ("name", "description", "event_type")
     search_fields = ("id", "name", "description")
 
 
