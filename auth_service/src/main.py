@@ -135,7 +135,7 @@ def custom_openapi():
 async def lifespan(_: FastAPI):
     kafka.kafka_producer = AIOKafkaProducer(
         bootstrap_servers=f"{settings.kafka_host}:{settings.kafka_port}",
-        transactional_id="messages",
+        enable_idempotence=True,
     )
 
     redis.redis = Redis(
