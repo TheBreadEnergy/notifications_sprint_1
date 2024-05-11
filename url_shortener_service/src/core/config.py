@@ -22,7 +22,7 @@ class Settings(BaseSettings):
     cache_port: int = Field("6379", alias="CACHE_PORT", env="CACHE_PORT")
     base_dir: str = str(Path(__file__).parent.parent)
     postgres_conn: PostgresDsn = Field(
-        "postgresql+asyncpg://app:123qwe@109.71.244.113:7342/links",
+        "postgresql+asyncpg://app:123qwe@locahost:5432/links",
         alias="DATABASE_CONN",
         env="DATABASE_CONN",
     )
