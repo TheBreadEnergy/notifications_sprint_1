@@ -582,6 +582,24 @@ services:
     volumes:
       - notifications-admin-pg-data:/var/lib/postgresql/data
 
+  notification_worker:
+    build: notification_worker
+    depends_on:
+      - rabbit
+      - postgres-notifications-admin
+    env_file:
+      - envs/.env.notification.worker
+    restart: unless-stopped
+
+  notification_websocket:
+    build: notification_websocket
+    expose:
+      - "8000"
+    ports:
+      - "8005:8000"
+    restart: unless-stopped
+
+
   url_shortener_api:
     <<: *api-common
     build: url_shortener_service
