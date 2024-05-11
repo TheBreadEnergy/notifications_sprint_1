@@ -13,10 +13,10 @@ from google.protobuf.internal import builder as _builder
 _sym_db = _symbol_database.Default()
 
 
-from google.protobuf import empty_pb2 as google_dot_protobuf_dot_empty__pb2
+from . import status_pb2 as status__pb2
 
 DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(
-    b'\n\x0emanagers.proto\x1a\x1bgoogle/protobuf/empty.proto"\xb1\x01\n\x17SendNotificationRequest\x12\x12\n\nmanager_id\x18\x01 \x01(\t\x12\x10\n\x08user_ids\x18\x02 \x03(\t\x12\x17\n\x0fnotification_id\x18\x03 \x01(\t\x12\x13\n\x0btemplate_id\x18\x04 \x01(\t\x12\x0f\n\x07subject\x18\x05 \x01(\t\x12\x0c\n\x04text\x18\x06 \x01(\t\x12#\n\x04type\x18\x07 \x01(\x0e\x32\x15.NotificationTypeEnum"\xc9\x01\n CreateDelayedNotificationRequest\x12\x12\n\nmanager_id\x18\x01 \x01(\t\x12\x10\n\x08user_ids\x18\x02 \x03(\t\x12\x17\n\x0fnotification_id\x18\x03 \x01(\t\x12\x13\n\x0btemplate_id\x18\x04 \x01(\t\x12\x0f\n\x07subject\x18\x05 \x01(\t\x12\x0c\n\x04text\x18\x06 \x01(\t\x12#\n\x04type\x18\x07 \x03(\x0e\x32\x15.NotificationTypeEnum\x12\r\n\x05\x64\x65lay\x18\x08 \x01(\x05"\'\n\x14NotificationResponse\x12\x0f\n\x07task_id\x18\x01 \x01(\t*4\n\x14NotificationTypeEnum\x12\t\n\x05\x65mail\x10\x00\x12\x07\n\x03sms\x10\x01\x12\x08\n\x04push\x10\x02\x32\xbe\x01\n\x13ManagerNotification\x12M\n\x17SendNotificationToUsers\x12\x18.SendNotificationRequest\x1a\x16.google.protobuf.Empty"\x00\x12X\n\x19\x43reateDelayedNotification\x12!.CreateDelayedNotificationRequest\x1a\x16.google.protobuf.Empty"\x00\x62\x06proto3'
+    b'\n\x0emanagers.proto\x1a\x0cstatus.proto"\xb1\x01\n\x17SendNotificationRequest\x12\x12\n\nmanager_id\x18\x01 \x01(\t\x12\x10\n\x08user_ids\x18\x02 \x03(\t\x12\x17\n\x0fnotification_id\x18\x03 \x01(\t\x12\x13\n\x0btemplate_id\x18\x04 \x01(\t\x12\x0f\n\x07subject\x18\x05 \x01(\t\x12\x0c\n\x04text\x18\x06 \x01(\t\x12#\n\x04type\x18\x07 \x01(\x0e\x32\x15.NotificationTypeEnum"\xc9\x01\n CreateDelayedNotificationRequest\x12\x12\n\nmanager_id\x18\x01 \x01(\t\x12\x10\n\x08user_ids\x18\x02 \x03(\t\x12\x17\n\x0fnotification_id\x18\x03 \x01(\t\x12\x13\n\x0btemplate_id\x18\x04 \x01(\t\x12\x0f\n\x07subject\x18\x05 \x01(\t\x12\x0c\n\x04text\x18\x06 \x01(\t\x12#\n\x04type\x18\x07 \x01(\x0e\x32\x15.NotificationTypeEnum\x12\r\n\x05\x64\x65lay\x18\x08 \x01(\x05"\'\n\x14NotificationResponse\x12\x0f\n\x07task_id\x18\x01 \x01(\t*4\n\x14NotificationTypeEnum\x12\t\n\x05\x65mail\x10\x00\x12\x07\n\x03sms\x10\x01\x12\x08\n\x04push\x10\x02\x32\xa0\x01\n\x13ManagerNotification\x12>\n\x17SendNotificationToUsers\x12\x18.SendNotificationRequest\x1a\x07.Status"\x00\x12I\n\x19\x43reateDelayedNotification\x12!.CreateDelayedNotificationRequest\x1a\x07.Status"\x00\x62\x06proto3'
 )
 
 _globals = globals()
@@ -24,14 +24,14 @@ _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
 _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, "managers_pb2", _globals)
 if not _descriptor._USE_C_DESCRIPTORS:
     DESCRIPTOR._loaded_options = None
-    _globals["_NOTIFICATIONTYPEENUM"]._serialized_start = 472
-    _globals["_NOTIFICATIONTYPEENUM"]._serialized_end = 524
-    _globals["_SENDNOTIFICATIONREQUEST"]._serialized_start = 48
-    _globals["_SENDNOTIFICATIONREQUEST"]._serialized_end = 225
-    _globals["_CREATEDELAYEDNOTIFICATIONREQUEST"]._serialized_start = 228
-    _globals["_CREATEDELAYEDNOTIFICATIONREQUEST"]._serialized_end = 429
-    _globals["_NOTIFICATIONRESPONSE"]._serialized_start = 431
-    _globals["_NOTIFICATIONRESPONSE"]._serialized_end = 470
-    _globals["_MANAGERNOTIFICATION"]._serialized_start = 527
-    _globals["_MANAGERNOTIFICATION"]._serialized_end = 717
+    _globals["_NOTIFICATIONTYPEENUM"]._serialized_start = 457
+    _globals["_NOTIFICATIONTYPEENUM"]._serialized_end = 509
+    _globals["_SENDNOTIFICATIONREQUEST"]._serialized_start = 33
+    _globals["_SENDNOTIFICATIONREQUEST"]._serialized_end = 210
+    _globals["_CREATEDELAYEDNOTIFICATIONREQUEST"]._serialized_start = 213
+    _globals["_CREATEDELAYEDNOTIFICATIONREQUEST"]._serialized_end = 414
+    _globals["_NOTIFICATIONRESPONSE"]._serialized_start = 416
+    _globals["_NOTIFICATIONRESPONSE"]._serialized_end = 455
+    _globals["_MANAGERNOTIFICATION"]._serialized_start = 512
+    _globals["_MANAGERNOTIFICATION"]._serialized_end = 672
 # @@protoc_insertion_point(module_scope)
