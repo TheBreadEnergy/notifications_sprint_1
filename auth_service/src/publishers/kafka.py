@@ -8,9 +8,8 @@ class KafkaPublisher(PublisherABC):
         self._kafka_producer = kafka_producer
 
     async def publish(self, topic: str, payload: BaseEvent, key: str | None = None):
-        async with self._kafka_producer.transaction():
-            _ = await self._kafka_producer.send_and_wait(
-                topic=topic,
-                key=str(key).encode(),
-                value=payload.model_dump_json().encode(),
-            )
+        _ = await self._kafka_producer.send_and_wait(
+            topic=topic,
+            key=str(key).encode(),
+            value=payload.model_dump_json().encode(),
+        )
