@@ -69,7 +69,7 @@ async def login(
 
 
 @router.get(
-    "/activate/{user_id}",
+    "/activation/{user_id}",
     response_model=UserBase,
     description="Активация учетной записи",
     tags=["Авторизация"],
