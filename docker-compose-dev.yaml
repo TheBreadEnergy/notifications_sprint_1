@@ -274,6 +274,32 @@ services:
       - envs/.env.notification.consumer
     restart: unless-stopped
 
+  url_shortener_api:
+    <<: *api-common
+    build: url_shortener_service
+    image: url_shortener:dev
+    env_file:
+      - envs/.env.api.url_shortener
+    depends_on:
+      - postgres-url
+      - redis-url
+    restart: unless-stopped
+
+  postgres-url:
+    image: postgres:latest
+    env_file:
+      - ./envs/.env.database.auth
+    volumes:
+      - url-data:/var/lib/postgresql/data
+    ports:
+      - "7342:5432"
+
+  redis-url:
+    image: redis:latest
+    restart: unless-stopped
+    volumes:
+      - redis-data-url:/data
+
   mongo_cnf_n1:
     <<: *mongo-common
     hostname: mongo_cnf_n1
@@ -478,3 +504,5 @@ volumes:
   notifications-admin-pg-data:
   notifications-admin-static:
   notification-data:
+  redis-data-url:
+  url-data:

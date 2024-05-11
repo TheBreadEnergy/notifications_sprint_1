@@ -580,6 +580,32 @@ services:
     volumes:
       - notifications-admin-pg-data:/var/lib/postgresql/data
 
+  url_shortener_api:
+    <<: *api-common
+    build: url_shortener_service
+    image: url_shortener:dev
+    env_file:
+      - envs/.env.api.url_shortener
+    depends_on:
+      - postgres-url
+      - redis-url
+    restart: unless-stopped
+
+  postgres-url:
+    image: postgres:latest
+    env_file:
+      - ./envs/.env.database.auth
+    volumes:
+      - url-data:/var/lib/postgresql/data
+    ports:
+      - "7342:5432"
+
+  redis-url:
+    image: redis:latest
+    restart: unless-stopped
+    volumes:
+      - redis-data-url:/data
+
 volumes:
   static:
   auth-data:
@@ -610,3 +636,5 @@ volumes:
   notifications-admin-pg-data:
   notifications-admin-static:
   notifications-api-logs:
+  url-data:
+  redis-data-url:
