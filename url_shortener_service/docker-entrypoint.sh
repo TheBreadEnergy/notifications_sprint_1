@@ -24,5 +24,5 @@ done
 # Evaluating passed command (do not touch):
 # shellcheck disable=SC2086
 exec $cmd
-
+alembic upgrade head
 gunicorn src.main:app --workers 4 --worker-class uvicorn.workers.UvicornWorker --bind 0.0.0.0:8000
