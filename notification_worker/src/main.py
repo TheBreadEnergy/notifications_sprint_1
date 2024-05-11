@@ -1,7 +1,6 @@
 import asyncio
 import logging
 
-from src.brokers.functions import process_message
 from src.brokers.rabbit_message_broker import RabbitMessageBroker
 from src.core.config import settings
 
@@ -16,7 +15,7 @@ async def broker() -> None:
     )
     try:
         await broker.idempotency_startup()
-        await broker.consume_messages(settings.queue_name, process_message)
+        await broker.consume_messages()
     finally:
         await broker.idempotency_shutdown()
         logging.info("Broker Shutdown")
