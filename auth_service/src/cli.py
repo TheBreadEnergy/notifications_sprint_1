@@ -1,8 +1,6 @@
 import asyncio
-from src.core.config import settings
 from functools import wraps
 from typing import Annotated
-from loguru import logger
 
 import typer
 import uvicorn
@@ -21,7 +19,6 @@ def start_app():
         "main:app",
         host="0.0.0.0",
         port=8001,
-        log_level=settings.log_level,
     )
 
 

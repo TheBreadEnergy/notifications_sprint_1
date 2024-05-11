@@ -42,7 +42,7 @@ class ManagerGrpcNotificationService(ManagerNotificationServicer):
         self, request: managers_pb2.CreateDelayedNotificationRequest, context
     ) -> Status:
         data = {
-            "notification_type": NotificationType.fast_notification,
+            "notification_type": NotificationType.delayed_notification,
             "notification_channel_type": NotificationChannelType(request.type),
             "template_id": request.template_id,
             "notification_id": request.notification_id,

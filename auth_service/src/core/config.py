@@ -22,7 +22,7 @@ class Settings(BaseSettings):
     cache_port: int = Field("6379", alias="CACHE_PORT", env="CACHE_PORT")
     base_dir: str = str(Path(__file__).parent.parent)
     postgres_conn: PostgresDsn = Field(
-        "postgresql+asyncpg://app:123qwe@localhost:5432/users",
+        "postgresql+asyncpg://app:123qwe@109.71.244.113:6342/users",
         alias="DATABASE_CONN",
         env="DATABASE_CONN",
     )
@@ -119,7 +119,16 @@ class Settings(BaseSettings):
     )
     enable_limiter: bool = Field(False, alias="ENABLE_LIMITER", env="ENABLE_LIMITER")
     enable_tracer: bool = Field(False, alias="ENABLE_TRACER", env="ENABLE_TRACER")
-
+    debug: bool = Field(True, alias="DEBUG", env="DEBUG")
+    kafka_host: str = Field("localhost", alias="KAFKA_HOST", env="KAFKA_HOST")
+    kafka_port: int = Field(9094, alias="KAFKA_PORT", env="KAFKA_PORT")
+    message_version: str = Field("v1", alias="MESSAGE_VERSION", env="MESSAGE_VERSION")
+    user_registration: str = Field(
+        "user_registered", alias="USER_REGISTRATION", env="USER_REGISTRATION"
+    )
+    user_activation: str = Field(
+        "user_activated", alias="USER_ACTIVATION", env="USER_ACTIVATION"
+    )
     # Logging settings
     log_level: str = "INFO"
     logger_filename: str = "/opt/logs/auth-api-logs.json"

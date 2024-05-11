@@ -114,6 +114,10 @@ services:
         condition: service_healthy
       django-admin:
         condition: service_healthy
+      notifications-admin:
+        condition: service_healthy
+      url_shortener_api:
+        condition: service_healthy
     ports:
       - "81:80"
     restart: unless-stopped
@@ -264,6 +268,39 @@ services:
     env_file:
       - envs/.env.etl.ucg
     restart: unless-stopped
+
+  notification-consumer:
+    build: notification_consumer
+    image: notification-consumer:dev
+    env_file:
+      - envs/.env.notification.consumer
+    restart: unless-stopped
+
+  url_shortener_api:
+    <<: *api-common
+    build: url_shortener_service
+    image: url_shortener:dev
+    env_file:
+      - envs/.env.api.url_shortener
+    depends_on:
+      - postgres-url
+      - redis-url
+    restart: unless-stopped
+
+  postgres-url:
+    image: postgres:latest
+    env_file:
+      - ./envs/.env.database.links
+    volumes:
+      - url-data:/var/lib/postgresql/data
+    ports:
+      - "7342:5432"
+
+  redis-url:
+    image: redis:latest
+    restart: unless-stopped
+    volumes:
+      - redis-data-url:/data
 
   mongo_cnf_n1:
     <<: *mongo-common
@@ -429,6 +466,14 @@ services:
       - postgres-notifications-admin
     env_file:
       - envs/.env.notify.admin
+
+    healthcheck:
+      test: curl http://localhost:8000 || exit 1
+      interval: 10s
+      retries: 3
+      start_period: 10s
+      timeout: 5s
+
     expose:
       - "8000"
     restart: unless-stopped
@@ -479,3 +524,5 @@ volumes:
   notifications-admin-pg-data:
   notifications-admin-static:
   notification-data:
+  redis-data-url:
+  url-data:
