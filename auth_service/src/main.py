@@ -5,6 +5,7 @@ from contextlib import asynccontextmanager
 from http import HTTPStatus
 
 import sentry_sdk
+from aiokafka import AIOKafkaProducer
 from fastapi import FastAPI, Request
 from fastapi.openapi.utils import get_openapi
 from fastapi.responses import ORJSONResponse
@@ -15,6 +16,7 @@ from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
 from redis.asyncio import Redis
 from src.api import healthcheck
 from src.api.v1 import accounts, roles, socials, users
+from src.brokers import kafka
 from src.cli import cli
 from src.core.config import settings
 from src.core.logging import setup_root_logger
@@ -23,14 +25,15 @@ from src.db import redis
 from src.dependencies.main import setup_dependencies
 from src.middleware.main import setup_middleware
 
-if settings.sentry_dsn:
-    sentry_sdk.init(
-        dsn=settings.sentry_dsn,
-        traces_sample_rate=1.0,
-        profiles_sample_rate=1.0,
-    )
+if not settings.debug:
+    if settings.sentry_dsn:
+        sentry_sdk.init(
+            dsn=settings.sentry_dsn,
+            traces_sample_rate=1.0,
+            profiles_sample_rate=1.0,
+        )
 
-setup_root_logger()
+    setup_root_logger()
 
 
 def custom_openapi():
@@ -130,12 +133,19 @@ def custom_openapi():
 
 @asynccontextmanager
 async def lifespan(_: FastAPI):
+    kafka.kafka_producer = AIOKafkaProducer(
+        bootstrap_servers=f"{settings.kafka_host}:{settings.kafka_port}",
+        transactional_id="messages",
+    )
+
     redis.redis = Redis(
         host=settings.cache_host, port=settings.cache_port, decode_responses=True
     )
+    await kafka.kafka_producer.start()
     if settings.enable_limiter:
         await FastAPILimiter.init(redis.redis)
     yield
+    await kafka.kafka_producer.stop()
     await redis.redis.close()
 
 

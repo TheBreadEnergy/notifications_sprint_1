@@ -125,6 +125,8 @@ services:
         condition: service_healthy
       django-admin:
         condition: service_healthy
+      notifications-admin:
+        condition: service_healthy
     ports:
       - "81:80"
 
@@ -283,6 +285,15 @@ services:
     ports:
       - "5672:5672"
       - "25673:15672"
+
+
+  notification-consumer:
+    build: notification_consumer
+    image: notification-consumer:dev
+    env_file:
+      - envs/.env.notification.consumer
+    restart: unless-stopped
+
 
   mongo_cnf_n1:
     <<: *mongo-common
@@ -549,6 +560,14 @@ services:
       - postgres-notifications-admin
     env_file:
       - envs/.env.notify.admin
+
+    healthcheck:
+      test: curl http://localhost:8000 || exit 1
+      interval: 10s
+      retries: 3
+      start_period: 10s
+      timeout: 5s
+
     expose:
       - "8000"
     restart: unless-stopped
@@ -588,7 +607,6 @@ volumes:
   mongo_rs1_n2_data:
   mongo_rs2_n1_data:
   mongo_rs2_n2_data:
-
   notifications-admin-pg-data:
   notifications-admin-static:
   notifications-api-logs:

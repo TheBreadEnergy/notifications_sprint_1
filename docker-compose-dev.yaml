@@ -114,6 +114,8 @@ services:
         condition: service_healthy
       django-admin:
         condition: service_healthy
+      notifications-admin:
+        condition: service_healthy
     ports:
       - "81:80"
     restart: unless-stopped
@@ -263,6 +265,13 @@ services:
     image: ucg_etl:dev
     env_file:
       - envs/.env.etl.ucg
+    restart: unless-stopped
+
+  notification-consumer:
+    build: notification_consumer
+    image: notification-consumer:dev
+    env_file:
+      - envs/.env.notification.consumer
     restart: unless-stopped
 
   mongo_cnf_n1:
@@ -429,6 +438,14 @@ services:
       - postgres-notifications-admin
     env_file:
       - envs/.env.notify.admin
+
+    healthcheck:
+      test: curl http://localhost:8000 || exit 1
+      interval: 10s
+      retries: 3
+      start_period: 10s
+      timeout: 5s
+
     expose:
       - "8000"
     restart: unless-stopped

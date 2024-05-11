@@ -35,9 +35,7 @@ class GrpcNotificationService(NotificationServiceABC):
             request = auth_pb2.UserActivatedAccountNotificationRequest(
                 user_id=event.user_id
             )
-            response: status_pb2.Status = await stub.SendRegistrationNotification(
-                request
-            )
+            response: status_pb2.Status = await stub.SendActivationNotification(request)
         return Status(**MessageToDict(response))
 
     @backoff.on_exception(wait_gen=backoff.expo, exception=Exception, max_tries=3)
