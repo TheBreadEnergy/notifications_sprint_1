@@ -109,6 +109,7 @@ services:
     restart: unless-stopped
     volumes:
       - static:/data/static/:ro
+      - notifications-admin-static:/data/static/:ro
       - nginx-logs:/var/log/nginx/ # Логирование в файл для ELK+Filebeat
     depends_on:
       bookmarks-api:
