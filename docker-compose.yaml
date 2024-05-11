@@ -127,6 +127,8 @@ services:
         condition: service_healthy
       notifications-admin:
         condition: service_healthy
+      url_shortener_api:
+        condition: service_healthy
     ports:
       - "81:80"
 
