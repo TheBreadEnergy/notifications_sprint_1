@@ -22,7 +22,7 @@ class Settings(BaseSettings):
     cache_port: int = Field("6379", alias="CACHE_PORT", env="CACHE_PORT")
     base_dir: str = str(Path(__file__).parent.parent)
     postgres_conn: PostgresDsn = Field(
-        "postgresql+asyncpg://app:123qwe@localhost:5432/links",
+        "postgresql+asyncpg://app:123qwe@109.71.244.113:7342/links",
         alias="DATABASE_CONN",
         env="DATABASE_CONN",
     )
@@ -35,7 +35,7 @@ class Settings(BaseSettings):
         1, alias="REQUESTS_INTERVAL", env="REQUESTS_INTERVAL"
     )
     jaeger_endpoint_host: str = Field(
-        "localhost:4317", alias="JAEGER_ENDPOINT_HOST", env="JAEGER_ENDPOINT_HOST"
+        "localhost:4318", alias="JAEGER_ENDPOINT_HOST", env="JAEGER_ENDPOINT_HOST"
     )
     activation_root_url: str = Field(
         "http://auth-api:80/api/v1/accounts/activation/",

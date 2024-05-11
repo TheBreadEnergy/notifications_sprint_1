@@ -7,7 +7,7 @@ from src.core.config import settings
 
 
 def configure_tracing() -> None:
-    resource = Resource(attributes={"service.name": "auth-service"})
+    resource = Resource(attributes={"service.name": "url-shortener-service"})
     trace.set_tracer_provider(TracerProvider(resource=resource))
     trace.get_tracer_provider().add_span_processor(
         BatchSpanProcessor(

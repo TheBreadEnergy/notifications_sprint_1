@@ -596,11 +596,9 @@ services:
   postgres-url:
     image: postgres:latest
     env_file:
-      - ./envs/.env.database.auth
+      - ./envs/.env.database.links
     volumes:
       - url-data:/var/lib/postgresql/data
-    ports:
-      - "7342:5432"
 
   redis-url:
     image: redis:latest
