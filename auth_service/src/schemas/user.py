@@ -20,6 +20,7 @@ class UserBase(IdentifiableMixin):
     email: EmailStr | None
     first_name: str | None
     last_name: str | None
+    activated: bool | None
 
 
 class UserDto(UserBase):

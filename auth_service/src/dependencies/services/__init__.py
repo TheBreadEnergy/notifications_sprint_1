@@ -1,4 +1,6 @@
+from .activatation_service_factory import create_activation_service
 from .auth_service_factory import create_auth_service
+from .event_handler_factory import create_event_handler
 from .role_service_factory import create_role_service
 from .token_storage_factory import create_token_storage
 from .user_role_service_factory import create_user_role_service

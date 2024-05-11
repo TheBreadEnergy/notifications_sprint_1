@@ -95,7 +95,7 @@ class Settings(BaseSettings):
     debug: bool = Field(True, alias="DEBUG", env="DEBUG")
 
     log_level: str = "INFO"
-    logger_filename: str = "/opt/logs/file-api-logs.json"
+    logger_filename: str = "/opt/logs/notification-api-logs.json"
     logger_maxbytes: int = 15000000
     logger_mod: str = "a"
     logger_backup_count: int = 5
