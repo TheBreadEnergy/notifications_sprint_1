@@ -31,6 +31,10 @@ class Settings(BaseSettings):
     rabbit_port: int = Field(5672, alias="RABBIT_PORT", env="RABBIT_PORT")
     queue_name: str = Field("workers", alias="QUEUE_NAME", env="QUEUE_NAME")
 
+    retry_exchange: str = Field("workers-exchange-retry", alias="RETRY_EXCHANGE")
+    sorting_exchange: str = Field(
+        "workers-exchange-sorting", alias="SORTING_EXCHANGE", env="SORTING_EXCHANGE"
+    )
     register_routing_key: str = Field(
         "send-welcome", alias="REGISTER_ROUTING_KEY", env="REGISTER_ROUTING_KEY"
     )
@@ -49,13 +53,20 @@ class Settings(BaseSettings):
     message_routing_key: str = Field(
         "managers-messages", alias="MESSAGE_ROUTING_KEY", env="MESSAGE_ROUTING_KEY"
     )
-
     welcome_template_name: str = Field(
         "welcome_template", alias="WELCOME_TEMPLATE_NAME", env="WELCOME_TEMPLATE_NAME"
     )
+    routing_prefix: str = Field(
+        "workers", alias="MESSAGE_VERSION", env="MESSAGE_VERSION"
+    )
+    supported_message_versions: list[str] = ["v1"]
 
-    host_email: str = Field('your-email@example.com', alias="HOST_EMAIL", env="HOST_EMAIL")
-    sendgrid_api_key: str = Field("key", alias="SENDGRID_API_KEY", env="SENDGRID_API_KEY")
+    host_email: str = Field(
+        "your-email@example.com", alias="HOST_EMAIL", env="HOST_EMAIL"
+    )
+    sendgrid_api_key: str = Field(
+        "key", alias="SENDGRID_API_KEY", env="SENDGRID_API_KEY"
+    )
 
     debug: bool = Field(False, alias="DEBUG", env="DEBUG")
 
@@ -63,3 +74,12 @@ class Settings(BaseSettings):
 
 
 settings = Settings()
+
+ROUTING_KEYS = [
+    settings.register_routing_key,
+    settings.activating_routing_key,
+    settings.long_no_see_routing_key,
+    settings.message_routing_key,
+    settings.bookmark_routing_key,
+    settings.film_routing_key,
+]
