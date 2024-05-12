@@ -125,6 +125,10 @@ services:
         condition: service_healthy
       django-admin:
         condition: service_healthy
+      notifications-admin:
+        condition: service_healthy
+      url_shortener_api:
+        condition: service_healthy
     ports:
       - "81:80"
 
@@ -283,6 +287,15 @@ services:
     ports:
       - "5672:5672"
       - "25673:15672"
+
+
+  notification-consumer:
+    build: notification_consumer
+    image: notification-consumer:dev
+    env_file:
+      - envs/.env.notification.consumer
+    restart: unless-stopped
+
 
   mongo_cnf_n1:
     <<: *mongo-common
@@ -541,6 +554,58 @@ services:
       - bookmarks-api-logs:/var/app/log:ro
 
 
+  notifications-admin:
+    build: notifications_admin
+    volumes:
+      - notifications-admin-static:/opt/app/static
+    depends_on:
+      - postgres-notifications-admin
+    env_file:
+      - envs/.env.notify.admin
+
+    healthcheck:
+      test: curl http://localhost:8000 || exit 1
+      interval: 10s
+      retries: 3
+      start_period: 10s
+      timeout: 5s
+
+    expose:
+      - "8000"
+    restart: unless-stopped
+
+
+  postgres-notifications-admin:
+    build: notifications_admin/postgres/
+    env_file:
+      - envs/.env.database.notify.admin
+    volumes:
+      - notifications-admin-pg-data:/var/lib/postgresql/data
+
+  url_shortener_api:
+    <<: *api-common
+    build: url_shortener_service
+    image: url_shortener:dev
+    env_file:
+      - envs/.env.api.url_shortener
+    depends_on:
+      - postgres-url
+      - redis-url
+    restart: unless-stopped
+
+  postgres-url:
+    image: postgres:latest
+    env_file:
+      - ./envs/.env.database.links
+    volumes:
+      - url-data:/var/lib/postgresql/data
+
+  redis-url:
+    image: redis:latest
+    restart: unless-stopped
+    volumes:
+      - redis-data-url:/data
+
 volumes:
   static:
   auth-data:
@@ -568,5 +633,8 @@ volumes:
   mongo_rs1_n2_data:
   mongo_rs2_n1_data:
   mongo_rs2_n2_data:
+  notifications-admin-pg-data:
+  notifications-admin-static:
   notifications-api-logs:
-
+  url-data:
+  redis-data-url:

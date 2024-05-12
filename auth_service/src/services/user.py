@@ -24,6 +24,7 @@ from src.services.base import (
     UnitOfWork,
 )
 from src.services.cache import CacheServiceABC
+from src.services.event_handler import EventHandlerABC
 
 
 class UserRepositoryABC(RepositoryABC, ABC):
@@ -182,7 +183,9 @@ class UserServiceABC(ABC):
         ...
 
     @abstractmethod
-    async def create_user(self, user_dto: UserCreateDto) -> GenericResult[User]:
+    async def create_user(
+        self, user_dto: UserCreateDto, event_handler: EventHandlerABC | None = None
+    ) -> GenericResult[User]:
         ...
 
     @abstractmethod
@@ -245,7 +248,9 @@ class UserService(UserServiceABC):
             await self._uow.commit()
         return user
 
-    async def create_user(self, user_dto: UserCreateDto) -> GenericResult[User]:
+    async def create_user(
+        self, user_dto: UserCreateDto, event_handler: EventHandlerABC | None = None
+    ) -> GenericResult[User]:
         user = await self._repository.get_by_login(login=user_dto.login)
         response = GenericResult.failure(
             Error(error_code="USER_ALREADY_EXISTS", reason="User already exists")
@@ -253,6 +258,8 @@ class UserService(UserServiceABC):
         if not user:
             user = await self._repository.insert(body=user_dto)
             await self._uow.commit()
+            if event_handler:
+                await event_handler.handle_registration(user_id=user.id)
             response = GenericResult.success(user)
         return response
 

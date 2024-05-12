@@ -22,7 +22,7 @@ class Settings(BaseSettings):
         env="FILM_ADDED_TOPIC",
         alias="FILM_ADDED_TOPIC",
     )
-    kafka_host: str = Field("109.71.244.113", alias="KAFKA_HOST", env="KAFKA_HOST")
+    kafka_host: str = Field("localhost", alias="KAFKA_HOST", env="KAFKA_HOST")
 
     kafka_port: int = Field(9094, alias="KAFKA_PORT", env="KAFKA_PORT")
 

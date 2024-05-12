@@ -1,6 +1,6 @@
 import datetime
 import enum
-from typing import List, Self
+from typing import List, Optional, Self
 from uuid import uuid4
 
 from passlib.hash import pbkdf2_sha256
@@ -15,7 +15,7 @@ from sqlalchemy import (
     Text,
     UniqueConstraint,
 )
-from sqlalchemy.orm import Mapped, relationship
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 from src.db.postgres import Base
 from src.models.role import Role
 from src.models.user_history import UserHistory
@@ -85,6 +85,8 @@ class User(Base):
         onupdate=datetime.datetime.now(datetime.UTC),
     )
 
+    activated: Mapped[Optional[bool]] = mapped_column(nullable=True, default=False)
+
     def __init__(
         self,
         login: str,
@@ -92,13 +94,15 @@ class User(Base):
         first_name: str,
         last_name: str,
         email: EmailStr,
+        activated: bool = False,
     ) -> None:
         self.login = login
         self.password_hash = pbkdf2_sha256.hash(password)
         self.first_name = first_name
         self.last_name = last_name
         self.email = email
-        self.social_accounts = []
+        self.activated = activated  # noqa
+        self.social_accounts = []  # noqa
 
     def check_password(self, password: str) -> bool:
         return pbkdf2_sha256.verify(password, self.password_hash)
@@ -127,7 +131,11 @@ class User(Base):
 
     def update_login(self, login: str) -> Self:
         self.login = login if login != "" else self.login
-        return Self
+        return self
+
+    def activate_account(self) -> Self:
+        self.activated = True  # noqa
+        return self
 
     def assign_role(self, role: Role):
         if not self.has_role(role.name):

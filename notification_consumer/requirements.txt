@@ -1,6 +1,7 @@
 aiokafka==0.10.0
 annotated-types==0.6.0
 async-timeout==4.0.3
+backoff==2.2.1
 grpcio==1.63.0
 grpcio-tools==1.63.0
 packaging==24.0

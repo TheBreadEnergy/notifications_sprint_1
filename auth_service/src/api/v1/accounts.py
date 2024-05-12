@@ -1,5 +1,6 @@
 from http import HTTPStatus
 from typing import Annotated
+from uuid import UUID
 
 from fastapi import APIRouter, Depends, Header, HTTPException
 from src.core.extensions import build_dependencies
@@ -8,7 +9,9 @@ from src.schemas.auth import RefreshRequestDto, UserLoginDto
 from src.schemas.result import GenericResult
 from src.schemas.token import Token
 from src.schemas.user import UserBase, UserCreateDto
+from src.services.activation import ActivationServiceABC
 from src.services.auth import AuthServiceABC
+from src.services.event_handler import EventHandlerABC
 from src.services.user import UserServiceABC
 from starlette.responses import JSONResponse
 
@@ -24,9 +27,13 @@ router = APIRouter()
     dependencies=build_dependencies(),
 )
 async def register(
-    user: UserCreateDto, user_service: UserServiceABC = Depends()
+    user: UserCreateDto,
+    user_service: UserServiceABC = Depends(),
+    event_hander: EventHandlerABC = Depends(),
 ) -> UserBase:
-    response: GenericResult[User] = await user_service.create_user(user_dto=user)
+    response: GenericResult[User] = await user_service.create_user(
+        user_dto=user, event_handler=event_hander
+    )
     if response.is_success:
         return response.response
     raise HTTPException(
@@ -59,6 +66,20 @@ async def login(
         )
 
     return token.response
+
+
+@router.get(
+    "/activation/{user_id}",
+    response_model=UserBase,
+    description="Активация учетной записи",
+    tags=["Авторизация"],
+    dependencies=build_dependencies(),
+)
+async def activate_account(
+    user_id: UUID, user_service: ActivationServiceABC = Depends()
+) -> User:
+    user = await user_service.activate_user_account(user_id=user_id)
+    return user
 
 
 @router.post(
