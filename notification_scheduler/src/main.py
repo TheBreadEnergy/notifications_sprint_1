@@ -1,31 +1,63 @@
 import asyncio
-from datetime import datetime
+import datetime
 
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
-from apscheduler.triggers.cron import CronTrigger
 from croniter import croniter
 from loguru import logger
-from src.db.functions import fetch_recurring_notifications
+from src.core.config import settings
+from src.db.functions import (
+    fetch_recurring_notifications,
+    update_recurring_notification,
+)
 from src.grpc.utils import send_notification
 
 
 async def schedule_notifications():
     notifications = await fetch_recurring_notifications()
-    logger.info(f"Fetched {len(notifications)} recurring notifications")
-    scheduler = AsyncIOScheduler()
+    started_time = datetime.datetime.now(datetime.timezone.utc)
+    logger.info(
+        f"Fetched {len(notifications)} recurring notifications at time  {started_time}"
+    )
+    triggered_notifications = []
     for notification in notifications:
         cron_schedule = notification.cron_string
+        last_notification = (
+            notification.last_notified
+            if notification.last_notified
+            else notification.created
+        )
         if croniter.is_valid(cron_schedule):
-            trigger = CronTrigger.from_crontab(cron_schedule)
-            scheduler.add_job(send_notification, trigger, args=[notification])
-    return scheduler
+            cron = croniter(cron_schedule, last_notification)
+            logger.info("Validate incoming task for execution")
+            next_time_to_trigger = cron.get_next(datetime.datetime)
+            print(
+                abs(next_time_to_trigger - datetime.datetime.now(datetime.timezone.utc))
+            )
+            if abs(
+                next_time_to_trigger - datetime.datetime.now(datetime.timezone.utc)
+            ) <= datetime.timedelta(seconds=settings.delta):
+                logger.info(
+                    f"Task: {notification.id} with next time "
+                    f"execution {next_time_to_trigger}  will be executed. "
+                )
+                await send_notification(notification)
+                triggered_notifications.append(notification)
+                await update_recurring_notification(
+                    triggered_notifications, notification_date=started_time
+                )
 
 
 async def run_scheduler():
-    scheduler = await schedule_notifications()
+    scheduler = AsyncIOScheduler()
+    scheduler.add_job(schedule_notifications, "interval", seconds=settings.interval)
     scheduler.start()
+    while True:
+        await asyncio.sleep(1000)
 
 
 if __name__ == "__main__":
-    logger.info("Recurring notifications scheduler is starting...")
-    asyncio.run(run_scheduler())
+    try:
+        logger.info("Recurring notifications scheduler is starting...")
+        asyncio.run(run_scheduler())
+    except (KeyboardInterrupt, SystemExit):
+        ...

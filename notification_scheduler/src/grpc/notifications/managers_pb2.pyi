@@ -3,11 +3,11 @@ from typing import Iterable as _Iterable
 from typing import Optional as _Optional
 from typing import Union as _Union
 
-import status_pb2 as _status_pb2
 from google.protobuf import descriptor as _descriptor
 from google.protobuf import message as _message
 from google.protobuf.internal import containers as _containers
 from google.protobuf.internal import enum_type_wrapper as _enum_type_wrapper
+from src.grpc.notifications import status_pb2 as _status_pb2
 
 DESCRIPTOR: _descriptor.FileDescriptor
 

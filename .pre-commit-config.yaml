@@ -10,7 +10,7 @@ repos:
       entry: flake8
       language: python
       types: [python]
-      exclude: (?x)^(django_admin/.* |etl/src/queries/.* | filmwork_service/.*/__init__.py | file_service/.*/__init__.py | auth_service/.*/__init__.py | auth_service/src/migrations/.* | ucg_service/src/app/.*/__init__.py | ucg_service/src/pywsgi.py | ucg_service/src/.*/__init__.py | notification_service/src/core/grpc/.* | notification_service/src/migrations/.* | notification_consumer/src/grpc/models/.* | notification_consumer/src/grpc/services/.* | url_shortener_service/src/migrations/.*  )$
+      exclude: (?x)^(django_admin/.* |etl/src/queries/.* | filmwork_service/.*/__init__.py | file_service/.*/__init__.py | auth_service/.*/__init__.py | auth_service/src/migrations/.* | ucg_service/src/app/.*/__init__.py | ucg_service/src/pywsgi.py | ucg_service/src/.*/__init__.py | notification_service/src/core/grpc/.* | notification_service/src/migrations/.* | notification_consumer/src/grpc/models/.* | notification_consumer/src/grpc/services/.* | url_shortener_service/src/migrations/.* | notification_scheduler/src/grpc/notifications/.*   )$
 -   repo: https://github.com/timothycrosley/isort
     rev: 5.12.0
     hooks:

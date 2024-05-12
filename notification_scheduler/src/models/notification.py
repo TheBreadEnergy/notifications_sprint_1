@@ -1,8 +1,7 @@
 from sqlalchemy import Column, DateTime, Integer, String, Text
-from sqlalchemy.dialects.postgresql import UUID, ARRAY
+from sqlalchemy.dialects.postgresql import ARRAY, UUID
 from src.core.config import settings
 from src.models.base import Base
-from sqlalchemy.orm import relationship
 
 
 class RecurringNotification(Base):
@@ -17,6 +16,6 @@ class RecurringNotification(Base):
     text = Column(Text)
     status = Column(Integer)
     cron_string = Column(Text)
-
-    created = Column(DateTime)
-    modified = Column(DateTime)
+    created = Column(DateTime(timezone=True))
+    modified = Column(DateTime(timezone=True))
+    last_notified = Column(DateTime(timezone=True), nullable=True)
