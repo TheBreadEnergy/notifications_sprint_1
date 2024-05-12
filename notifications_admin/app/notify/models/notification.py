@@ -2,9 +2,11 @@ from django.contrib.postgres.fields import ArrayField
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 from notify.grpc.utils import GrpcClient
-from notify.models.enums import (EventTypeChoice,
-                                 NotificationChannelTypeChoice,
-                                 NotificationStatusChoice)
+from notify.models.enums import (
+    EventTypeChoice,
+    NotificationChannelTypeChoice,
+    NotificationStatusChoice,
+)
 from notify.models.mixins import TimeStampedMixin, UUIDMixin
 from tinymce import models as tinymce_models
 
@@ -81,6 +83,7 @@ class ScheduledNotification(NotificationBase):
 
 class RecurringNotification(NotificationBase):
     cron_string = models.TextField(_("Cron string"))
+    last_notified = models.DateTimeField(null=True)
 
     class Meta:
         db_table = 'content"."recurring_notifications'
