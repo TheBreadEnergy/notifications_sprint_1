@@ -1,18 +1,23 @@
-import grpc
-from django.conf import settings
 from django.contrib.postgres.fields import ArrayField
 from django.db import models
 from django.utils.translation import gettext_lazy as _
-from notify.grpc import managers_pb2, managers_pb2_grpc
+from notify.grpc.utils import GrpcClient
+from notify.models.enums import (EventTypeChoice,
+                                 NotificationChannelTypeChoice,
+                                 NotificationStatusChoice)
 from notify.models.mixins import TimeStampedMixin, UUIDMixin
 from tinymce import models as tinymce_models
-from django.utils import timezone
 
 
-class Template(TimeStampedMixin):
+class Template(TimeStampedMixin, UUIDMixin):
     name = models.CharField(_("name"), max_length=255)
     description = models.TextField(_("description"), blank=True)
     layout = tinymce_models.HTMLField(_("layout"))
+    event_type = models.IntegerField(
+        choices=EventTypeChoice.choices,
+        default=EventTypeChoice.DIRECT,
+        null=False,
+    )
 
     class Meta:
         db_table = 'content"."templates'
@@ -21,21 +26,6 @@ class Template(TimeStampedMixin):
 
     def __str__(self) -> str:
         return str(self.name)
-
-
-class NotificationChannelTypeChoice(models.IntegerChoices):
-    EMAIL = 0, _("Email")
-    SMS = 1, _("SMS")
-    PUSH = 2, _("Push")
-
-
-class NotificationStatusChoice(models.IntegerChoices):
-    PENDING = 0, _("Pending")
-    STARTED = 1, _("Started")
-    IN_PROGRESS = 2, _("In progress")
-    COMPLETED = 3, _("Completed")
-    CANCELLED = 4, _("Cancelled")
-    SCHEDULED = 5, _("Scheduled")
 
 
 class NotificationBase(TimeStampedMixin, UUIDMixin):
@@ -73,16 +63,7 @@ class InstantNotification(NotificationBase):
 
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
-        with grpc.insecure_channel(settings.NOTIFICATION_SERVICE_GRPC) as channel:
-            stub = managers_pb2_grpc.ManagerNotificationStub(channel)
-            request = managers_pb2.SendNotificationRequest(
-                user_ids=[str(user_id) for user_id in self.user_ids],
-                template_id=str(self.template.id),
-                subject=self.subject,
-                text=self.text,
-                type=self.notification_channel_type,
-            )
-            stub.SendNotificationToUsers(request)
+        GrpcClient.send_instant_notification(self)
 
 
 class ScheduledNotification(NotificationBase):
@@ -95,18 +76,7 @@ class ScheduledNotification(NotificationBase):
 
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
-        channel = grpc.insecure_channel(settings.NOTIFICATION_SERVICE_GRPC)
-        stub = managers_pb2_grpc.ManagerNotificationStub(channel)
-        request = managers_pb2.CreateDelayedNotificationRequest(
-            user_ids=[str(user_id) for user_id in self.user_ids],
-            template_id=str(self.template.id),
-            subject=self.subject,
-            text=self.text,
-            type=self.notification_channel_type,
-            delay=int((self.scheduled_time - timezone.now()).total_seconds()),
-        )
-        stub.CreateDelayedNotification(request)
-        channel.close()
+        GrpcClient.create_scheduled_notification(self)
 
 
 class RecurringNotification(NotificationBase):

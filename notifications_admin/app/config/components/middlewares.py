@@ -7,4 +7,5 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "debug_toolbar.middleware.DebugToolbarMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "django_currentuser.middleware.ThreadLocalUserMiddleware",
 ]
