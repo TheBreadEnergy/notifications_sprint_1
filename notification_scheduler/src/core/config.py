@@ -13,7 +13,7 @@ class Settings(BaseSettings):
 
     postgres_dsn: PostgresDsn = Field(
         "postgresql+asyncpg://app:123qwe@localhost:5432/notify_database",
-        alias="POSTGRES_DNS",
+        alias="POSTGRES_DSN",
         env="POSTGRES_DSN",
     )
 
