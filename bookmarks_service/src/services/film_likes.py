@@ -36,6 +36,7 @@ class FilmLikeService(FilmLikeServiceABC):
     ) -> PaginatedPage[FilmLike]:
         return await self._repository.search(film_id=film_id, user_id=user_id)
 
+    # TODO: Refractor this to creating entity in repository
     async def create_film_like(
         self, film: FilmMeta, user: UserMeta, like_type: LikeType
     ) -> FilmLike:

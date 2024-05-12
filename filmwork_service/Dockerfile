@@ -13,6 +13,9 @@ ENV PYTHONFAULTHANDLER=1 \
 RUN groupadd -r fastapi && useradd -d /opt/app -r -g fastapi fastapi \
     && chown fastapi:fastapi -R /opt/app/
 
+# Create dir for storing log files
+RUN mkdir -p /opt/logs/ && chown fastapi:fastapi -R /opt/logs/
+
 
 COPY requirements.txt requirements.txt
 

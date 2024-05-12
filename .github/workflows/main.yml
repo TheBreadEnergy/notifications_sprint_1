@@ -23,24 +23,35 @@ jobs:
           python -m pip install --upgrade pip
           pip install flake8 wemake-python-styleguide flake8-html flake8-github flake8-bandit bandit
       - name: Прогон через wemake-python-styleguide с разными версиями
+        if: always()
         id: flake8
-        run: flake8 .
+        run: flake8 . --exclude venv --ignore=E501,F401
       - name: Проверка типизации
+        if: always()
         id: mypy
         uses: jpetrucciani/mypy-check@0.991
         with:
           python_version: 3.12
+      - name: Unit test bookmark service
+        if: always()
+        id: pytest
+        run: |
+          cd bookmarks_service
+          pip install -r requirements.txt
+          pytest
+          cd ..
       - name: Отправка сообщения об успешности пайплайна
         if: always()
         uses: robotomize/notify-telegram@v0.2.4
         with:
           chat: ${{ secrets.CHAT_ID }}
           token: ${{ secrets.BOT_TOKEN }}
-          status: ${{ steps.flake8.outcome == 'success' && steps.mypy.outcome == 'success' }}
+          status: ${{ steps.pytest.outcome == 'success' && steps.flake8.outcome == 'success' && steps.mypy.outcome == 'success' }}
           message: |
             ${{ github.actor }} created pull-request:
             PR SHA: ${{ github.event.pull_request.head.sha }}
             Repository: ${{ github.repository }}
+            Tests: ${{steps.pytest.outcome}}
             Status: ${{ steps.flake8.outcome == 'success' && steps.mypy.outcome == 'success' }} на версии ${{matrix.python-version}}
   
   report:

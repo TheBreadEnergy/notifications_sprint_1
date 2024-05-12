@@ -1,0 +1,11 @@
+syntax = "proto3";
+import "status.proto";
+
+
+message FilmUploadedNotificationRequest {
+    string film_id = 1;
+}
+
+service FilmNotification {
+    rpc SendFilmNotification (FilmUploadedNotificationRequest) returns (Status) {}
+}

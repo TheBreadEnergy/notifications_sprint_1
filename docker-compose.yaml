@@ -1,19 +1,57 @@
-version: '3'
+version: '3';
+
+x-mongo-common:
+  &mongo-common
+  image: mongo:5.0.21
+  healthcheck:
+    test: echo 'db.runCommand("ping").ok' | mongo $(hostname)/test --quiet
+    interval: 10s
+    timeout: 5s
+    retries: 3
+    start_period: 10s
+
+x-api-common:
+  &api-common
+  healthcheck:
+    test: curl --header X-Request-Id:1 --fail http://localhost:8000/healthcheck || exit 1
+    interval: 10s
+    retries: 10
+    start_period: 10s
+    timeout: 10s
+
+x-filebeat-common:
+  &filebeat-common
+  build:
+    context: ./logging/deploy/filebeat
+  depends_on:
+    - elastic-elk
+    - logstash
+    - kibana-elk
+    - proxy
+
+
+
 services:
   django-admin:
     build: django_admin
     image: app-django-admin:run
     volumes:
       - static:/opt/app/static
+      - django-admin-logs:/opt/logs # Для ELK+Filebeat
+    healthcheck:
+      test: curl http://localhost:8000 || exit 1
+      interval: 10s
+      retries: 3
+      start_period: 10s
+      timeout: 5s
     depends_on:
       - postgres
     env_file:
       - envs/.env.django
-    expose:
-      - "8000"
     restart: unless-stopped
 
   auth-api:
+    <<: *api-common
     build: auth_service
     image: app-auth-api:run
     depends_on:
@@ -21,9 +59,12 @@ services:
       - postgres-auth
     env_file:
       - envs/.env.api.auth
+    volumes:
+      - auth-api-logs:/opt/logs # Для ELK+Filebeat
     restart: unless-stopped
 
   film-api:
+    <<: *api-common
     build: filmwork_service
     image: app-film-api:run
     depends_on:
@@ -31,9 +72,12 @@ services:
       - elastic
     env_file:
       - envs/.env.api.films
+    volumes:
+      - film-api-logs:/opt/logs # Для ELK+Filebeat
     restart: unless-stopped
 
   file-api:
+    <<: *api-common
     build: file_service
     image: app-file-api:run
     depends_on:
@@ -42,6 +86,8 @@ services:
       - minio
     env_file:
       - envs/.env.files
+    volumes:
+      - file-api-logs:/opt/logs # Для ELK+Filebeat
     restart: unless-stopped
 
   redis-films:
@@ -60,10 +106,25 @@ services:
   proxy:
     build: ./nginx/
     image: app-nginx-proxy:latest
+    restart: unless-stopped
     volumes:
       - static:/data/static/:ro
+      - nginx-logs:/var/log/nginx/ # Логирование в файл для ELK+Filebeat
     depends_on:
-      - django-admin
+      bookmarks-api:
+        condition: service_healthy
+      auth-api:
+        condition: service_healthy
+      file-api:
+        condition: service_healthy
+      film-api:
+        condition: service_healthy
+      notifications-http:
+        condition: service_healthy
+      event-api:
+        condition: service_healthy
+      django-admin:
+        condition: service_healthy
     ports:
       - "81:80"
 
@@ -81,6 +142,14 @@ services:
       - envs/.env.database.auth
     volumes:
       - auth-data:/var/lib/postgresql/data
+
+
+  postgres-notifications:
+    image: postgres:latest
+    env_file:
+      - envs/.env.database.notifications
+    volumes:
+      - notification-data:/var/lib/postgresql/data
 
   redis:
     image: redis:latest
@@ -142,6 +211,8 @@ services:
       - "14267:14267"
       - "14268:14268"
       - "9411:9411"
+      - "4317:4317"
+      - "4318:4318"
     depends_on:
       - elastic
     restart: unless-stopped
@@ -166,6 +237,14 @@ services:
     ports:
       - "5001:5001"
     restart: unless-stopped
+    healthcheck:
+      test: curl --header X-Request-Id:1 --fail http://localhost:5001/healthcheck || exit 1
+      interval: 10s
+      retries: 10
+      start_period: 10s
+      timeout: 10s
+    volumes:
+      - event-api-logs:/opt/logs # Для ELK+Filebeat
 
   event-etl:
     build: ucg_etl
@@ -175,15 +254,319 @@ services:
     restart: unless-stopped
 
 
+  notifications-grpc:
+    build: ./notification_service/
+    image: notification-grpc:run
+    env_file:
+      - envs/.env.notification.grpc
+    depends_on:
+      - postgres-notifications
+      - rabbit
+
+  notifications-http:
+    <<: *api-common
+    build: ./notification_service/
+    image: notification-http:run
+    env_file:
+      - envs/.env.notification
+    depends_on:
+      - postgres-notifications
+      - rabbit
+    volumes:
+      - notifications-api-logs:/opt/logs # Для ELK+Filebeat
+
+
+  rabbit:
+    image: rabbitmq:management
+    env_file:
+      - envs/.env.rabbit
+    ports:
+      - "5672:5672"
+      - "25673:15672"
+
+  mongo_cnf_n1:
+    <<: *mongo-common
+    hostname: mongo_cnf_n1
+    container_name: mongo_cnf_n1
+    command: mongod --configsvr --replSet mongo_cnf --dbpath /data/db --port 27017 --bind_ip localhost,mongo_cnf_n1
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - mongo_cnf_n1_data:/data/db
+
+  mongo_cnf_n2:
+    <<: *mongo-common
+    hostname: mongo_cnf_n2
+    container_name: mongo_cnf_n2
+    command: mongod --configsvr --replSet mongo_cnf --dbpath /data/db --port 27017 --bind_ip localhost,mongo_cnf_n2
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - mongo_cnf_n2_data:/data/db
+
+  config_cnf_rs:
+    <<: *mongo-common
+    volumes:
+      - ./mongo/rs_cnf_setup.js:/conf/setup.js
+    command: [
+      "mongosh",
+      "--host",
+      "mongo_cnf_n1",
+      "--port",
+      "27017",
+      "/conf/setup.js"
+    ]
+    depends_on:
+      mongo_cnf_n1:
+        condition: service_healthy
+      mongo_cnf_n2:
+        condition: service_healthy
+
+  mongo_rs1_n1:
+    <<: *mongo-common
+    hostname: mongo_rs1_n1
+    container_name: mongo_rs1_n1
+    command: mongod --shardsvr --replSet mongo_rs1 --dbpath /data/db --port 27017 --bind_ip localhost,mongo_rs1_n1
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - mongo_rs1_n1_data:/data/db
+
+  mongo_rs1_n2:
+    <<: *mongo-common
+    hostname: mongo_rs1_n2
+    container_name: mongo_rs1_n2
+    command: mongod --shardsvr --replSet mongo_rs1 --dbpath /data/db --port 27017 --bind_ip localhost,mongo_rs1_n2
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - mongo_rs1_n2_data:/data/db
+
+  config_rs1:
+    <<: *mongo-common
+    volumes:
+      - ./mongo/rs_1_setup.js:/conf/setup.js
+    command: [
+      "mongosh",
+      "--host",
+      "mongo_rs1_n1",
+      "--port",
+      "27017",
+      "/conf/setup.js"
+    ]
+    depends_on:
+      mongo_rs1_n1:
+        condition: service_healthy
+      mongo_rs1_n2:
+        condition: service_healthy
+
+  mongo_rs2_n1:
+    <<: *mongo-common
+    hostname: mongo_rs2_n1
+    container_name: mongo_rs2_n1
+    command: mongod --shardsvr --replSet mongo_rs2 --dbpath /data/db --port 27017 --bind_ip localhost,mongo_rs2_n1
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - mongo_rs2_n1_data:/data/db
+
+  mongo_rs2_n2:
+    <<: *mongo-common
+    hostname: mongo_rs2_n2
+    container_name: mongo_rs2_n2
+    command: mongod --shardsvr --replSet mongo_rs2 --dbpath /data/db --port 27017 --bind_ip localhost,mongo_rs2_n2
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - mongo_rs2_n2_data:/data/db
+
+  config_rs2:
+    <<: *mongo-common
+    volumes:
+      - ./mongo/rs_2_setup.js:/conf/setup.js
+    command: [
+      "mongosh",
+      "--host",
+      "mongo_rs2_n1",
+      "--port",
+      "27017",
+      "/conf/setup.js"
+    ]
+    depends_on:
+      mongo_rs2_n1:
+        condition: service_healthy
+      mongo_rs2_n2:
+        condition: service_healthy
+
+  mongos:
+    <<: *mongo-common
+    command: mongos --configdb mongo_cnf/mongo_cnf_n1:27017,mongo_cnf_n2:27017 --port 27017 --bind_ip localhost,mongos
+    hostname: mongos
+    container_name: mongos
+    ports:
+      - "27017:27017"
+    environment:
+      - MONGO_INITDB_DATABASE=posts_db
+    depends_on:
+      config_rs1:
+        condition: service_completed_successfully
+      config_rs2:
+        condition: service_completed_successfully
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+
+  config_shared_cluster:
+    <<: *mongo-common
+    command: [
+      "mongosh",
+      "--host",
+      "mongos",
+      "--port",
+      "27017",
+      "/conf/setup.js"
+    ]
+    volumes:
+      - ./mongo/sharded_cluster_setup.js:/conf/setup.js
+    depends_on:
+      mongos:
+        condition: service_healthy
+
+
+  bookmarks-api:
+    <<: *api-common
+    build: bookmarks_service
+    image: app-bookmarks-api:dev
+    depends_on:
+      mongos:
+        condition: service_healthy
+    env_file:
+      - envs/.env.bookmarks.api
+    volumes:
+      - bookmarks-api-logs:/opt/logs # Для ELK+Filebeat
+    ports:
+      - "8004:8000"
+    restart: unless-stopped
+
+  logstash:
+    image: logstash:8.10.2
+    depends_on:
+      - elastic-elk
+    environment:
+      XPACK_MONITORING_ENABLED: "false"
+      ES_HOST: "elastic-elk:9200"
+    volumes:
+      - ./logging/deploy/logstash.conf:/config/logstash.conf:ro
+      # - /tmp/logs/nginx/:/var/log/nginx/:ro
+    command: logstash -f /config/logstash.conf 
+
+  elastic-elk:
+    image: elasticsearch:8.10.2
+    environment:
+      - discovery.type=single-node
+      - bootstrap.memory_lock=true
+      - "ES_JAVA_OPTS=-Xms265m -Xmx265m"
+      - xpack.security.enabled=false
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - elastic-elk-data:/usr/share/elasticsearch/data
+
+  kibana-elk:
+    image: kibana:8.10.2
+    ports:
+      - "5601:5601"
+    environment:
+      - ELASTICSEARCH_HOSTS=http://elastic-elk:9200
+      - "ES_JAVA_OPTS=-Xms128m -Xmx128m"
+    depends_on:
+      - elastic-elk
+
+  filebeat-nginx:
+    <<: *filebeat-common
+    environment:
+      - SERVICE_NAME=nginx
+    depends_on:
+      - proxy
+    volumes:
+      - nginx-logs:/var/app/log:ro # Логирование в файл для ELK+Filebeat
+
+  filebeat-django-admin:
+    <<: *filebeat-common
+    environment:
+      - SERVICE_NAME=django-admin
+    depends_on:
+      - django-admin
+    volumes:
+      - django-admin-logs:/var/app/log:ro
+
+  filebeat-auth-api:
+    <<: *filebeat-common
+    environment:
+      - SERVICE_NAME=auth-api
+    depends_on:
+      - auth-api
+    volumes:
+      - auth-api-logs:/var/app/log:ro
+
+  filebeat-film-api:
+    <<: *filebeat-common
+    environment:
+      - SERVICE_NAME=film-api
+    depends_on:
+      - film-api
+    volumes:
+      - film-api-logs:/var/app/log:ro
+
+  filebeat-file-api:
+    <<: *filebeat-common
+    environment:
+      - SERVICE_NAME=file-api
+    depends_on:
+      - file-api
+    volumes:
+      - file-api-logs:/var/app/log:ro
+
+  filebeat-event-api:
+    <<: *filebeat-common
+    environment:
+      - SERVICE_NAME=event-api
+    depends_on:
+      - event-api
+    volumes:
+      - event-api-logs:/var/app/log:ro
+
+  filebeat-bookmarks-api:
+    <<: *filebeat-common
+    environment:
+      - SERVICE_NAME=bookmarks-api
+    depends_on:
+      - bookmarks-api
+    volumes:
+      - bookmarks-api-logs:/var/app/log:ro
+
+
 volumes:
   static:
   auth-data:
   postgres-data:
   redis-data:
   elastic-data:
+  notification-data:
   films-cache:
   pg-cache:
   auth-cache:
   minio_storage:
   elastic-logs:
+  elastic-elk-data:
+  # Filebeat volumes
+  nginx-logs:
+  django-admin-logs:
+  auth-api-logs:
+  film-api-logs:
+  file-api-logs:
+  event-api-logs:
+  bookmarks-api-logs:
+  mongo_cnf_n1_data:
+  mongo_cnf_n2_data:
+  mongo_rs1_n1_data:
+  mongo_rs1_n2_data:
+  mongo_rs2_n1_data:
+  mongo_rs2_n2_data:
+  notifications-api-logs:
 

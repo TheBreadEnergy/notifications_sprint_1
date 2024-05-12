@@ -46,10 +46,6 @@ class ReviewsServiceABC(ABC):
     async def delete_review(self, *, review_id: UUID, user: UserDto) -> None:
         ...
 
-    @abstractmethod
-    async def delete_review_like(self, *, review_id: UUID, user: UserDto) -> Review:
-        ...
-
 
 def check_admin_role(user: UserDto) -> bool:
     role_names = [role.name for role in user.roles]
@@ -66,8 +62,9 @@ class ReviewsService(ReviewsServiceABC):
         return await self._repo.search(film_id=film_id, user_id=user_id)
 
     async def get_review(self, *, review_id: UUID) -> Review | None:
-        return await self._repo.get(entity_id=id)
+        return await self._repo.get(entity_id=review_id)
 
+    # TODO: Replace to more elegant solution delegating creation to repository
     async def create_review(self, *, data: ReviewCreateDto, user: UserMeta) -> Review:
         review = Review(user=user, film=data.film, text=data.text)
         return await self._repo.insert(entity=review)
@@ -90,7 +87,7 @@ class ReviewsService(ReviewsServiceABC):
         self, *, review_id: UUID, user: UserMeta
     ) -> Review | None:
         review = await self._repo.delete_like_from_review(
-            review_id=review_id, user_id=user.user_id
+            review_id=review_id, user_id=user.id
         )
         return review
 
@@ -98,10 +95,7 @@ class ReviewsService(ReviewsServiceABC):
         if check_admin_role(user) or await self._check_ownership(
             review_id=review_id, user_id=user.id
         ):
-            await self._repo.delete(entity_id=id)
-
-    async def delete_review_like(self, *, review_id: UUID, user: UserDto) -> Review:
-        return await self._repo.delete_like_from_review(review_id, user_id=user.id)
+            await self._repo.delete(entity_id=review_id)
 
     async def _check_ownership(self, review_id: UUID, user_id: UUID) -> bool:
         entity = await self._repo.get(entity_id=review_id)

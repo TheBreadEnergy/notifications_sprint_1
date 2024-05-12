@@ -1,0 +1,28 @@
+syntax = "proto3";
+
+import public "status.proto";
+
+message UserRegisteredNotificationRequest {
+  string user_id = 1;
+
+}
+
+message UserActivatedAccountNotificationRequest {
+  string user_id = 1;
+}
+
+
+message UserLongNoSeeNotificationRequest {
+  string user_id = 1;
+}
+
+
+
+
+service UserNotification {
+
+  rpc SendRegistrationNotification (UserRegisteredNotificationRequest) returns (Status) {}
+  rpc SendActivationNotification (UserActivatedAccountNotificationRequest) returns (Status) {}
+  rpc SendLongNoSeeNotification (UserLongNoSeeNotificationRequest) returns (Status) {}
+
+}

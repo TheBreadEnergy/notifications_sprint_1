@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+import "status.proto";
+
+
+message OldBookmarkedNotificationRequest {
+  string user_id = 2;
+}
+
+
+service UcgNotification {
+  rpc SendOldBookmarkedNotification (OldBookmarkedNotificationRequest) returns (Status) {}
+}

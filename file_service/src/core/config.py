@@ -1,9 +1,8 @@
 import os.path
-from logging import config as logging_config
 
 from pydantic import Field, PostgresDsn
 from pydantic_settings import BaseSettings, SettingsConfigDict
-from src.core.logger import LOGGING
+from loguru import logger
 
 
 class Settings(BaseSettings):
@@ -39,8 +38,16 @@ class Settings(BaseSettings):
         env="MINIO_SECRET_KEY",
     )
 
+    # Logging settings
+    log_level: str = "INFO"
+    logger_filename: str = "/opt/logs/file-api-logs.json"
+    logger_maxbytes: int = 15000000
+    logger_mod: str = "a"
+    logger_backup_count: int = 5
+
+    sentry_dsn: str | None = None
+
+    base_dir: str = os.path.dirname(os.path.abspath(__file__))
+
 
 settings = Settings()
-
-
-logging_config.dictConfig(LOGGING)
