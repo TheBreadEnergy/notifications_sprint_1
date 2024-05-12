@@ -1,6 +1,6 @@
 import logging
 
-from jinja2 import Environment, BaseLoader, TemplateSyntaxError, UndefinedError
+from jinja2 import BaseLoader, Environment, TemplateSyntaxError, UndefinedError
 
 
 async def render_template(template_content: str, context: dict) -> str:
