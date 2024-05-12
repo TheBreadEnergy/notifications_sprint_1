@@ -7,8 +7,7 @@ from src.grpc.notifications.status_pb2 import Status
 
 
 async def send_notification(notification):
-    print(settings.notifications_grpc)
-    async with grpc.aio.insecure_channel("109.71.244.113:50051") as channel:
+    async with grpc.aio.insecure_channel(settings.notifications_grpc) as channel:
         stub = managers_pb2_grpc.ManagerNotificationStub(channel)
         request = managers_pb2.SendNotificationRequest(
             user_ids=[str(user_id) for user_id in notification.user_ids],

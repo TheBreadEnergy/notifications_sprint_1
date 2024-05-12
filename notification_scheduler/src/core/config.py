@@ -17,11 +17,13 @@ class Settings(BaseSettings):
         env="POSTGRES_DSN",
     )
 
-    interval: int = Field(10, alias="INTERVAL", env="INTERVAL")
+    interval: int = Field(250, alias="INTERVAL", env="INTERVAL")
 
     db_schema: str = Field("content", alias="DB_SCHEMA", env="DB_SCHEMA")
 
-    notifications_grpc: str = "localhost:50051"
+    notifications_grpc: str = Field(
+        "localhost:50051", alias="NOTIFICATIONS_GRPC", env="NOTIFICATIONS_GRPC"
+    )
 
     debug: bool = Field(False, alias="DEBUG", env="DEBUG")
 

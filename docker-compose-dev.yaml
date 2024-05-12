@@ -514,6 +514,7 @@ services:
       - notifications-admin-pg-data:/var/lib/postgresql/data
 
 
+
 volumes:
   static:
   auth-data:

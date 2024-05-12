@@ -83,7 +83,7 @@ class ScheduledNotification(NotificationBase):
 
 class RecurringNotification(NotificationBase):
     cron_string = models.TextField(_("Cron string"))
-    last_notified = models.DateTimeField(null=True)
+    last_notified = models.DateTimeField(null=True, blank=True, auto_now_add=True)
 
     class Meta:
         db_table = 'content"."recurring_notifications'
