@@ -600,6 +600,14 @@ services:
       - "8005:8000"
     restart: unless-stopped
 
+  notification_scheduler:
+    build: notification_scheduler
+    depends_on:
+      - postgres-notifications-admin
+      - notifications-grpc
+    env_file:
+      - envs/.env.notification.scheduler
+    restart: unless-stopped
 
   url_shortener_api:
     <<: *api-common
