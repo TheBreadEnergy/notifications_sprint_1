@@ -497,6 +497,15 @@ services:
     restart: unless-stopped
 
 
+  notification_scheduler:
+    build: notification_scheduler
+    depends_on:
+      - postgres-notifications-admin
+      - notifications-grpc
+    env_file:
+      - envs/.env.notification.scheduler
+    restart: unless-stopped
+
   postgres-notifications-admin:
     build: notifications_admin/postgres/
     env_file:

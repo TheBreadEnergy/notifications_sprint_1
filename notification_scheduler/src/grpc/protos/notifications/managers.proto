@@ -1,0 +1,53 @@
+syntax = "proto3";
+
+import "status.proto";
+
+enum NotificationTypeEnum {
+  email = 0;
+  sms = 1;
+  push = 2;
+}
+
+
+
+message SendNotificationRequest {
+  string manager_id = 1;
+  repeated string user_ids = 2;
+  string notification_id = 3;
+  string template_id = 4;
+  string subject = 5;
+  string text = 6;
+  NotificationTypeEnum type = 7;
+}
+
+message CreateDelayedNotificationRequest {
+  string manager_id = 1;
+  repeated string user_ids = 2;
+  string notification_id = 3;
+  string template_id = 4;
+  string subject = 5;
+  string text = 6;
+  NotificationTypeEnum type = 7;
+  int32 delay = 8;
+}
+
+
+
+message NotificationResponse {
+  string task_id = 1;
+}
+
+service ManagerNotification {
+  rpc SendNotificationToUsers (SendNotificationRequest) returns (Status) {}
+  rpc CreateDelayedNotification (CreateDelayedNotificationRequest) returns (Status) {}
+}
+
+
+
+
+
+
+
+
+
+
