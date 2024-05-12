@@ -8,17 +8,26 @@ class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_prefix="", env_file=".env")
 
     project_name: str = "Notifications scheduler"
+
     description: str = "Планировщик повторяющихся уведомлений"
 
-    app_port: int = 8000
-    debug: bool = False
+    postgres_dsn: PostgresDsn = Field(
+        "postgresql+asyncpg://app:123qwe@localhost:5432/notify_database",
+        alias="POSTGRES_DNS",
+        env="POSTGRES_DSN",
+    )
 
-    postgres_dsn: PostgresDsn = "postgresql+asyncpg://app:123qwe@localhost:5432/notify_database"
-    db_schema: str = "content"
+    interval: int = Field(250, alias="INTERVAL", env="INTERVAL")
 
-    notifications_grpc: str = "notifications-grpc:50051"
+    db_schema: str = Field("content", alias="DB_SCHEMA", env="DB_SCHEMA")
+
+    notifications_grpc: str = Field(
+        "localhost:50051", alias="NOTIFICATIONS_GRPC", env="NOTIFICATIONS_GRPC"
+    )
 
     debug: bool = Field(False, alias="DEBUG", env="DEBUG")
+
+    delta: int = Field(300, alias="DELTA", env="DELTA")
 
     base_dir: str = os.path.dirname(os.path.abspath(__file__))
 

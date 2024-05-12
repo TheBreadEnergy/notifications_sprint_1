@@ -13,7 +13,7 @@ from google.protobuf.internal import builder as _builder
 _sym_db = _symbol_database.Default()
 
 
-from . import status_pb2 as status__pb2
+from src.grpc.notifications import status_pb2 as status__pb2
 
 DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(
     b'\n\x0emanagers.proto\x1a\x0cstatus.proto"\xb1\x01\n\x17SendNotificationRequest\x12\x12\n\nmanager_id\x18\x01 \x01(\t\x12\x10\n\x08user_ids\x18\x02 \x03(\t\x12\x17\n\x0fnotification_id\x18\x03 \x01(\t\x12\x13\n\x0btemplate_id\x18\x04 \x01(\t\x12\x0f\n\x07subject\x18\x05 \x01(\t\x12\x0c\n\x04text\x18\x06 \x01(\t\x12#\n\x04type\x18\x07 \x01(\x0e\x32\x15.NotificationTypeEnum"\xc9\x01\n CreateDelayedNotificationRequest\x12\x12\n\nmanager_id\x18\x01 \x01(\t\x12\x10\n\x08user_ids\x18\x02 \x03(\t\x12\x17\n\x0fnotification_id\x18\x03 \x01(\t\x12\x13\n\x0btemplate_id\x18\x04 \x01(\t\x12\x0f\n\x07subject\x18\x05 \x01(\t\x12\x0c\n\x04text\x18\x06 \x01(\t\x12#\n\x04type\x18\x07 \x01(\x0e\x32\x15.NotificationTypeEnum\x12\r\n\x05\x64\x65lay\x18\x08 \x01(\x05"\'\n\x14NotificationResponse\x12\x0f\n\x07task_id\x18\x01 \x01(\t*4\n\x14NotificationTypeEnum\x12\t\n\x05\x65mail\x10\x00\x12\x07\n\x03sms\x10\x01\x12\x08\n\x04push\x10\x02\x32\xa0\x01\n\x13ManagerNotification\x12>\n\x17SendNotificationToUsers\x12\x18.SendNotificationRequest\x1a\x07.Status"\x00\x12I\n\x19\x43reateDelayedNotification\x12!.CreateDelayedNotificationRequest\x1a\x07.Status"\x00\x62\x06proto3'
