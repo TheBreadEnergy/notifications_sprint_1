@@ -55,9 +55,14 @@ async def run_scheduler():
         await asyncio.sleep(1000)
 
 
+async def main():
+    logger.info("Recurring notifications scheduler is starting...")
+    _ = asyncio.create_task(run_scheduler())
+    await asyncio.Future()
+
+
 if __name__ == "__main__":
     try:
-        logger.info("Recurring notifications scheduler is starting...")
-        asyncio.run(run_scheduler())
+        asyncio.run(main())
     except (KeyboardInterrupt, SystemExit):
         ...
