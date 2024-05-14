@@ -12,7 +12,7 @@ class RecurringNotification(Base):
     template_id = Column(UUID(as_uuid=True))
     user_ids = Column(ARRAY(UUID(as_uuid=True)))
     notification_channel_type = Column(Integer)
-    subject = Column(String)
+    subject = Column(String(255))
     text = Column(Text)
     status = Column(Integer)
     cron_string = Column(Text)
