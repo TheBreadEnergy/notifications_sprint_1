@@ -1,0 +1,44 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: backend-ingress
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/use-regex: "true"
+    nginx.ingress.kubernetes.io/add-request-header: "X-Request-Id=$request_id"
+spec:
+  ingressClassName: nginx
+  rules:
+  - host: small-api.local
+    http:
+      paths:
+      - pathType: Prefix
+        path: /api/v1/(accounts|roles|socials|users) 
+        backend:
+          service:
+            name: auth-service
+            port: 
+              number: 8000
+      - pathType: Prefix
+        path: /api/v1/(system-notifications|user-notifications)
+        backend:
+          service:
+            name: notification-service
+            port: 
+              number: 8000
+      - pathType: Prefix
+        path: /api/v1/(bookmarks|film-likes|reviews)
+        backend:
+          service:
+            name: bookmark-service
+            port:
+              number: 8000
+      - pathType: Prefix
+        path: "/"
+        backend:
+          service: 
+            name: django-film-service
+            port:
+              number: 8000
+      
+      

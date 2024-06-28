@@ -1,4 +1,4 @@
-FROM python:3.11
+FROM python:3.11-buster
 
 WORKDIR /opt/app
 
@@ -21,13 +21,7 @@ COPY requirements.txt requirements.txt
 
 COPY docker-entrypoint.sh docker-entrypoint.sh
 
-RUN apt-get update  \
-    && apt-get -y install netcat-traditional \
-    curl \
-    git  \
-    wget \
-    && wget -O - https://github.com/jwilder/dockerize/releases/download/$DOCKERIZE_VERSION/dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz | tar xzf - -C /usr/local/bin \
-    && apt-get autoremove -yqq --purge wget && rm -rf /var/lib/apt/lists/*  \
+RUN apt-get update && apt-get -y install netcat-traditional redis-tools postgresql-client \
     && python -m pip install --upgrade pip && pip install -r requirements.txt
 
 COPY . .

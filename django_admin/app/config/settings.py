@@ -36,8 +36,8 @@ INTERNAL_IPS = (
     else ["127.0.0.1"]
 )
 
-AWS_ACCESS_KEY_ID = os.environ.get("S3_ACCESS_KEY_ID")
-AWS_SECRET_ACCESS_KEY = os.environ.get("S3_SECRET_ACCESS_KEY")
+AWS_ACCESS_KEY_ID = os.environ.get("MINIO_STORAGE_ACCESS_KEY")
+AWS_SECRET_ACCESS_KEY = os.environ.get("MINIO_STORAGE_SECRET_KEY")
 AWS_STORAGE_BUCKET_NAME = os.environ.get("S3_STORAGE_BUCKET_NAME")
 AWS_S3_ENDPOINT_URL = os.environ.get("S3_ENDPOINT_URL")
 
@@ -66,5 +66,9 @@ STATIC_URL = "/static/"
 if DEBUG:
     STATICFILES_DIRS = [os.path.join(BASE_DIR, "staticfiles")]
 STATIC_ROOT = BASE_DIR / "static"
+
+
+include("components/minio_storage.py")
+
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"

@@ -1,0 +1,133 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: notification-service
+spec: 
+  type: NodePort
+  selector:
+    app: notification-service
+  ports:
+    - name: http-service
+      port: 8000
+      targetPort: 8000
+      protocol: TCP
+    - name: grpc-service
+      port: 50051
+      targetPort: 50051
+      protocol: TCP
+
+---
+
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: notification-service
+spec:
+  selector:
+    matchLabels:
+      app: notification-service
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: notification-service
+    spec:
+      containers:
+        - name: notification-service-http
+          image: notification-service-api:latest
+          envFrom:
+            - secretRef: 
+                name: notification-service-env
+          env:
+            - name: RUN_MODE
+              value: HTTP
+            - name: ENABLE_TRACER
+              value: "False"
+          imagePullPolicy: Never
+          resources:
+            limits:
+              memory: "800Mi"
+          ports:
+            - containerPort: 8000
+          livenessProbe:
+            httpGet:
+              path: "/healthcheck"
+              port: 8000
+              httpHeaders:
+                - name: X-Request-Id
+                  value: $(uuidgen)
+            initialDelaySeconds: 15
+            periodSeconds: 30
+            timeoutSeconds: 2
+            failureThreshold: 5
+            
+        - name: notification-service-grpc
+          image: notification-service-api:latest
+          envFrom:
+            - secretRef: 
+                name: notification-service-env
+          imagePullPolicy: Never
+          resources:
+            limits:
+              memory: "800Mi"
+          env:
+            - name: RUN_MODE
+              value: GRPC
+          ports:
+            - containerPort: 50051
+---
+
+
+apiVersion: batch/v1
+kind: Job
+metadata: 
+  name: notification-alembic-upgrade-job
+spec:
+  backoffLimit: 2
+  activeDeadlineSeconds: 100
+  template:
+    spec:
+      containers:
+        - name: notification-service
+          image: notification-service-api:latest
+          command: ["/bin/sh", "-c", "alembic upgrade head"]
+          imagePullPolicy: Never
+          envFrom:
+            - secretRef:
+                name: notification-service-env
+          readinessProbe:
+            exec:
+              command: ['sh', '-c', 'until nc -z -v -w30 $POSTGRES_HOST $POSTGRES_PORT; do echo "Waiting for database..."; sleep 5; done']
+            initialDelaySeconds: 15
+            periodSeconds:  30
+            timeoutSeconds: 2
+            failureThreshold: 5
+      restartPolicy: Never
+          
+
+---
+
+apiVersion: v1
+data:
+  AUTH_SERVICE: aHR0cDovL2F1dGgtc2VydmljZTo4MDAwL2FwaS92MS91c2Vycy9pbmZv
+  DATABASE_CONN: cG9zdGdyZXNxbCthc3luY3BnOi8vYXBwOjEyM3F3ZUA4NC4yNTIuMTM5LjYwOjU0MzMvbm90aWZpY2F0aW9ucw==
+  DEBUG: RmFsc2U=
+  ENABLE_TRACER: VHJ1ZQ==
+  JAEGER_ENDPOINT_HOST: ODQuMjUyLjEzOS42MDo0MzE3
+  POSTGRES_HOST: ODQuMjUyLjEzOS42MA==
+  POSTGRES_PORT: NTQzMw==
+  RABBIT_HOST: ODQuMjUyLjEzOS42MA==
+  RABBIT_LOGIN: YWRtaW4=
+  RABBIT_PASSWORD: cGFzc3dvcmQ=
+  RABBIT_PORT: NTY3Mg==
+  RUN_MODE: SFRUUA==
+  SENTRY_DSN: aHR0cHM6Ly81YzNjOTYxNzliY2IwZTdmOTQ2ZTQ2Yzg1NmVkZDAyNUBvNDUwNzUwODA0MDcyODU3Ni5pbmdlc3QudXMuc2VudHJ5LmlvLzQ1MDc1MDgwNDIxNzAzNjg=
+kind: Secret
+metadata:
+  creationTimestamp: "2024-06-28T17:58:54Z"
+  name: notification-service-env
+  namespace: default
+  resourceVersion: "947944"
+  uid: a3d097b1-7e10-4e53-b15b-a7dc379f3ec7
+type: Opaque
