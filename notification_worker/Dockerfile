@@ -10,11 +10,7 @@ WORKDIR /opt/app
 
 RUN apt-get update  \
     && apt-get -y install netcat-traditional \
-    curl \
-    git  \
-    wget \
-    && wget -O - https://github.com/jwilder/dockerize/releases/download/$DOCKERIZE_VERSION/dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz | tar xzf - -C /usr/local/bin \
-    && apt-get autoremove -yqq --purge wget && rm -rf /var/lib/apt/lists/*
+    curl 
 
 RUN groupadd -r worker && useradd -d /opt/app -r -g worker worker \
     && chown worker:worker -R /opt/app/

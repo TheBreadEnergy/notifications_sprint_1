@@ -48,6 +48,13 @@ spec:
             port:
               number: 8000
       - pathType: Prefix
+        path: /notifications/admin
+        backend:
+          service:
+            name: django-notification-service
+            port: 
+              number: 8000
+      - pathType: Prefix
         path: "/"
         backend:
           service: 
