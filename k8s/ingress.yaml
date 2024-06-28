@@ -34,6 +34,20 @@ spec:
             port:
               number: 8000
       - pathType: Prefix
+        path: /api/v1/files
+        backend: 
+          service:
+            name: bookmark-service
+            port:
+              number: 8000
+      - pathType: Prefix
+        path: /api/v1/(films|genres|person)
+        backend: 
+          service:
+            name: film-service
+            port:
+              number: 8000
+      - pathType: Prefix
         path: "/"
         backend:
           service: 

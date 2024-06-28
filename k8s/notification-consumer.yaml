@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: notification-consumer
+spec:
+  selector: 
+    matchLabels:
+      app: notification-consumer
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: notification-consumer
+    spec:
+      containers:
+        - name: notification-consumer
+          image: notification-consumer:latest 
+          envFrom:
+            - secretRef:
+                name: notification-consumer-env
+          imagePullPolicy: Never
+          resources:
+            limits: 
+              memory: "400Mi"
+
+---
+apiVersion: v1
+data:
+  KAFKA_HOST: ODQuMjAxLjE2MC4yNA==
+  KAFKA_PORT: OTA5NA==
+  NOTIFICATION_SERVICE: bm90aWZpY2F0aW9uLXNlcnZpY2U6NTAwNTE=
+kind: Secret
+metadata:
+  creationTimestamp: "2024-06-28T20:41:03Z"
+  name: notification-consumer-env
+  namespace: default
+  resourceVersion: "961142"
+  uid: 427be99b-f95f-4181-9b48-410b49e32c60
+type: Opaque

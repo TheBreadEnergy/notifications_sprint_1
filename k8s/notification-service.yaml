@@ -61,7 +61,7 @@ spec:
             periodSeconds: 30
             timeoutSeconds: 2
             failureThreshold: 5
-            
+         
         - name: notification-service-grpc
           image: notification-service-api:latest
           envFrom:
@@ -111,13 +111,13 @@ spec:
 apiVersion: v1
 data:
   AUTH_SERVICE: aHR0cDovL2F1dGgtc2VydmljZTo4MDAwL2FwaS92MS91c2Vycy9pbmZv
-  DATABASE_CONN: cG9zdGdyZXNxbCthc3luY3BnOi8vYXBwOjEyM3F3ZUA4NC4yNTIuMTM5LjYwOjU0MzMvbm90aWZpY2F0aW9ucw==
+  DATABASE_CONN: cG9zdGdyZXNxbCthc3luY3BnOi8vYXBwOjEyM3F3ZUA4NC4yMDEuMTYwLjI0OjU0MzMvbm90aWZpY2F0aW9ucw==
   DEBUG: RmFsc2U=
   ENABLE_TRACER: VHJ1ZQ==
-  JAEGER_ENDPOINT_HOST: ODQuMjUyLjEzOS42MDo0MzE3
-  POSTGRES_HOST: ODQuMjUyLjEzOS42MA==
+  JAEGER_ENDPOINT_HOST: ODQuMjAxLjE2MC4yNDo0MzE3
+  POSTGRES_HOST: ODQuMjAxLjE2MC4yNA==
   POSTGRES_PORT: NTQzMw==
-  RABBIT_HOST: ODQuMjUyLjEzOS42MA==
+  RABBIT_HOST: ODQuMjAxLjE2MC4yNA==
   RABBIT_LOGIN: YWRtaW4=
   RABBIT_PASSWORD: cGFzc3dvcmQ=
   RABBIT_PORT: NTY3Mg==
@@ -125,9 +125,9 @@ data:
   SENTRY_DSN: aHR0cHM6Ly81YzNjOTYxNzliY2IwZTdmOTQ2ZTQ2Yzg1NmVkZDAyNUBvNDUwNzUwODA0MDcyODU3Ni5pbmdlc3QudXMuc2VudHJ5LmlvLzQ1MDc1MDgwNDIxNzAzNjg=
 kind: Secret
 metadata:
-  creationTimestamp: "2024-06-28T17:58:54Z"
+  creationTimestamp: "2024-06-28T19:46:22Z"
   name: notification-service-env
   namespace: default
-  resourceVersion: "947944"
-  uid: a3d097b1-7e10-4e53-b15b-a7dc379f3ec7
+  resourceVersion: "956230"
+  uid: 3be6a503-480d-48cc-abd9-05906cb0cff1
 type: Opaque
