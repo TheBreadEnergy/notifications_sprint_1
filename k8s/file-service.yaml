@@ -1,0 +1,84 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: file-service
+spec:
+  type: NodePort
+  selector:
+    app: file-service
+  ports:
+    - port: 8000
+      targetPort: 8000
+      protocol: TCP
+  
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: file-service
+spec:
+  selector: 
+    matchLabels:
+      app: file-service
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: file-service
+    spec:
+      containers:
+        - name: file-service
+          image: file-api:latest
+          envFrom:
+            - secretRef:
+                name: file-service-env
+          imagePullPolicy: Never
+          resources:
+            limits: 
+              memory: "400Mi"
+          ports:
+            - containerPort: 8000
+          livenessProbe:
+            httpGet:
+              path: "/healthcheck"
+              port: 8000
+              httpHeaders:
+                - name: X-Request-Id
+                  value: $(uuidgen)
+            initialDelaySeconds: 15
+            periodSeconds: 30
+            timeoutSeconds: 2
+            failureThreshold: 5
+
+
+---
+
+
+apiVersion: v1
+data:
+  LOG_LEVEL: SU5GTw==
+  LOGGER_BACKUP_COUNT: NQ==
+  LOGGER_FILENAME: L29wdC9sb2dzL2ZpbGUtYXBpLWxvZ3MuanNvbg==
+  LOGGER_MAXBYTES: MTUwMDAwMDA=
+  MINIO_ACCESS_KEY: RmpXT2lzM2pha0sxaXNKSDFOU28=
+  MINIO_ENDPOINT: ODQuMjAxLjE2MC4yNDo5MDAw
+  MINIO_ENDPOINT_HOST: ODQuMjAxLjE2MC4yNA==
+  MINIO_ENDPOINT_PORT: OTAwMA==
+  MINIO_ENDPOINT_WEB: ODQuMjAxLjE2MC4yNDo5MDAx
+  MINIO_SECRET_KEY: RktxNVpLTGN1OVlzc000bVMxWnFKZ2czSVZiUDZjQlo5ME5GSmMzQQ==
+  POSTGRES_CONN: cG9zdGdyZXNxbCtwc3ljb3BnOi8vYXBwOjEyM3F3ZUA4NC4yMDEuMTYwLjI0OjU0MzIvbW92aWVfZGF0YWJhc2U=
+  POSTGRES_HOST: ODQuMjAxLjE2MC4yNA==
+  POSTGRES_PORT: NTQzMg==
+  REDIS_HOST: ODQuMjAxLjE2MC4yNA==
+  REDIS_PORT: NjM3OQ==
+  S3_BUCKET: bW92aWVz
+  SENTRY_DSN: aHR0cHM6Ly81YzNjOTYxNzliY2IwZTdmOTQ2ZTQ2Yzg1NmVkZDAyNUBvNDUwNzUwODA0MDcyODU3Ni5pbmdlc3QudXMuc2VudHJ5LmlvLzQ1MDc1MDgwNDIxNzAzNjg=
+kind: Secret
+metadata:
+  creationTimestamp: "2024-06-28T19:40:56Z"
+  name: file-service-env
+  namespace: default
+  resourceVersion: "955920"
+  uid: 523e281c-f212-4baa-88d6-9ef6278e941d
+type: Opaque

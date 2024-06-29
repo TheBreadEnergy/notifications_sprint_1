@@ -1,0 +1,85 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: backend-ingress
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/use-regex: "true"
+    nginx.ingress.kubernetes.io/add-request-header: "X-Request-Id=$request_id"
+spec:
+  ingressClassName: nginx
+  rules:
+  - http:
+      paths:
+      - pathType: Prefix
+        path: /api/v1/(accounts|roles|socials|users) 
+        backend:
+          service:
+            name: auth-service
+            port: 
+              number: 8000
+      - pathType: Prefix
+        path: /api/v1/(system-notifications|user-notifications)
+        backend:
+          service:
+            name: notification-service
+            port: 
+              number: 8000
+      - pathType: Prefix
+        path: /api/v1/(bookmarks|film-likes|reviews)
+        backend:
+          service:
+            name: bookmark-service
+            port:
+              number: 8000
+      - pathType: Prefix
+        path: /api/v1/files
+        backend: 
+          service:
+            name: bookmark-service
+            port:
+              number: 8000
+      - pathType: Prefix
+        path: /api/v1/(films|genres|person)
+        backend: 
+          service:
+            name: film-service
+            port:
+              number: 8000
+      - pathType: Prefix
+        path: /api/v1/websockets
+        backend:
+          service:
+            name: notification-websocket
+            port: 
+              number: 8000
+      - pathType: Prefix
+        path: /api/v1/events
+        backend:
+          service:
+            name: ucg-service
+            port:
+              number: 5001
+      - pathType: Prefix
+        path: /api/v1/link-shortener
+        backend:
+          service:
+            name: url-shortener
+            port:
+              number: 8000
+      - pathType: Prefix
+        path: /notifications/
+        backend:
+          service:
+            name: django-notification-service
+            port: 
+              number: 8000
+      - pathType: Prefix
+        path: "/admin"
+        backend:
+          service: 
+            name: django-film-service
+            port:
+              number: 8000
+      
+      

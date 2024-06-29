@@ -8,8 +8,10 @@ set -o nounset
 readonly cmd="$*"
 
 mongo_ready () {
-  # Check that postgres is up and running on port `5432`:
-  dockerize -wait "tcp://${MONGO_URL}/"  -timeout 10s
+    while ! nc -z $MONGO_HOST $MONGO_PORT; do
+      sleep 0.1
+    done
+    echo "MONGO started"
 }
 
 # We need this line to make sure that this container is started

@@ -1,0 +1,143 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: auth-service
+spec:
+  type: NodePort
+  selector:
+    app: auth-service
+  ports:
+    - port: 8000
+      targetPort: 8000
+      protocol: TCP
+  
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: auth-service
+spec:
+  selector:
+    matchLabels:
+      app: auth-service
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: auth-service
+    spec:
+      containers:
+        - name: auth-service
+          image: auth-api:latest
+          envFrom:
+            - secretRef:
+                name: auth-service-env
+          imagePullPolicy: Never
+          resources:
+            limits: 
+              memory: "400Mi"
+          ports:
+            - containerPort: 8000
+          livenessProbe:
+            httpGet:
+              path: "/healthcheck"
+              port: 8000
+              httpHeaders:
+                - name: X-Request-Id
+                  value: $(uuidgen)
+            initialDelaySeconds: 15
+            periodSeconds: 30
+            timeoutSeconds: 2
+            failureThreshold: 5
+          readinessProbe:
+            exec:
+              command: ['sh', '/config/readiness.sh']
+            initialDelaySeconds: 15
+            periodSeconds:  30
+            timeoutSeconds: 2
+            failureThreshold: 5
+          volumeMounts:
+            - name: config-volume
+              mountPath: '/config/readiness.sh'
+              subPath: readiness.sh
+              readOnly: true  
+      volumes: 
+        - name: config-volume
+          configMap:
+            name: readiness-script    
+
+
+
+--- 
+
+
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: alembic-upgrade-job
+spec:
+  backoffLimit: 2
+  activeDeadlineSeconds: 100
+  template:
+    spec:
+      initContainers:
+        - name: wait-for-db
+          image: busybox
+          command: ['sh', '-c', 'until nc -z -v -w30 $POSTGRES_HOST $POSTGRES_PORT; do echo "Waiting for database..."; sleep 5; done']
+          envFrom:
+            - secretRef:
+                name: auth-service-env
+      containers:
+      - name: auth-service
+        image: auth-api:latest
+        command: ["/bin/sh", "-c", "make migrate && make create-superuser" ]
+        imagePullPolicy: Never
+        envFrom:
+          - secretRef:
+              name: auth-service-env
+      restartPolicy: Never
+
+
+---
+
+apiVersion: v1
+data:
+  ACCESS_EXPIRATION_SECONDS: MzYwMA==
+  CACHE_HOST: ODQuMjAxLjE2MC4yNA==
+  CACHE_PORT: NjM3OQ==
+  DATABASE_CONN: cG9zdGdyZXNxbCthc3luY3BnOi8vYXBwOjEyM3F3ZUA4NC4yMDEuMTYwLjI0OjU0MzEvdXNlcnM=
+  DEBUG: RkFMU0U=
+  ECHO: VHJ1ZQ==
+  ENABLE_LIMITER: RmFsc2U=
+  ENABLE_TRACER: RmFsc2U=
+  JAEGER_AGENT_HOST: ODQuMjAxLjE2MC4yNA==
+  JAEGER_AGENT_PORT: MTQyNTA=
+  JWT_ACCESS_EXP_TIME: MTIw
+  JWT_REFRESH_EXP_TIME: NjAw
+  JWT_SECRET_KEY: c2VjcmV0
+  KAFKA_HOST: ODQuMjAxLjE2MC4yNA==
+  KAFKA_PORT: OTA5NA==
+  LOG_LEVEL: SU5GTw==
+  LOGGER_BACKUP_COUNT: NQ==
+  LOGGER_FILENAME: L29wdC9sb2dzL2F1dGgtYXBpLWxvZ3MuanNvbg==
+  LOGGER_MAXBYTES: MTUwMDAwMDA=
+  POSTGRES_HOST: ODQuMjAxLjE2MC4yNA==
+  POSTGRES_PORT: NTQzMQ==
+  REFRESH_EXPIRATION_SECONDS: MzYwMA==
+  SENTRY_DSN: aHR0cHM6Ly8zOGU2YzQzYWI0NDM4M2FjMGJlMzZhMDMzOTE2YzJkOEBvNDUwNjk0MjcwNzAwNzQ4OC5pbmdlc3QudXMuc2VudHJ5LmlvLzQ1MDY5OTU5NjA0NDY5NzY=
+  SUPERUSER_EMAIL: dGVzdEB0ZXN0LmNvbQ==
+  SUPERUSER_FIRST_NAME: U3VwZXI=
+  SUPERUSER_LAST_NAME: QWRtaW4=
+  SUPERUSER_LOGIN: c3VwZXI=
+  SUPERUSER_PASSWORD: cGFzc3dvcmQ=
+  YANDEX_CLIENT_ID: MjdjZjE5ZmIxNTFmNDYwYmE5MGY5MmEwMjhlYTgyOWE=
+  YANDEX_CLIENT_SECRET: ODUzYzc2MWIwYjBmNGQzODk2YzVmNThmYzFmOWVmZjQ=
+kind: Secret
+metadata:
+  creationTimestamp: "2024-06-28T19:51:00Z"
+  name: auth-service-env
+  namespace: default
+  resourceVersion: "956830"
+  uid: 976ceb67-a3da-40fd-be44-b84545feba5a
+type: Opaque

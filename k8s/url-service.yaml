@@ -1,0 +1,105 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: url-shortener
+spec: 
+  type: NodePort
+  selector:
+    app: url-shortener
+  ports:
+    - name: url-shortener
+      port: 8000
+      targetPort: 8000
+      protocol: TCP
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: url-shortener
+spec:
+  selector:
+    matchLabels:
+      app: url-shortener
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: url-shortener
+    spec:
+      containers:
+        - name: url-shortener
+          image: url-shortener:latest
+          envFrom:
+            - secretRef: 
+                name:  url-service-env
+          imagePullPolicy: Never
+          resources:
+            limits:
+              memory: "800Mi"
+          ports:
+            - containerPort: 8000
+          livenessProbe:
+            httpGet:
+              path: "/healthcheck"
+              port: 8000
+              httpHeaders:
+                - name: X-Request-Id
+                  value: $(uuidgen)
+            initialDelaySeconds: 15
+            periodSeconds: 30
+            timeoutSeconds: 2
+            failureThreshold: 5
+---
+
+apiVersion: batch/v1
+kind: Job
+metadata: 
+  name: url-shortener-alembic-upgrade-job
+spec:
+  backoffLimit: 2
+  activeDeadlineSeconds: 100
+  template:
+    spec:
+      containers:
+        - name: url-shortener
+          image: url-shortener:latest
+          command: ["/bin/sh", "-c", "alembic upgrade head"]
+          imagePullPolicy: Never
+          envFrom:
+            - secretRef:
+                name: url-service-env
+          readinessProbe:
+            exec:
+              command: ['sh', '-c', 'until nc -z -v -w30 $POSTGRES_HOST $POSTGRES_PORT; do echo "Waiting for database..."; sleep 5; done']
+            initialDelaySeconds: 15
+            periodSeconds:  30
+            timeoutSeconds: 2
+            failureThreshold: 5
+      restartPolicy: Never
+          
+---
+apiVersion: v1
+data:
+  CACHE_HOST: ODQuMjAxLjE2MC4yNA==
+  CACHE_PORT: NjM3OQ==
+  DATABASE_CONN: cG9zdGdyZXNxbCthc3luY3BnOi8vYXBwOjEyM3F3ZUA4NC4yMDEuMTYwLjI0OjU0MzUvbGlua3M=
+  DEBUG: RkFMU0U=
+  ECHO: VHJ1ZQ==
+  ENABLE_LIMITER: VHJ1ZQ==
+  ENABLE_TRACER: VHJ1ZQ==
+  JAEGER_ENDPOINT_HOST: ODQuMjAxLjE2MC4yNDo0MzE3
+  LOG_LEVEL: SU5GTw==
+  LOGGER_BACKUP_COUNT: NQ==
+  LOGGER_FILENAME: L29wdC9sb2dzL2F1dGgtYXBpLWxvZ3MuanNvbg==
+  LOGGER_MAXBYTES: MTUwMDAwMDA=
+  POSTGRES_HOST: ODQuMjAxLjE2MC4yNA==
+  POSTGRES_PORT: NTQzNQ==
+  SENTRY_DSN: aHR0cHM6Ly81YzNjOTYxNzliY2IwZTdmOTQ2ZTQ2Yzg1NmVkZDAyNUBvNDUwNzUwODA0MDcyODU3Ni5pbmdlc3QudXMuc2VudHJ5LmlvLzQ1MDc1MDgwNDIxNzAzNjg=
+kind: Secret
+metadata:
+  creationTimestamp: "2024-06-29T08:06:30Z"
+  name: url-service-env
+  namespace: default
+  resourceVersion: "1006697"
+  uid: e2ace1d1-005a-476c-9d25-7f2a001dc108
+type: Opaque

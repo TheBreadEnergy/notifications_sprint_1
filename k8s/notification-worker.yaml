@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: notification-worker
+spec:
+  selector: 
+    matchLabels:
+      app: notification-worker
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: notification-worker
+    spec:
+      containers:
+        - name: notification-worker
+          image: notification-worker:latest 
+          envFrom:
+            - secretRef:
+                name: notification-worker-env
+          imagePullPolicy: Never
+          resources:
+            limits: 
+              memory: "400Mi"
+
+---
+apiVersion: v1
+data:
+  DATABASE_CONN: cG9zdGdyZXNxbCthc3luY3BnOi8vYXBwOjEyM3F3ZUA4NC4yMDEuMTYwLjI0OjU0MzQvbm90aWZ5X2RhdGFiYXNl
+  PUSH_URL: aHR0cDovL25vdGlmaWNhdGlvbi13ZWJzb2NrZXQ6ODAwMC9hcGkvdjEvd2Vic29ja2V0cy9ub3RpZnkv
+  RABBIT_HOST: ODQuMjAxLjE2MC4yNA==
+kind: Secret
+metadata:
+  creationTimestamp: "2024-06-28T21:22:10Z"
+  name: notification-worker-env
+  namespace: default
+  resourceVersion: "963969"
+  uid: 93400b21-023f-43a0-95e9-956137428dc4
+type: Opaque

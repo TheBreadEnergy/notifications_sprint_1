@@ -1,0 +1,81 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: bookmark-service
+spec:
+  type: NodePort
+  selector:
+    app: bookmark-service
+  ports:
+    - port: 8000
+      targetPort: 8000
+      protocol: TCP
+  
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: bookmark-service
+spec:
+  selector: 
+    matchLabels:
+      app: bookmark-service
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: bookmark-service
+    spec:
+      containers:
+        - name: bookmark-service
+          image: bookmark-api:latest
+          envFrom:
+            - secretRef:
+                name: bookmark-service-env
+          imagePullPolicy: Never
+          resources:
+            limits: 
+              memory: "400Mi"
+          ports:
+            - containerPort: 8000
+          livenessProbe:
+            httpGet:
+              path: "/healthcheck"
+              port: 8000
+              httpHeaders:
+                - name: X-Request-Id
+                  value: $(uuidgen)
+            initialDelaySeconds: 15
+            periodSeconds: 30
+            timeoutSeconds: 2
+            failureThreshold: 5
+
+
+
+---
+
+
+apiVersion: v1
+data:
+  AUTH_SERVICE: aHR0cDovL2F1dGgtc2VydmljZTo4MDAwL2FwaS92MS91c2Vycy9pbmZv
+  BOOKMARKS_DATABASE: Ym9va21hcmtz
+  ENABLE_TRACER: VHJ1ZQ==
+  JAEGER_ENDPOINT_HOST: ODQuMjAxLjE2MC4yNDoxNDI1MA==
+  LOG_LEVEL: SU5GTw==
+  LOGGER_BACKUP_COUNT: NQ==
+  LOGGER_FILENAME: L29wdC9sb2dzL2Jvb2ttYXJrcy1hcGktbG9ncy5qc29u
+  LOGGER_MAXBYTES: MTUwMDAwMDA=
+  MONGO_CONN: bW9uZ29kYjovLzg0LjIwMS4xNjAuMjQ6MjcwMTc=
+  MONGO_HOST: ODQuMjAxLjE2MC4yNA==
+  MONGO_PORT: MjcwMTc=
+  SENTRY_DSN: aHR0cHM6Ly81YzNjOTYxNzliY2IwZTdmOTQ2ZTQ2Yzg1NmVkZDAyNUBvNDUwNzUwODA0MDcyODU3Ni5pbmdlc3QudXMuc2VudHJ5LmlvLzQ1MDc1MDgwNDIxNzAzNjg=
+kind: Secret
+metadata:
+  creationTimestamp: "2024-06-28T19:35:41Z"
+  name: bookmark-service-env
+  namespace: default
+  resourceVersion: "955620"
+  uid: ac205a9b-411c-4278-aed6-41df03027102
+type: Opaque

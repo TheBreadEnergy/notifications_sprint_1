@@ -1,0 +1,63 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: film-etl
+spec:
+  selector: 
+    matchLabels:
+      app: film-etl
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: film-etl
+    spec:
+      containers:
+        - name: film-etl
+          image: film-etl:latest 
+          envFrom:
+            - secretRef:
+                name: film-etl-env
+          imagePullPolicy: Never
+          resources:
+            limits: 
+              memory: "400Mi"
+
+---
+
+
+apiVersion: v1
+data:
+  BACKOFF_MAX_RETRIES: NQ==
+  BATCH_SIZE: MTAw
+  DB_GENRE_TABLE: Z2VucmU=
+  DB_MOVIE_GENRE_M2M_TABLE: Z2VucmVfZmlsbV93b3Jr
+  DB_MOVIE_PERSON_M2M_TABLE: cGVyc29uX2ZpbG1fd29yaw==
+  DB_MOVIE_TABLE: ZmlsbV93b3Jr
+  DB_PERSON_TABLE: cGVyc29u
+  DB_SCHEMA: Y29udGVudA==
+  ELASTICSEARCH_HOST: ODQuMjAxLjE2MC4yNA==
+  ELASTICSEARCH_PORT: OTIwMA==
+  GENRE_INDEX: Z2VucmVz
+  GENRE_STATE_KEY: Z2VucmVfc3RhdGVfa2V5
+  MOVIE_INDEX: bW92aWVz
+  MOVIE_STATE_KEY: bW92aWVfc3RhdGVfa2V5
+  PERSON_INDEX: cGVyc29ucw==
+  PERSON_STATE_KEY: cGVyc29uX3N0YXRlX2tleQ==
+  POSTGRES_DB: bW92aWVfZGF0YWJhc2U=
+  POSTGRES_HOST: ODQuMjAxLjE2MC4yNA==
+  POSTGRES_PASSWORD: MTIzcXdl
+  POSTGRES_PORT: NTQzMg==
+  POSTGRES_USER: YXBw
+  REDIS_HOST: ODQuMjAxLjE2MC4yNA==
+  REDIS_PORT: NjM3OQ==
+  ROOT_STATE: bW92aWVfYXBw
+  SCAN_FREQ: MQ==
+kind: Secret
+metadata:
+  creationTimestamp: "2024-06-28T19:43:52Z"
+  name: film-etl-env
+  namespace: default
+  resourceVersion: "956088"
+  uid: 7a1b6e75-8e3e-4307-91ac-acc4cbd11e8e
+type: Opaque

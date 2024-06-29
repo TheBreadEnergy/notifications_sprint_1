@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: notification-scheduler
+spec:
+  selector: 
+    matchLabels:
+      app: notification-scheduler
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: notification-scheduler
+    spec:
+      containers:
+        - name: notification-scheduler
+          image: notification-scheduler:latest 
+          envFrom:
+            - secretRef:
+                name: notification-scheduler-env
+          imagePullPolicy: Never
+          resources:
+            limits: 
+              memory: "400Mi"
+
+
+
+---
+apiVersion: v1
+data:
+  DELTA: MTIw
+  INTERVAL: MjQw
+  NOTIFICATIONS_GRPC: bm90aWZpY2F0aW9uLXNlcnZpY2U6NTAwNTE=
+  POSTGRES_DSN: cG9zdGdyZXNxbCthc3luY3BnOi8vYXBwOjEyM3F3ZUA4NC4yMDEuMTYwLjI0OjU0MzIvbm90aWZ5X2RhdGFiYXNl
+kind: Secret
+metadata:
+  creationTimestamp: "2024-06-28T20:54:01Z"
+  name: notification-scheduler-env
+  namespace: default
+  resourceVersion: "961898"
+  uid: 2653a36f-f063-4688-9f07-4a2d7c7461e2
+type: Opaque

@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: readiness-script
+data:
+  readiness.sh: |
+    #!/bin/sh
+    if ! redis-cli -h "$CACHE_HOST" -p "$CACHE_PORT" ping | grep PONG; then
+      echo "Redis is not ready"
+      exit 1
+    fi
+
+    if ! pg_isready -h "$POSTGRES_HOST" -p "$POSTGRES_PORT"; then
+      echo "PostgreSQL is not ready"
+      exit 1
+    fi
+
+    echo "Both Redis and PostgreSQL are ready"
+    exit 0

@@ -1,0 +1,116 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: django-film-service
+spec:
+  type: NodePort
+  selector:
+    app: django-film-service
+  ports:
+    - port: 8000
+      targetPort: 8000
+      protocol: TCP
+  
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: django-film-service
+spec:
+  selector: 
+    matchLabels:
+      app: django-film-service
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: django-film-service
+    spec:
+      containers:
+        - name: django-film-service
+          image: django-film-api:latest
+          envFrom:
+            - secretRef:
+                name: django-film-env
+          imagePullPolicy: Never
+          resources:
+            limits: 
+              memory: "400Mi"
+          ports:
+            - containerPort: 8000
+          livenessProbe:
+            httpGet:
+              path: "/admin"
+              port: 8000
+            initialDelaySeconds: 15
+            periodSeconds: 30
+            timeoutSeconds: 2
+            failureThreshold: 5
+
+---
+
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: django-film-migrations
+spec:
+  backoffLimit: 2
+  activeDeadlineSeconds: 100
+  template:
+    spec:
+      initContainers:
+        - name: wait-for-db
+          image: busybox
+          command: ['sh', '-c', 'until nc -z -v -w30 $DB_HOST $DB_PORT; do echo "Waiting for database..."; sleep 5; done']
+          envFrom:
+            - secretRef:
+                name: django-film-env
+      containers:
+      - name: django-film-service
+        image: django-film-api:latest
+        command: ["/bin/sh", "-c", "python ./manage.py migrate" ]
+        imagePullPolicy: Never
+        envFrom:
+          - secretRef:
+              name: django-film-env
+      restartPolicy: Never
+
+---
+
+apiVersion: v1
+data:
+  ALLOWED_HOSTS: Kg==
+  AUTH_API_LOGIN_URL: aHR0cDovL2F1dGgtc2VydmljZTo4MDAwL2FwaS92MS9hY2NvdW50cy9sb2dpbg==
+  AUTH_API_PROFILE_URL: aHR0cDovL2F1dGgtc2VydmljZTo4MDAwL2FwaS92MS91c2Vycy9wcm9maWxl
+  DB_HOST: ODQuMjAxLjE2MC4yNA==
+  DB_NAME: bW92aWVfZGF0YWJhc2U=
+  DB_PASSWORD: MTIzcXdl
+  DB_PORT: NTQzMg==
+  DB_USER: YXBw
+  DEBUG: VHJ1ZQ==
+  DJANGO_SUPERUSER_EMAIL: YWRtaW5AbWFpbC5ydQ==
+  DJANGO_SUPERUSER_PASSWORD: cXdlcnR5
+  DJANGO_SUPERUSER_USERNAME: YWRtaW4=
+  FILE_SERVICE_URL: aHR0cDovL2ZpbGUtc2VydmljZTo4MDAwL2FwaS92MS9maWxlcw==
+  MINIO_STORAGE_ACCESS_KEY: MzVJemtkVGFZd0tUYU9xWXdvcUc=
+  MINIO_STORAGE_AUTO_CREATE_MEDIA_BUCKET: VHJ1ZQ==
+  MINIO_STORAGE_AUTO_CREATE_STATIC_BUCKET: VHJ1ZQ==
+  MINIO_STORAGE_ENDPOINT: ODQuMjAxLjE2MC4yNDo5MDAw
+  MINIO_STORAGE_MEDIA_BACKUP_BUCKET: J1JlY3ljbGUgQmluJw==
+  MINIO_STORAGE_MEDIA_BACKUP_FORMAT: JWMv
+  MINIO_STORAGE_MEDIA_BUCKET_NAME: bG9jYWwtbWVkaWE=
+  MINIO_STORAGE_SECRET_KEY: SkVlYnBCdTdMOXlqZjU1emo2WGVmTGxuYnpqV24xcGRWeVpyV3VoaQ==
+  MINIO_STORAGE_STATIC_BUCKET_NAME: bG9jYWwtc3RhdGlj
+  MINIO_STORAGE_USE_HTTPS: RmFsc2U=
+  S3_STORAGE_BUCKET_NAME: ZmlsZXM=
+  SECRET_KEY: ZXhhbXBsZQ==
+kind: Secret
+metadata:
+  creationTimestamp: "2024-06-28T19:37:41Z"
+  name: django-film-env
+  namespace: default
+  resourceVersion: "955735"
+  uid: 1cdad414-b927-4e51-a95e-ef3b96eabf3f
+type: Opaque

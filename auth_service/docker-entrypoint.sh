@@ -9,7 +9,15 @@ readonly cmd="$*"
 
 postgres_redis_minio_ready () {
   # Check that postgres is up and running on port `5432`:
-  dockerize -wait "tcp://${REDIS_HOST:-redis}:${REDIS_PORT:-6379}" -wait "tcp://${POSTGRES_HOST:-postgres}:${POSTGRES_PORT:-5432}"  -timeout 10s
+  while ! nc -z $POSTGRES_HOST $POSTGRES_PORT; do
+      sleep 0.1
+    done
+  echo "PostgreSQL started"
+
+  while ! nc -z $CACHE_HOST $CACHE_PORT; do
+      sleep 0.1
+    done
+  echo "REDIS started"
 }
 
 # We need this line to make sure that this container is started
@@ -25,6 +33,5 @@ done
 # shellcheck disable=SC2086
 exec $cmd
 
-make migrate || true
 make create-superuser || true
 gunicorn src.main:app --workers 4 --worker-class uvicorn.workers.UvicornWorker --bind 0.0.0.0:8000

@@ -8,8 +8,15 @@ set -o nounset
 readonly cmd="$*"
 
 postgres_redis_elastic_ready () {
+  while ! nc -z $REDIS_HOST $REDIS_PORT; do
+      sleep 0.1
+    done
+  echo "REDIS started"
+  while ! nc -z $ELASTIC_HOST $ELASTIC_PORT; do
+      sleep 0.1
+    done
+  echo "REDIS started"
   # Check that postgres is up and running on port `5432`:
-  dockerize -wait "tcp://${REDIS_HOST:-redis}:${REDIS_PORT:-6379}" -wait "http://${ELASTIC_HOST:-elasticsearch}:${ELASTIC_PORT:-9200}"  -timeout 10s
 }
 
 # We need this line to make sure that this container is started
