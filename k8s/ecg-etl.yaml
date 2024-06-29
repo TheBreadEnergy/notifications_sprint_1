@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ecg-etl
+spec:
+  selector: 
+    matchLabels:
+      app: ecg-etl
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: ecg-etl
+    spec:
+      containers:
+        - name: ecg-etl
+          image: ucg-etl:latest 
+          envFrom:
+            - secretRef:
+                name: ucg-etl-env
+          imagePullPolicy: Never
+          resources:
+            limits: 
+              memory: "400Mi"
+
+---
+
+apiVersion: v1
+data:
+  CH_HOST: ODQuMjAxLjE2MC4yNA==
+  CH_PORT: OTAwMA==
+  KAFKA_HOST: ODQuMjAxLjE2MC4yNA==
+  KAFKA_PORT: OTA5NA==
+kind: Secret
+metadata:
+  creationTimestamp: "2024-06-29T06:09:09Z"
+  name: ucg-etl-env
+  namespace: default
+  resourceVersion: "995734"
+  uid: cf4b1017-8566-47c7-b9a0-cb8e76f5942b
+type: Opaque

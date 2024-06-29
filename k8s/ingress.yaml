@@ -9,8 +9,7 @@ metadata:
 spec:
   ingressClassName: nginx
   rules:
-  - host: small-api.local
-    http:
+  - http:
       paths:
       - pathType: Prefix
         path: /api/v1/(accounts|roles|socials|users) 
@@ -48,14 +47,35 @@ spec:
             port:
               number: 8000
       - pathType: Prefix
-        path: /notifications/admin
+        path: /api/v1/websockets
+        backend:
+          service:
+            name: notification-websocket
+            port: 
+              number: 8000
+      - pathType: Prefix
+        path: /api/v1/events
+        backend:
+          service:
+            name: ucg-service
+            port:
+              number: 5001
+      - pathType: Prefix
+        path: /api/v1/link-shortener
+        backend:
+          service:
+            name: url-shortener
+            port:
+              number: 8000
+      - pathType: Prefix
+        path: /notifications/
         backend:
           service:
             name: django-notification-service
             port: 
               number: 8000
       - pathType: Prefix
-        path: "/"
+        path: "/admin"
         backend:
           service: 
             name: django-film-service

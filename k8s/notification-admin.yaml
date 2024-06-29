@@ -41,7 +41,7 @@ spec:
             - containerPort: 8000
           livenessProbe:
             httpGet:
-              path: "/"
+              path: "/notifications/admin/"
               port: 8000
             initialDelaySeconds: 15
             periodSeconds: 30

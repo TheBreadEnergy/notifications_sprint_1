@@ -35,7 +35,7 @@ class Settings(BaseSettings):
     )
     KAFKA_HOST: str = Field("localhost", alias="KAFKA_HOST", env="KAFKA_HOST")
     KAFKA_PORT: int = Field(9094, alias="KAFKA_PORT", env="KAFKA_PORT")
-    KAFKA_GROUP: str = Field("movies", alias="KAFKA_PORT", env="KAFKA_GROUP")
+    KAFKA_GROUP: str = Field("movies", alias="KAFKA_GROUP", env="KAFKA_GROUP")
 
     base_dir: str = os.path.dirname(os.path.abspath(__file__))
 
