@@ -28,6 +28,7 @@ psycopg==3.1.16
 psycopg2-binary==2.9.9
 psycopg-binary==3.1.16
 python-multipart==0.0.6
+prometheus-fastapi-instrumentator==6.1.0
 orjson==3.9.10
 SQLAlchemy-serializer==1.4.1
 faker==21.0.0

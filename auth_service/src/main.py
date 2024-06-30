@@ -13,6 +13,7 @@ from fastapi.routing import APIRoute
 from fastapi.staticfiles import StaticFiles
 from fastapi_limiter import FastAPILimiter
 from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
+from prometheus_fastapi_instrumentator import Instrumentator
 from redis.asyncio import Redis
 from src.api import healthcheck
 from src.api.v1 import accounts, roles, socials, users
@@ -182,8 +183,8 @@ if settings.enable_tracer:
             )
         return response
 
-    FastAPIInstrumentor.instrument_app(app)
-
+FastAPIInstrumentor.instrument_app(app)
+Instrumentator().instrument(app).expose(app)
 
 app.include_router(accounts.router, prefix="/api/v1/accounts", tags=["Пользователи"])
 app.include_router(roles.router, prefix="/api/v1/roles", tags=["Роли"])

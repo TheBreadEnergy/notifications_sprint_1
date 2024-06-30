@@ -8,6 +8,7 @@ from fastapi.responses import ORJSONResponse
 from fastapi_pagination import add_pagination
 from motor.motor_asyncio import AsyncIOMotorClient
 from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
+from prometheus_fastapi_instrumentator import Instrumentator
 from src.api.v1 import bookmarks, film_likes, healthcheck, reviews
 from src.core.config import settings
 from src.core.logger import setup_root_logger
@@ -83,6 +84,8 @@ app = create_app()
 def custom_exception_handler(_: Request, exc: Exception):
     return ORJSONResponse(content={"detail": str(exc)})
 
+
+Instrumentator().instrument(app).expose(app)
 
 if __name__ == "__main__":
     uvicorn.run(

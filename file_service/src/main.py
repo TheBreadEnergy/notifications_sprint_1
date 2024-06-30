@@ -7,6 +7,7 @@ import uvicorn
 from fastapi import FastAPI
 from fastapi.responses import ORJSONResponse
 from miniopy_async import Minio
+from prometheus_fastapi_instrumentator import Instrumentator
 from redis.asyncio import Redis
 from src.api.v1 import files, healthcheck
 from src.core.config import settings
@@ -56,6 +57,8 @@ app.include_router(healthcheck.router, tags=["Heathcheck"])
 
 setup_middleware(app)
 setup_dependencies(app)
+
+Instrumentator().instrument(app).expose(app)
 
 if __name__ == "__main__":
     uvicorn.run(
