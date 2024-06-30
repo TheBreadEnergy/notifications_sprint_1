@@ -1,0 +1,56 @@
+# config file for prometheus
+
+# global config
+global:
+  scrape_interval: 15s
+  scrape_timeout: 10s
+  evaluation_interval: 15s
+alerting:
+  alertmanagers:
+    - follow_redirects: true
+      enable_http2: true
+      scheme: http
+      timeout: 10s
+      api_version: v2
+      static_configs:
+        - targets: [ ]
+scrape_configs:
+  - job_name: prometheus
+    honor_timestamps: true
+    scrape_interval: 15s
+    scrape_timeout: 10s
+    metrics_path: /metrics
+    scheme: http
+    follow_redirects: true
+    enable_http2: true
+    static_configs:
+      - targets:
+          - localhost:9090
+
+  - job_name: 'auth-service'
+    scrape_interval: 15s
+    scrape_timeout: 10s
+    metrics_path: /metrics
+    static_configs:
+      - targets: [ 'auth-service.default.svc.cluster.local:8000' ]
+
+  - job_name: 'bookmark-service'
+    scrape_interval: 15s
+    scrape_timeout: 10s
+    metrics_path: /metrics
+    static_configs:
+      - targets: [ 'bookmark-service.default.svc.cluster.local:8000' ]
+
+  - job_name: 'file-service'
+    scrape_interval: 15s
+    scrape_timeout: 10s
+    metrics_path: /metrics
+    static_configs:
+      - targets: [ 'file-service.default.svc.cluster.local:8000' ]
+
+  - job_name: 'notification-service'
+    scrape_interval: 15s
+    scrape_timeout: 10s
+    metrics_path: /metrics
+    static_configs:
+      - targets: [ 'notification-service.default.svc.cluster.local:8000' ]

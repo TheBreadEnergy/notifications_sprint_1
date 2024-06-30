@@ -5,6 +5,7 @@ import uvicorn
 from fastapi import FastAPI, Request
 from fastapi.responses import ORJSONResponse
 from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
+from prometheus_fastapi_instrumentator import Instrumentator
 from src.api.v1 import healthcheck, system_notifications, user_notifications
 from src.core.config import settings
 from src.core.logging import setup_root_logger
@@ -69,6 +70,7 @@ app.include_router(healthcheck.router, tags=["Health Check"])
 setup_middleware(app)
 setup_dependencies(app)
 
+Instrumentator().instrument(app).expose(app)
 
 if __name__ == "__main__":
     uvicorn.run(
